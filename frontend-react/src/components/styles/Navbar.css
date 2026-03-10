@@ -1,0 +1,86 @@
+/* Navbar general */
+.navbar {
+  position: relative; /* 🔥 importante para el menú absoluto */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background-color: #060b3a;
+  color: white;
+}
+
+/* Logo */
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Lista de links (desktop) */
+.navbar-links {
+  display: flex;
+  gap: 15px;
+  list-style: none;
+}
+
+/* Links */
+.navbar-links li a {
+  color: white;
+  text-decoration: none;
+}
+
+/* Carrito */
+.carrito {
+  font-size: 2rem;
+}
+
+/* Botón hamburguesa */
+.hamburger {
+  display: none;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  .navbar-links {
+    display: none;
+    flex-direction: column;
+    align-items: center; /* 🔥 centra los items */
+
+    position: absolute;
+    top: 60px;
+
+    /* ✅ centrado y ancho completo */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+
+    background-color: #060b3a;
+    padding: 15px 0;
+    border-radius: 0 0 10px 10px;
+  }
+
+  .navbar-links.open {
+    display: flex;
+  }
+
+  /* cada item ocupa su fila */
+  .navbar-links li {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* link clickeable grande */
+  .navbar-links li a {
+    display: block;
+    width: 100%;
+    padding: 12px 0;
+  }
+}
