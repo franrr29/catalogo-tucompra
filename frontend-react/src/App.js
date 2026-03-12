@@ -14,15 +14,33 @@ import "./components/styles/Navbar.css";
 //=== FUNCION PRINCIPAL, CONTROLA CARRITO, PETICION AL BACK Y RENDERIZA COMPONENTES===//
 function App() {
  const [carrito, setCarrito]= useState ([])
+ const [isLogIn, setIsLogIn]= useState (false)
+ 
 
 
-  //AL MONTAR CARGA EL CARRITO GUARDADO UNA VEZ:
+  //AL MONTAR CARGA EL CARRITO GUARDADO UNA VEZ, BUSCA EL TOKEN PARA LOGGEAR Y MANDA AL NAVBAR DATOS:
   useEffect (()=>{
+    const token= localStorage.getItem ("token")
     const carritoGuardado= localStorage.getItem ("productos")
     if (carritoGuardado !== null){
       setCarrito (JSON.parse (carritoGuardado))
     }
+    if (token){
+      setIsLogIn (true)
+    }
+
   },[])
+
+  //FUNCION PARA MANEJAR EL LOGGOUT, ACTUALIZAR EL ESTADO Y VA COMO PROP EN NAVBAR:
+  function handleLogOut (){
+    localStorage.removeItem ("token")
+    setIsLogIn (false)
+  }
+
+  //FUNCION ACTUALIZA LOGIN Y PASA COMO PROP A ADMIN.JSX:
+  function handleLogIn (){
+    setIsLogIn (true)
+  }
 
   //GUARDAMOS EN LOCALSTORAGE EL CARRITO DEL USUARIO:
   useEffect (()=>{
@@ -71,10 +89,13 @@ if (!findProdCart) {
   
  }
     
+
+      
   return (
     <BrowserRouter>
     <div className="App">
-      <Navbar cartCounter={carrito.length}/>
+      <Navbar cartCounter={carrito.length} isLogIn={isLogIn} handleLogOut={handleLogOut}/>
+      
 
       <header className="App-header">
         <h1>Tu Compra</h1>
@@ -82,8 +103,8 @@ if (!findProdCart) {
       <Routes>
       <Route path="/" element={<ListaProductos addCart={addCart}/>} />
       <Route path="/carrito" element= {<Cart fullCart={carrito} setCarrito={setCarrito}/>}/>
-      <Route path= "/admin/login" element= {<Admin/>}/>
-      <Route path="/admin/dashboard" element={<Dashboard/>} />
+      <Route path= "/admin/login" element= {<Admin handleLogIn={handleLogIn}/>}/>
+      <Route path="/admin/dashboard" element={<Dashboard isLogIn={isLogIn}/>}/>
       </Routes>
       
       <Footer />
