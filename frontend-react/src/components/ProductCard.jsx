@@ -1,12 +1,53 @@
-function Card ({producto, addCart}){
+import { motion } from "framer-motion";
+
+function Card({ producto, addCart, isLogIn }) {
     return (
-        <div>
-            <h1>Producto: {producto.nombre}</h1>
-            <p>Precio: {producto.precio}</p>
-            <p>Stock disponible: {producto.stock}</p>
-            <button onClick={() => addCart(producto.id)}>Agregar al carrito</button>
-        </div>
-    )
-};
+        <motion.div 
+            // Animación de entrada: sube un poquito y aparece el fade
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} // Solo se anima la primera vez que se ve
+            transition={{ duration: 0.4 }}
+            
+            // Efecto al pasar el mouse (Hover)
+            whileHover={{ y: -8, borderColor: "rgba(245, 210, 11, 0.4)" }} 
+            
+            className="bg-[#0a0a0a] border border-white/5 rounded-sm p-6 flex flex-col gap-4 transition-colors duration-500 group shadow-2xl"
+        >
+            {/* Cabecera: Nombre con tipografía limpia */}
+            <div className="flex flex-col gap-1">
+                <h1 className="text-white font-light text-sm tracking-[0.2em] uppercase group-hover:text-amber-500 transition-colors duration-300">
+                    {producto.nombre}
+                </h1>
+                <div className="h-[1px] w-8 bg-amber-500/50 group-hover:w-full transition-all duration-700" />
+            </div>
+
+            {/* Precio con el mismo estilo del logo */}
+            <p className="text-2xl font-bold text-white tracking-tight">
+                <span className="text-amber-500 text-sm font-light mr-1">$</span>
+                {producto.precio.toLocaleString()}
+            </p>
+
+            {/* Stock con diseño minimalista */}
+            <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <p className="text-[10px] text-gray-500 tracking-[0.15em] uppercase">
+                    Unidades: {producto.stock}
+                </p>
+            </div>
+
+            {/* Botón: Solo se muestra si NO es administrador */}
+            {!isLogIn && (
+                <motion.button 
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => addCart(producto.id)}
+                    className="mt-4 border border-white/10 text-white text-[10px] tracking-[0.2em] uppercase px-4 py-3 hover:bg-white hover:text-black hover:border-white transition-all duration-500 font-medium"
+                >
+                    Agregar al carrito
+                </motion.button>
+            )}
+        </motion.div> 
+    ); 
+} 
 
 export default Card;
