@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 function ListaProductos({ addCart }) {
     const [productos, setProductos] = useState([]);
     const [precioMax, setPrecioMax] = useState(Infinity);
+    const [loading, setLoading]= useState (true);
+
 
     // Lógica de filtrado
     const productosFiltrados = productos.filter(p => p.precio <= precioMax);
@@ -16,8 +18,13 @@ function ListaProductos({ addCart }) {
                 if (!resp.ok) throw new Error("Error en el servidor");
                 const data = await resp.json();
                 setProductos(data);
+
             } catch (error) {
                 console.error("Error al traer los productos", error);
+            }
+
+            finally {
+                setLoading (false)
             }
         }
         obtenerProducts();
@@ -73,32 +80,36 @@ function ListaProductos({ addCart }) {
                 </div>
             </motion.div>
 
-            {/* GRID: Animación de entrada para que las cards aparezcan una tras otra */}
-            <motion.div 
-                initial="hidden"
-                animate="show"
-                variants={{
-                    hidden: { opacity: 0 },
-                    show: {
-                        opacity: 1,
-                        transition: { staggerChildren: 0.1 } // Efecto cascada entre las cards
-                    }
-                }}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
-            >
-                {productosFiltrados.length > 0 ? (
-                    productosFiltrados.map((prod) => (
-                        <Card key={prod.id} producto={prod} addCart={addCart} />
-                    ))
-                ) : (
-                    <p className="text-gray-600 italic tracking-widest text-sm col-span-full py-20 text-center">
-                        No se encontraron productos bajo ese criterio.
-                    </p>
+           {loading ? ( //Aca puse el spinner y la logica con el estado const[loading] arriba
+            <div className="flex justify-center items-center py-20">
+            <div className="w-8 h-8 border-2 border-white/10 border-t-amber-500 rounded-full animate-spin"/>
+            </div>
+            ): (
+               <motion.div 
+                 initial="hidden"
+                 animate="show"
+                 variants={{
+                   hidden: { opacity: 0 },
+                   show: {
+                     opacity: 1,
+                     transition: { staggerChildren: 0.1 }
+                   }
+                 }}
+                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+               >
+                 {productosFiltrados.length > 0 ? (
+                   productosFiltrados.map((prod) => (
+                     <Card key={prod.id} producto={prod} addCart={addCart} />
+                   ))
+                 ) : (
+                   <p className="text-gray-600 italic tracking-widest text-sm col-span-full py-20 text-center">
+                     No se encontraron productos
+                   </p>
+                 )}
+               </motion.div>
                 )}
-            </motion.div>
-
-        </div>
-    );
-}
-
+              </div>
+                 );
+                }             
+             
 export default ListaProductos;

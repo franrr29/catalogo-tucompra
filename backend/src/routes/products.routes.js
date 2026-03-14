@@ -4,44 +4,97 @@ const baseDatos = require("../config/db");
 const express= require ("express");
 const router= express.Router ()
 
+//--- OBTENER TODOS LOS PRODUCTOS CON SU IMAGEN PRINCIPAL ---//
 
-//---ENDPOINT PARA GET PRODUCTOS EN BASE DATOS---//
+router.get("/", async (req, res) => {
+  try {
+    const query = `
+      SELECT p.*, i.imagen_url 
+      FROM productos p
+      LEFT JOIN (
+          SELECT producto_id, MIN(imagen_url) as imagen_url
+          FROM producto_imagenes
+          GROUP BY producto_id
+      ) i ON p.id = i.producto_id
+    `;
 
-router.get ("/", async (req, res)=>{
-    try {
-        const [rows]= await baseDatos.query ("SELECT * FROM productos") //Aca usamos destructuring porque al usar pool/promesas, devuelve siempre ROWS, FIELDS
-        res.json (rows);
-    } catch (error){
-        console.error (error);
-        res.status (500).json ({mensaje: "Error al traer productos de la base de datos"})
-    }
+    const [productos] = await baseDatos.query(query);
+    res.json(productos);
+    
+  } catch (error) {
+    console.error("Error al obtener productos:", error);
+    res.status(500).json({ mensaje: "Error interno del servidor" });
+  }
 });
 
 
-
-//---ENDPOINT PARA GET PRODUCTO POR ID---//
-
+//--- OBTENER UN PRODUCTO CON TODAS SUS IMÁGENES ---//
 router.get("/:id", async (req, res) => {
   try {
-    const id= Number (req.params.id)
+    const id = Number(req.params.id);
 
-    if (isNaN (id)){
-        return res.status(400).json ({mensaje: "El ID debe ser un numero"})
+    if (isNaN(id)) {
+      return res.status(400).json({ mensaje: "ID inválido" });
     }
 
-    const [rows] = await baseDatos.query(
-      "SELECT * FROM productos WHERE id = ? LIMIT 1", //Limité la busqueda a 1 prod
-      [id]
-    );
+    const [productos] = await baseDatos.query("SELECT * FROM productos WHERE id = ?", [id]);
 
-    if (rows.length === 0) {
+    if (productos.length === 0) {
       return res.status(404).json({ mensaje: "Producto no encontrado" });
     }
 
-    res.json(rows[0]); //Aca va [0] porque ROWS siempre devuelve un array y este es 0 ya que devuelve un unico elemento que coincida con la busqueda
+    const [fotos] = await baseDatos.query(
+      "SELECT imagen_url FROM producto_imagenes WHERE producto_id = ?", 
+      [id]
+    );
+
+    const respuestaFinal = {
+      ...productos[0],
+      imagenes: fotos.map(f => f.imagen_url) // Convertimos el resultado en una lista de links
+    };
+
+    res.json(respuestaFinal);
+
+  } catch (error) {
+    console.error("Error al obtener producto completo:", error);
+    res.status(500).json({ mensaje: "Error al obtener el producto" });
+  }
+});
+
+
+//---ENDPOINT GET PRODUCTO POR ID CON SUS IMAGENES DE CLOUDINARY Y---//
+router.get("/:id/imagenes", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ mensaje: "El ID debe ser un numero" });
+    }
+
+    // TRAER EL PRODUCTO
+    const [producto] = await baseDatos.query(
+      "SELECT * FROM productos WHERE id = ? LIMIT 1",
+      [id]
+    );
+
+    if (producto.length === 0) {
+      return res.status(404).json({ mensaje: "Producto no encontrado" });
+    }
+
+    // TRAER SUS IMAGENES ORDENADAS
+    const [imagenes] = await baseDatos.query(
+      "SELECT * FROM producto_imagenes WHERE producto_id = ? ORDER BY orden ASC",
+      [id]
+    );
+
+    res.json({
+      ...producto[0],
+      imagenes
+    });
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Error al obtener el producto" });
+    res.status(500).json({ mensaje: "Error al obtener el producto" });
   }
 });
 
@@ -173,7 +226,7 @@ router.patch ("/:id", async (req, res)=>{
 
 
 
-//---ENDPOINT PARA ELIMINAR PRODUCTOS COMO ADMIN EN LA BASE DE DATOS---//
+//---ENDPOINT PARA ELIMINAR (DELETE) PRODUCTOS COMO ADMIN EN LA BASE DE DATOS---//
 
 router.delete("/:id", async (req, res) => {
   try {

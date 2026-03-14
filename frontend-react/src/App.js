@@ -6,6 +6,10 @@ import ListaProductos from "./components/productsList";
 import Cart from "./components/Cart";
 import Admin from "./components/styles/pages/Admin.jsx";
 import Dashboard from "./components/styles/pages/Dashboard.jsx";
+import RutaProtegida from "./components/styles/pages/RutaProtegida.jsx";
+import NotFound from "./components/NotFound.jsx";
+import ProductoDetalle from "./components/ProductoDetalle.jsx";
+
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./components/styles/Navbar.css";
@@ -104,7 +108,9 @@ if (!findProdCart) {
       <Route path="/" element={<ListaProductos addCart={addCart}/>} />
       <Route path="/carrito" element= {<Cart fullCart={carrito} setCarrito={setCarrito}/>}/>
       <Route path= "/admin/login" element= {<Admin handleLogIn={handleLogIn}/>}/>
-      <Route path="/admin/dashboard" element={<Dashboard isLogIn={isLogIn}/>}/>
+      <Route path="/admin/dashboard" element={<RutaProtegida><Dashboard isLogIn={isLogIn}/></RutaProtegida>}/>
+      <Route path="*" element={<NotFound/>}></Route>
+      <Route path="/producto/:id" element={<ProductoDetalle/>}></Route>
       </Routes>
       
       <Footer />
