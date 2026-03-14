@@ -4,6 +4,7 @@ const cors = require("cors"); //===PARA QUE AMBOS PUERTOS DE FRONT Y BACK CONECT
 const rutaProductos = require("./routes/products.routes");
 const cartRoutes= require ("./routes/cart.routes")
 const adminRoute= require ("./routes/admin.routes")
+const imagenesRoutes = require("./routes/imagenes.routes"); //===RUTAS DE LAS IMAGENES===//
 
 //--- APP ---
 const app = express();
@@ -19,7 +20,7 @@ app.use(express.json());
 app.use("/api/productos", rutaProductos);
 app.use("/api/cart", cartRoutes);
 app.use ("/api/login", adminRoute)
-
+app.use("/api/imagenes", imagenesRoutes);
 
 
 //--- SERVIDOR ---

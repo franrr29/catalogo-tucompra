@@ -52,6 +52,9 @@ function Dashboard({isLogIn}) {
     };
   }, []);
 
+
+
+
   // --- LÓGICA CRUD ---
 
   async function newProduct() {
@@ -65,7 +68,7 @@ function Dashboard({isLogIn}) {
         setControl({ nombre: "", precio: "", stock: "", imagen: "" });
         // Opcional: Volver a pedir productos para refrescar lista
       }
-    } catch (error) { console.error("Error al crear"); }
+    } catch (error) { console.error("Error al crear el producto"); }
   }
 
   async function deleteProdct(id) {
@@ -87,7 +90,7 @@ function Dashboard({isLogIn}) {
         body: JSON.stringify(soloRellenos)
       });
       if (resp.ok) {
-        setProductos(productos.map(p => p.id === id ? { ...p, ...patchDatos } : p));
+        setProductos(productos.map(p => p.id === id ? { ...p, ...soloRellenos } : p));
         setIdPatch(null);
         setPatchDatos({ nombre: "", precio: "", stock: "", imagen: "" });
       }

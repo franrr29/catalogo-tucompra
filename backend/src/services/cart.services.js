@@ -1,7 +1,6 @@
 const baseDatos = require("../config/db");
 
-
-//===FUNCION ACTUALIZA DATOS DEL BACK CUANDO EL USUARIO AGREGA PROD EN CARRITO===//
+//===FUNCION VERIFICA QUE EL PRODUCTO EXISTE Y TIENE STOCK, SIN MODIFICAR LA BASE DE DATOS===//
 
 async function actualizarDatosFront(productId) {
   try {
@@ -17,17 +16,7 @@ async function actualizarDatosFront(productId) {
     throw new Error ("Stock no disponible")
   }
 
-  const updateStockBD= await baseDatos.query ("UPDATE productos SET stock = stock - 1 WHERE id = ?",
-    [productId]
-  )
-
-  const [baseDatosActualizada]= await baseDatos.query ("SELECT * FROM productos WHERE id=?",
-    [productId]
-  )
-
-  return baseDatosActualizada [0];
-
-
+  return rows [0];
 
   } catch (error){
     throw error // <---RELANZAMOS EL ERROR AL CONTROLLER SINO, GENERA BUGS DIFICILES DE ENCONTRAR---
