@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, number } from "framer-motion";
 import Card from "../../ProductCard";
 
 function Dashboard({isLogIn}) {
@@ -8,6 +8,7 @@ function Dashboard({isLogIn}) {
   const [productos, setProductos] = useState([]);
   const [patchDatos, setPatchDatos] = useState({ nombre: "", precio: "", stock: "", imagen: "" });
   const [idPatch, setIdPatch] = useState(null);
+  const [uploadFiles, setUploadFiles]= useState (null)
   const navigate = useNavigate();
   const timerRef = useRef(null);
 
@@ -23,6 +24,25 @@ function Dashboard({isLogIn}) {
   function adminLogOut() {
     localStorage.removeItem("token");
     navigate("/admin/login");
+  }
+
+  //===FUNCION PARA CARGAR IMAGENES COMO ADMIN===//
+
+  async function uploadPhotos(productoId){
+    const formData= new FormData ()
+    formData.append ("imagenes", uploadFiles)
+    try {
+      const res= await fetch (`http://localhost:4000/api/imagenes/${productoId}`, {
+        method: "POST",
+        body: formData
+      });
+
+      const data= await res.json()
+      console.log (data)
+      
+    } catch (error){
+      console.error ("Error al cargar las fotos", error)
+    }
   }
 
   useEffect(() => {
@@ -52,24 +72,44 @@ function Dashboard({isLogIn}) {
     };
   }, []);
 
+  //===LOGICA CRUD DEL ADMIN===//
 
-
-
-  // --- LÓGICA CRUD ---
+  //===CREAR PRODUCTO NUEVO COMO ADMIN===//
 
   async function newProduct() {
+    if (!control.nombre || !control.precio || !control.stock) {
+      alert("Debes completar nombre, precio y stock");
+      return;
+    }
+
     try {
+      const datosProducto = {
+        nombre: control.nombre.trim(),
+        precio: Number(control.precio),
+        stock: Number(control.stock),
+        imagen: control.imagen.trim() || null
+      };
+
       const resp = await fetch("http://localhost:4000/api/productos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(control)
+        body: JSON.stringify(datosProducto)
       });
+
+      const data = await resp.json();
+      console.log(data);
+
       if (resp.ok) {
+        setProductos([...productos, { ...datosProducto, id: data.id }]); 
         setControl({ nombre: "", precio: "", stock: "", imagen: "" });
-        // Opcional: Volver a pedir productos para refrescar lista
       }
-    } catch (error) { console.error("Error al crear el producto"); }
+
+    } catch (error) {
+      console.error("Error al crear el producto");
+    }
   }
+
+  //===BORRAR PRODUCTO COMO ADMIN===//
 
   async function deleteProdct(id) {
     if (!window.confirm("¿Seguro que deseas eliminar este producto?")) return;
@@ -78,6 +118,8 @@ function Dashboard({isLogIn}) {
       if (resp.ok) setProductos(productos.filter(item => item.id !== id));
     } catch (error) { console.error("Error al borrar"); }
   }
+
+  //===EDITAR PRODUCTO COMO ADMIN===//
 
   async function patchProduct(id) {
     try {
@@ -148,6 +190,23 @@ function Dashboard({isLogIn}) {
                       <input type="text" placeholder="Nuevo Nombre" value={patchDatos.nombre} onChange={(e) => setPatchDatos({...patchDatos, nombre: e.target.value})} className={inputClass}/>
                       <input type="number" placeholder="Nuevo Precio" value={patchDatos.precio} onChange={(e) => setPatchDatos({...patchDatos, precio: e.target.value})} className={inputClass}/>
                       <input type="number" placeholder="Nuevo Stock" value={patchDatos.stock} onChange={(e) => setPatchDatos({...patchDatos, stock: e.target.value})} className={inputClass}/>
+                      
+                      {/* ÁREA DE CARGA DE ARCHIVOS PERSONALIZADA */}
+                      <div className="flex flex-col gap-2 bg-white/5 p-3 border border-white/5">
+                        <p className="text-[9px] text-amber-500/70 tracking-widest uppercase mb-1">Actualizar Multimedia</p>
+                        <input 
+                          type="file" 
+                          onChange={(e)=> setUploadFiles (e.target.files[0])}
+                          className="text-[9px] text-gray-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-white/10 file:text-white file:text-[9px] file:uppercase file:tracking-widest hover:file:bg-white/20 cursor-pointer transition-all"
+                        />
+                        <button 
+                          onClick={()=> uploadPhotos (item.id)}
+                          className="w-full mt-1 border border-amber-500/30 text-amber-500 text-[9px] tracking-widest uppercase py-2 hover:bg-amber-500 hover:text-black transition-all"
+                        >
+                          Cargar nueva imagen
+                        </button>
+                      </div>
+
                       <div className="flex gap-2 pt-2">
                         <button onClick={() => patchProduct(item.id)} className="text-[10px] text-amber-500 uppercase tracking-widest font-bold">Guardar</button>
                         <button onClick={() => setIdPatch(null)} className="text-[10px] text-gray-500 uppercase tracking-widest">Cancelar</button>
