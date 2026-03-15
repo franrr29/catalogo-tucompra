@@ -99,30 +99,52 @@ router.get("/:id/imagenes", async (req, res) => {
 });
 
 
-
-//---ENDPOINT POST PARA CREAR PRODUCTOS COMO ADMIN Y AÑADIR A LA BASE DATOS---//
-
+//===ENDPOINT PARA CREAR PRODUCTO NUEVO COMO ADMIN SIN IMAGEN OBLIGATORIA Y EVITANDO AGREGAR STRINGS EN LA BD===//
 router.post("/", async (req, res) => {
   try {
     const { nombre, precio, stock, imagen } = req.body;
 
+    const precioNum = Number(precio);
+    const stockNum = Number(stock);
+
     if (
-      !nombre?.trim () ||
-      !imagen?.trim() ||
-      Number (stock) <0 ||
-      Number (precio) <=0
-    ){
-      return res.status (400).json ({error: "Todos los campos deben estar correctos"})
+      !nombre ||
+      !nombre.trim() ||
+      isNaN(precioNum) ||
+      precioNum <= 0 ||
+      isNaN(stockNum) ||
+      stockNum < 0
+    ) {
+      return res.status(400).json({
+        error: "Todos los campos deben estar correctos"
+      });
     }
+
+    const imagenProducto =
+      typeof imagen === "string" && imagen.trim() !== ""
+        ? imagen.trim()
+        : null;
 
     const query = `
       INSERT INTO productos (nombre, precio, stock, imagen)
       VALUES (?,?,?,?)
     `;
 
-    await baseDatos.query(query, [nombre, precio, stock, imagen]);
+    const [resultado] = await baseDatos.query(query, [
+      nombre.trim(),
+      precioNum,
+      stockNum,
+      imagenProducto
+    ]);
 
-    res.json({ mensaje: "Producto creado correctamente" });
+    res.json({
+      id: resultado.insertId,
+      nombre,
+      precio: precioNum,
+      stock: stockNum,
+      imagen: imagenProducto
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al crear el producto" });
