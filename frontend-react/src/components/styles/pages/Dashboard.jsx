@@ -54,9 +54,12 @@ function Dashboard({isLogIn}) {
       setIdPatch (id)
       const res= await fetch (`http://localhost:4000/api/productos/${id}`)
       const data= await res.json ();
+      console.log (data.imagenes)
       setImagenesEditor (data.imagenes)
     } catch (error){
       console.error ("Error al cargar las imagenes del editor", error)
+      console.error("Error al cargar las imagenes del editor", error)
+      console.log("error completo:", error)
     }
   }
 
@@ -70,17 +73,7 @@ function Dashboard({isLogIn}) {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/admin/login");
 
-    async function getProductos() {
-      try {
-        const resp = await fetch("http://localhost:4000/api/productos");
-        const data = await resp.json();
-        setProductos(data);
-      } catch (error) {
-        console.error("Error al traer productos");
-      }
-    }
-    getProductos();
-
+    getProductos ();
     return () => {
       eventos.forEach(e => window.removeEventListener(e, resetearTimer));
       clearTimeout(timerRef.current);
@@ -124,6 +117,20 @@ function Dashboard({isLogIn}) {
     }
   }
 
+
+  //===GET PRODUCTOS===//
+   async function getProductos() {
+      try {
+        const resp = await fetch("http://localhost:4000/api/productos");
+        const data = await resp.json();
+        setProductos(data);
+      } catch (error) {
+        console.error("Error al traer productos");
+      }
+    }
+    
+
+
   //===BORRAR PRODUCTO COMO ADMIN===//
 
   async function deleteProdct(id) {
@@ -158,6 +165,24 @@ function Dashboard({isLogIn}) {
 
     } catch (error) { console.error("Error al actualizar"); }
   }
+
+
+  //===ELEGIR FOTO DE PORTADA COMO ADMIN EN MENU DESPLEGABLE===//
+
+  async function marcarPrincipal(imagenId, productoId) {
+    try {
+      const res= await fetch (`http://localhost:4000/api/imagenes/${imagenId}`,{
+        method: "PATCH",
+    })
+      const data= await res.json ()
+      console.log (data)
+      abrirEditor (productoId)
+      getProductos ()
+    } catch (error){
+      console.error ("Error al tratar de marcar imagen de portada", error)
+    }
+  }
+
 
   // --- ESTILOS REUTILIZABLES ---
   const inputClass = "bg-white/5 border border-white/10 text-white text-xs px-4 py-3 focus:outline-none focus:border-amber-500/50 transition-all placeholder-gray-700 w-full";
@@ -214,13 +239,21 @@ function Dashboard({isLogIn}) {
                       {/* ÁREA DE CARGA DE ARCHIVOS PERSONALIZADA */}
                       <div className="flex flex-col gap-2 bg-white/5 p-3 border border-white/5">
                         <p className="text-[9px] text-amber-500/70 tracking-widest uppercase mb-1">Actualizar Multimedia</p>
+
                         <input 
                           type="file" 
                           multiple
                           onChange={(e)=> setUploadFiles(e.target.files)}
                           className="text-[9px] text-gray-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-white/10 file:text-white file:text-[9px] file:uppercase file:tracking-widest hover:file:bg-white/20 cursor-pointer transition-all"
                         />
-                    
+
+                        {imagenesEditor.map((imagen) => (
+                          <div key={imagen.id} className="flex items-center gap-2">
+                            <img src={imagen.url} className="w-16 h-16 object-contain" alt="imagenProducto"/>
+                            <button onClick={()=> marcarPrincipal(imagen.id, item.id)}>Agregar como portada</button>
+                          </div>
+                        ))}
+
                       </div>
 
                       <div className="flex gap-2 pt-2">
