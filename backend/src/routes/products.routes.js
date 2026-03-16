@@ -8,13 +8,13 @@ const router= express.Router ()
 
 router.get("/", async (req, res) => {
   try {
-    const query = `
+      const query = `
       SELECT p.*, i.imagen_url 
       FROM productos p
       LEFT JOIN (
-          SELECT producto_id, MIN(imagen_url) as imagen_url
-          FROM producto_imagenes
-          GROUP BY producto_id
+        SELECT producto_id, imagen_url
+        FROM producto_imagenes
+        WHERE orden = 0
       ) i ON p.id = i.producto_id
     `;
 
@@ -44,13 +44,13 @@ router.get("/:id", async (req, res) => {
     }
 
     const [fotos] = await baseDatos.query(
-      "SELECT imagen_url FROM producto_imagenes WHERE producto_id = ?", 
+      "SELECT id, imagen_url, orden FROM producto_imagenes WHERE producto_id = ?", 
       [id]
     );
 
     const respuestaFinal = {
       ...productos[0],
-      imagenes: fotos.map(f => f.imagen_url) // Convertimos el resultado en una lista de links
+      imagenes: fotos.map(f => ({ id: f.id, url: f.imagen_url, orden: f.orden }))
     };
 
     res.json(respuestaFinal);
