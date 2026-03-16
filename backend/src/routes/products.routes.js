@@ -166,12 +166,8 @@ router.patch ("/:id", async (req, res)=>{
     const {nombre, precio, stock, imagen}= req.body
     
     
-    if (nombre === undefined &&
-      precio === undefined &&
-      stock === undefined &&
-      imagen === undefined
-    ){
-      return res.status(400).json ({mensaje: "Debes enviar al menos un campo para actualizar"})
+    if (!nombre && !precio && !stock && !imagen) {
+      return res.status(200).json({ mensaje: "Sin cambios en datos del producto" })
     }
 
     if (nombre !==undefined && !nombre.trim ()){
