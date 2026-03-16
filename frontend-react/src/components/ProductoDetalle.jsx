@@ -45,10 +45,10 @@ function ProductoDetalle({ addCart }) {
             pagination={{ clickable: true }}
             className="h-full w-full"
           >
-            {producto.imagenes.map((url, index) => (
+            {producto.imagenes.map((imagen, index) => (
               <SwiperSlide key={index} className="flex items-center justify-center">
                 <img 
-                  src={url} 
+                  imagen={imagen.url} 
                   alt={`Vista ${index}`} 
                   className="object-contain h-full w-full transition-transform duration-500 group-hover:scale-105"
                 />
