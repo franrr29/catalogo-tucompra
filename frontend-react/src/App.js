@@ -110,7 +110,7 @@ if (!findProdCart) {
       <Route path= "/admin/login" element= {<Admin handleLogIn={handleLogIn}/>}/>
       <Route path="/admin/dashboard" element={<RutaProtegida><Dashboard isLogIn={isLogIn}/></RutaProtegida>}/>
       <Route path="*" element={<NotFound/>}></Route>
-      <Route path="/producto/:id" element={<ProductoDetalle/>}></Route>
+      <Route path="/producto/:id" element={<ProductoDetalle addCart={addCart}/>}/>
       </Routes>
       
       <Footer />

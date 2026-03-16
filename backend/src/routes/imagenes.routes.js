@@ -25,7 +25,7 @@ router.post("/:productoId", upload.fields([{ name: "imagenes", maxCount: 10 }]),
     if (!archivos || archivos.length === 0) {
       return res.status(400).json({ mensaje: "No se enviaron imágenes" });
     }
-
+    await baseDatos.query("DELETE FROM producto_imagenes WHERE producto_id = ?", [productoId]) //borramos fotos viejas y añadimos las nuevas
     const inserts = archivos.map((file, index) =>
       baseDatos.query(
         "INSERT INTO producto_imagenes (producto_id, imagen_url, orden) VALUES (?, ?, ?)",
@@ -95,5 +95,39 @@ router.delete("/:imagenId", async (req, res) => {
     res.status(500).json({ mensaje: "Error al eliminar la imagen" });
   }
 });
+
+
+
+//===ENDPOINT PARA SELECCIONAR QUE IMAGEN PRINCIPAL MOSTRAR COMO ADMIN===//
+
+router.patch ("/:imagenId", async (req, res)=>{
+  try {
+    const imagenId= Number (req.params.imagenId)
+    if (isNaN(imagenId)) {
+      return res.status(400).json({ mensaje: "ID de imagen inválido" });
+    }
+
+    const [row]= await baseDatos.query ("SELECT * FROM producto_imagenes WHERE id = ?", [imagenId])
+
+    if (row.length === 0){
+      return res.status(404).json ({mensaje: "Imagen no encontrada en la base de datos"})
+    }
+    const productoId= row[0].producto_id;
+    const resetearImagenProd= await baseDatos.query(
+      "UPDATE producto_imagenes SET orden = 1 WHERE producto_id = ?",
+       [productoId]
+      )
+    const imagenPrincipalProd= await baseDatos.query(
+  "UPDATE producto_imagenes SET orden = 0 WHERE id = ?",
+  [imagenId]
+     );
+    res.json({ mensaje: "Imagen principal actualizada correctamente" })
+
+  } catch (error){
+    console.error (error)
+    res.status(500).json({ mensaje: "Error al poner como favorita la imagen" });
+  }
+})
+
 
 module.exports = router;

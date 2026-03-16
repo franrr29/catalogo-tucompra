@@ -8,7 +8,8 @@ function Dashboard({isLogIn}) {
   const [productos, setProductos] = useState([]);
   const [patchDatos, setPatchDatos] = useState({ nombre: "", precio: "", stock: "", imagen: "" });
   const [idPatch, setIdPatch] = useState(null);
-  const [uploadFiles, setUploadFiles]= useState (null)
+  const [uploadFiles, setUploadFiles]= useState (null);
+  const [imagenesEditor, setImagenesEditor] = useState([]);
   const navigate = useNavigate();
   const timerRef = useRef(null);
 
@@ -30,7 +31,9 @@ function Dashboard({isLogIn}) {
 
   async function uploadPhotos(productoId){
     const formData= new FormData ()
-    formData.append ("imagenes", uploadFiles)
+    Array.from(uploadFiles).forEach(file => { //aca convertimos en un array de JS con array.from para que el Foreach pueda iterar
+    formData.append("imagenes", file)
+})
     try {
       const res= await fetch (`http://localhost:4000/api/imagenes/${productoId}`, {
         method: "POST",
@@ -42,6 +45,18 @@ function Dashboard({isLogIn}) {
       
     } catch (error){
       console.error ("Error al cargar las fotos", error)
+    }
+  }
+
+  //Funcion para fetch de imagenes y agregarla como favorito en card//
+  async function abrirEditor(id) {
+    try {
+      setIdPatch (id)
+      const res= await fetch (`http://localhost:4000/api/productos/${id}`)
+      const data= await res.json ();
+      setImagenesEditor (data.imagenes)
+    } catch (error){
+      console.error ("Error al cargar las imagenes del editor", error)
     }
   }
 
@@ -135,7 +150,12 @@ function Dashboard({isLogIn}) {
         setProductos(productos.map(p => p.id === id ? { ...p, ...soloRellenos } : p));
         setIdPatch(null);
         setPatchDatos({ nombre: "", precio: "", stock: "", imagen: "" });
+
+        if (uploadFiles !==null){
+          await uploadPhotos (id)
+        }
       }
+
     } catch (error) { console.error("Error al actualizar"); }
   }
 
@@ -179,7 +199,7 @@ function Dashboard({isLogIn}) {
                 <Card producto={item} isLogIn={isLogIn} />
                 
                 <div className="flex gap-2">
-                  <button onClick={() => setIdPatch(item.id)} className={btnSecondary}>Editar Datos</button>
+                  <button onClick={() => abrirEditor(item.id)} className={btnSecondary}>Editar Datos</button>
                   <button onClick={() => deleteProdct(item.id)} className={btnDanger}>Eliminar</button>
                 </div>
 
@@ -196,15 +216,11 @@ function Dashboard({isLogIn}) {
                         <p className="text-[9px] text-amber-500/70 tracking-widest uppercase mb-1">Actualizar Multimedia</p>
                         <input 
                           type="file" 
-                          onChange={(e)=> setUploadFiles (e.target.files[0])}
+                          multiple
+                          onChange={(e)=> setUploadFiles(e.target.files)}
                           className="text-[9px] text-gray-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-white/10 file:text-white file:text-[9px] file:uppercase file:tracking-widest hover:file:bg-white/20 cursor-pointer transition-all"
                         />
-                        <button 
-                          onClick={()=> uploadPhotos (item.id)}
-                          className="w-full mt-1 border border-amber-500/30 text-amber-500 text-[9px] tracking-widest uppercase py-2 hover:bg-amber-500 hover:text-black transition-all"
-                        >
-                          Cargar nueva imagen
-                        </button>
+                    
                       </div>
 
                       <div className="flex gap-2 pt-2">

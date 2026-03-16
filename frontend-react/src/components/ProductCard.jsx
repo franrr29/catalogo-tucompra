@@ -2,8 +2,12 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 function Card({ producto, addCart, isLogIn }) {
+    const PanelUsuarioActivo= isLogIn ? "div" : Link;
+    const panelUsuarioActivoProps= isLogIn ? {} : {to: `/producto/${producto.id}` };
     return (
-        <Link to={`/producto/${producto.id}`}>
+
+        <PanelUsuarioActivo {...panelUsuarioActivoProps}>
+        
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -25,11 +29,7 @@ function Card({ producto, addCart, isLogIn }) {
     <img 
         src={producto.imagen_url || "https://via.placeholder.com/300x300?text=Sin+Imagen"} 
         alt={producto.nombre}
-        /* 1. Quitamos la altura fija del div anterior (h-48) para que el div 
-              tenga la altura real de la foto.
-           2. Usamos w-full para que ocupe todo el ancho.
-           3. Usamos object-contain para asegurar que no se corte NADA.
-        */
+        
         className="w-full h-auto max-h-[300px] object-contain transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100"
         onError={(e) => {
             e.target.src = "https://via.placeholder.com/300x300?text=Error+en+URL";
@@ -65,7 +65,7 @@ function Card({ producto, addCart, isLogIn }) {
                     </motion.button>
                 )}
             </motion.div> 
-        </Link>
+       </PanelUsuarioActivo>
     ); 
 } 
 
