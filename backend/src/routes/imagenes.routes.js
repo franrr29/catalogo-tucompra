@@ -3,7 +3,7 @@
 const { Router } = require("express");
 const { upload, cloudinary } = require("../config/cloudinary");
 const baseDatos = require("../config/db");
-
+const middleVerificador= require ("../middleware/auth.middle")
 const router = Router();
 
 // DEBUG TEMPORAL
@@ -12,7 +12,7 @@ process.on('unhandledRejection', (reason) => {
 });
 
 // POST — sube imágenes para un producto
-router.post("/:productoId", upload.fields([{ name: "imagenes", maxCount: 10 }]), async (req, res) => {
+router.post("/:productoId", middleVerificador, upload.fields([{ name: "imagenes", maxCount: 10 }]), async (req, res) => {
   try {
     const productoId = Number(req.params.productoId);
 
@@ -65,7 +65,7 @@ router.get("/:productoId", async (req, res) => {
 });
 
 // DELETE — elimina una imagen por id
-router.delete("/:imagenId", async (req, res) => {
+router.delete("/:imagenId", middleVerificador, async (req, res) => {
   try {
     const imagenId = Number(req.params.imagenId);
 
@@ -100,7 +100,7 @@ router.delete("/:imagenId", async (req, res) => {
 
 //===ENDPOINT PARA SELECCIONAR QUE IMAGEN PRINCIPAL MOSTRAR COMO ADMIN===//
 
-router.patch ("/:imagenId", async (req, res)=>{
+router.patch ("/:imagenId", middleVerificador, async (req, res)=>{
   try {
     const imagenId= Number (req.params.imagenId)
     if (isNaN(imagenId)) {
