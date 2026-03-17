@@ -3,6 +3,7 @@
 const baseDatos = require("../config/db");
 const express= require ("express");
 const router= express.Router ()
+const middleVerificador= require ("../middleware/auth.middle")
 
 //--- OBTENER TODOS LOS PRODUCTOS CON SU IMAGEN PRINCIPAL ---//
 
@@ -100,7 +101,7 @@ router.get("/:id/imagenes", async (req, res) => {
 
 
 //===ENDPOINT PARA CREAR PRODUCTO NUEVO COMO ADMIN SIN IMAGEN OBLIGATORIA Y EVITANDO AGREGAR STRINGS EN LA BD===//
-router.post("/", async (req, res) => {
+router.post("/", middleVerificador, async (req, res) => {
   try {
     const { nombre, precio, stock, imagen } = req.body;
 
@@ -154,7 +155,7 @@ router.post("/", async (req, res) => {
 
 //---ENDPOINT PATCH (actualiza solo algunos campos) PARA ACTUALIZAR PRODUCTO COMO ADMIN (nombre, precio, stock, imagen)---//
 
-router.patch ("/:id", async (req, res)=>{
+router.patch ("/:id", middleVerificador, async (req, res)=>{
   try {
 
     const id= Number (req.params.id);
@@ -246,7 +247,7 @@ router.patch ("/:id", async (req, res)=>{
 
 //---ENDPOINT PARA ELIMINAR (DELETE) PRODUCTOS COMO ADMIN EN LA BASE DE DATOS---//
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", middleVerificador, async (req, res) => {
   try {
     
     const id= Number (req.params.id)
