@@ -37,6 +37,9 @@ function Dashboard({isLogIn}) {
     try {
       const res= await fetch (`http://localhost:4000/api/imagenes/${productoId}`, {
         method: "POST",
+        headers: { 
+        "Authorization": localStorage.getItem("token")
+      },
         body: formData
       });
 
@@ -100,7 +103,9 @@ function Dashboard({isLogIn}) {
 
       const resp = await fetch("http://localhost:4000/api/productos", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+        "Authorization": localStorage.getItem("token")
+         },
         body: JSON.stringify(datosProducto)
       });
 
@@ -110,10 +115,11 @@ function Dashboard({isLogIn}) {
       if (resp.ok) {
         setProductos([...productos, { ...datosProducto, id: data.id }]); 
         setControl({ nombre: "", precio: "", stock: "", imagen: "" });
+        await uploadPhotos (data.id)
       }
 
     } catch (error) {
-      console.error("Error al crear el producto");
+      console.error("Error al crear el producto", error);
     }
   }
 
@@ -136,7 +142,12 @@ function Dashboard({isLogIn}) {
   async function deleteProdct(id) {
     if (!window.confirm("¿Seguro que deseas eliminar este producto?")) return;
     try {
-      const resp = await fetch(`http://localhost:4000/api/productos/${id}`, { method: "DELETE" });
+      const resp = await fetch(`http://localhost:4000/api/productos/${id}`, { method: "DELETE" ,
+        headers: { 
+        "Content-Type": "application/json",
+        "Authorization": localStorage.getItem("token")
+      }
+      });
       if (resp.ok) setProductos(productos.filter(item => item.id !== id));
     } catch (error) { console.error("Error al borrar"); }
   }
@@ -150,7 +161,9 @@ function Dashboard({isLogIn}) {
       );
       const resp = await fetch(`http://localhost:4000/api/productos/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" ,
+        "Authorization": localStorage.getItem("token")
+        },
         body: JSON.stringify(soloRellenos)
       });
       if (resp.ok) {
@@ -173,6 +186,10 @@ function Dashboard({isLogIn}) {
     try {
       const res= await fetch (`http://localhost:4000/api/imagenes/${imagenId}`,{
         method: "PATCH",
+        headers: { 
+        "Content-Type": "application/json",
+        "Authorization": localStorage.getItem("token")
+      }
     })
       const data= await res.json ()
       console.log (data)
@@ -208,8 +225,11 @@ function Dashboard({isLogIn}) {
           <input type="text" placeholder="NOMBRE DEL MODELO" value={control.nombre} onChange={(e) => setControl({ ...control, nombre: e.target.value })} className={inputClass} />
           <input type="number" placeholder="PRECIO UNITARIO" value={control.precio} onChange={(e) => setControl({ ...control, precio: e.target.value })} className={inputClass} />
           <input type="number" placeholder="STOCK DISPONIBLE" value={control.stock} onChange={(e) => setControl({ ...control, stock: e.target.value })} className={inputClass} />
-          <input type="text" placeholder="URL DE IMAGEN" value={control.imagen} onChange={(e) => setControl({ ...control, imagen: e.target.value })} className={inputClass} />
-        </div>
+          <input type="file"
+            multiple
+            onChange={(e)=>{setUploadFiles (e.target.files)}} className="text-[9px] text-gray-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-amber-500 file:text-black file:text-[9px] file:uppercase file:tracking-widest hover:file:bg-amber-600 cursor-pointer transition-all underline-none"
+ />
+          </div>
         <button onClick={newProduct} className={btnPrimary}>Cargar a Base de Datos</button>
       </section>
 

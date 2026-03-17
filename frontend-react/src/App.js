@@ -100,10 +100,6 @@ if (!findProdCart) {
     <div className="App">
       <Navbar cartCounter={carrito.length} isLogIn={isLogIn} handleLogOut={handleLogOut}/>
       
-
-      <header className="App-header">
-        <h1>Tu Compra</h1>
-      </header>
       <Routes>
       <Route path="/" element={<ListaProductos addCart={addCart}/>} />
       <Route path="/carrito" element= {<Cart fullCart={carrito} setCarrito={setCarrito}/>}/>
