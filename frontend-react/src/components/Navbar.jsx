@@ -157,7 +157,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
           >
             {isLogIn ? (
               <button 
-                onClick={()=> {handleLogOut (); navigate ("admin/login")}} 
+                onClick={()=> {handleLogOut (); navigate ("/admin/login")}} 
                 className={btnDanger}
               >
                 Cerrar sesion

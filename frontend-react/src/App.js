@@ -16,6 +16,8 @@ import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./components/styles/Navbar.css";
 import toast, { Toaster } from 'react-hot-toast'
+import { API_URL } from "./config.js";
+
 
 
 //=== FUNCION PRINCIPAL, CONTROLA CARRITO, PETICION AL BACK Y RENDERIZA COMPONENTES===//
@@ -55,7 +57,7 @@ function App() {
  async function addCart(productId) {  
 
   try {
-    const sendRequest= await fetch ("http://localhost:4000/api/cart/add",
+    const sendRequest= await fetch (API_URL + "/api/cart/add",
       {
         method: "POST",
         headers: {"Content-Type" : "application/json"},
@@ -105,7 +107,7 @@ function App() {
       <Navbar cartCounter={carrito.length} isLogIn={isLogIn} handleLogOut={handleLogOut}/>
       
       <Routes>
-      <Route path="/" element={<ListaProductos addCart={addCart}/>} />
+      <Route path="/" element={<ListaProductos addCart={addCart} isLogIn={isLogIn}/>} />
       <Route path="/carrito" element= {<Cart fullCart={carrito} setCarrito={setCarrito}/>}/>
       
       <Route path= "/admin/login" element= {<Admin handleLogIn={handleLogIn}/>}/>

@@ -5,6 +5,7 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { API_URL } from "../config";
 
 function ProductoDetalle({ addCart }) {
   const [producto, setProducto] = useState(null);
@@ -13,7 +14,7 @@ function ProductoDetalle({ addCart }) {
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/productos/${id}`);
+        const res = await fetch(`${API_URL}/api/productos/${id}`);
         const data = await res.json();
         setProducto(data);
       } catch (error) {
@@ -22,7 +23,6 @@ function ProductoDetalle({ addCart }) {
     };
     cargarDatos();
   }, [id]);
-  console.log (producto)
 
   if (!producto) {
     return (
@@ -45,17 +45,28 @@ function ProductoDetalle({ addCart }) {
             pagination={{ clickable: true }}
             className="h-full w-full"
           >
-            {producto.imagenes.map((imagen, index) => (
-              <SwiperSlide key={index} className="flex items-center justify-center">
-                <img 
-                  src={imagen.url} 
-                  alt={`Vista ${index}`} 
-                  className="object-contain h-full w-full transition-transform duration-500 group-hover:scale-105"
-                />
-              </SwiperSlide>
-            ))}
+            {
+              !producto.imagenes || producto.imagenes.length === 0 ? (
+                <SwiperSlide className="flex items-center justify-center">
+                  <p>Imagen no encontrada</p>
+                </SwiperSlide>
+              ) : (
+                producto.imagenes.map((imagen, index) => (
+                  <SwiperSlide
+                    key={index}
+                    className="flex items-center justify-center"
+                  >
+                    <img
+                      src={imagen.url}
+                      alt={`Vista ${index}`}
+                      className="object-contain h-full w-full transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </SwiperSlide>
+                ))
+              )
+            }
           </Swiper>
-        </div>
+        </div> 
 
         {/* Columna Derecha: Información del Producto */}
         <div className="flex flex-col space-y-6">
@@ -76,7 +87,8 @@ function ProductoDetalle({ addCart }) {
           <div className="pt-6">
             <button 
               onClick={() => addCart(producto.id)}
-              className="w-full py-4 bg-amber-500 text-white text-sm uppercase tracking-[0.2em] font-semibold hover:bg-amber-600 transition-colors duration-300 active:scale-[0.98] "            >
+              className="w-full py-4 bg-amber-500 text-white text-sm uppercase tracking-[0.2em] font-semibold hover:bg-amber-600 transition-colors duration-300 active:scale-[0.98] "
+            >
               Añadir al Carrito
             </button>
           </div>

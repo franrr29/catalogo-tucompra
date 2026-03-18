@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Card from "../../ProductCard";
+import { API_URL } from "../../../config";
 
 function Dashboard({isLogIn}) {
   const [control, setControl] = useState({ nombre: "", precio: "", stock: "", imagen: "" });
@@ -35,13 +36,18 @@ function Dashboard({isLogIn}) {
     formData.append("imagenes", file)
 })
     try {
-      const res= await fetch (`http://localhost:4000/api/imagenes/${productoId}`, {
+      const res= await fetch (`${API_URL}/api/imagenes/${productoId}`, {
         method: "POST",
         headers: { 
         "Authorization": localStorage.getItem("token")
       },
         body: formData
       });
+
+      if (res.status === 401){
+        adminLogOut ()
+        return
+      }
 
       const data= await res.json()
       console.log (data)
@@ -55,14 +61,11 @@ function Dashboard({isLogIn}) {
   async function abrirEditor(id) {
     try {
       setIdPatch (id)
-      const res= await fetch (`http://localhost:4000/api/productos/${id}`)
+      const res= await fetch (`${API_URL}/api/productos/${id}`)
       const data= await res.json ();
-      console.log (data.imagenes)
       setImagenesEditor (data.imagenes)
     } catch (error){
       console.error ("Error al cargar las imagenes del editor", error)
-      console.error("Error al cargar las imagenes del editor", error)
-      console.log("error completo:", error)
     }
   }
 
@@ -101,7 +104,7 @@ function Dashboard({isLogIn}) {
         imagen: control.imagen.trim() || null
       };
 
-      const resp = await fetch("http://localhost:4000/api/productos", {
+      const resp = await fetch(API_URL + "/api/productos", {
         method: "POST",
         headers: { "Content-Type": "application/json",
         "Authorization": localStorage.getItem("token")
@@ -109,13 +112,21 @@ function Dashboard({isLogIn}) {
         body: JSON.stringify(datosProducto)
       });
 
+      if (resp.status === 401){
+      adminLogOut ()
+      return
+    }
+
       const data = await resp.json();
       console.log(data);
 
       if (resp.ok) {
         setProductos([...productos, { ...datosProducto, id: data.id }]); 
         setControl({ nombre: "", precio: "", stock: "", imagen: "" });
-        await uploadPhotos (data.id)
+        if (uploadFiles !== null) {
+        await uploadPhotos(data.id)
+        setUploadFiles (null)
+}
       }
 
     } catch (error) {
@@ -127,7 +138,7 @@ function Dashboard({isLogIn}) {
   //===GET PRODUCTOS===//
    async function getProductos() {
       try {
-        const resp = await fetch("http://localhost:4000/api/productos");
+        const resp = await fetch(API_URL + "/api/productos");
         const data = await resp.json();
         setProductos(data);
       } catch (error) {
@@ -140,14 +151,19 @@ function Dashboard({isLogIn}) {
   //===BORRAR PRODUCTO COMO ADMIN===//
 
   async function deleteProdct(id) {
-    if (!window.confirm("¿Seguro que deseas eliminar este producto?")) return;
+    if (!window.confirm("Eliminar producto?")) return;
     try {
-      const resp = await fetch(`http://localhost:4000/api/productos/${id}`, { method: "DELETE" ,
+      const resp = await fetch(`${API_URL}/api/productos/${id}`, { method: "DELETE" ,
         headers: { 
         "Content-Type": "application/json",
         "Authorization": localStorage.getItem("token")
       }
       });
+
+      if (resp.status === 401){
+      adminLogOut ()
+      return
+    }
       if (resp.ok) setProductos(productos.filter(item => item.id !== id));
     } catch (error) { console.error("Error al borrar"); }
   }
@@ -159,21 +175,27 @@ function Dashboard({isLogIn}) {
       const soloRellenos = Object.fromEntries(
         Object.entries(patchDatos).filter(([_, valor]) => valor !== "")
       );
-      const resp = await fetch(`http://localhost:4000/api/productos/${id}`, {
+      const resp = await fetch(`${API_URL}/api/productos/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" ,
         "Authorization": localStorage.getItem("token")
         },
         body: JSON.stringify(soloRellenos)
       });
+
+      if (resp.status === 401){
+      adminLogOut ()
+      return
+    }
+
       if (resp.ok) {
         setProductos(productos.map(p => p.id === id ? { ...p, ...soloRellenos } : p));
         setIdPatch(null);
         setPatchDatos({ nombre: "", precio: "", stock: "", imagen: "" });
-
-        if (uploadFiles !==null){
-          await uploadPhotos (id)
-        }
+        if (uploadFiles !== null){
+       await uploadPhotos(id)
+      }
+      setUploadFiles(null)
       }
 
     } catch (error) { console.error("Error al actualizar"); }
@@ -184,13 +206,20 @@ function Dashboard({isLogIn}) {
 
   async function marcarPrincipal(imagenId, productoId) {
     try {
-      const res= await fetch (`http://localhost:4000/api/imagenes/${imagenId}`,{
+      const res= await fetch (`${API_URL}/api/imagenes/${imagenId}`,{
         method: "PATCH",
         headers: { 
         "Content-Type": "application/json",
-        "Authorization": localStorage.getItem("token")
+        "Authorization": localStorage.getItem("token"),
       }
-    })
+      
+    });
+
+    if (res.status === 401){
+      adminLogOut ()
+      return
+    }
+
       const data= await res.json ()
       console.log (data)
       abrirEditor (productoId)

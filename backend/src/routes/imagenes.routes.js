@@ -11,7 +11,10 @@ process.on('unhandledRejection', (reason) => {
   console.error('UNHANDLED:', reason);
 });
 
-// POST — sube imágenes para un producto
+
+
+//===POST SUBIR IMAGENES PARA UN PRODUCTO Y ELIMINAR FOTOS VIEJAS DE CLOUDINARY===//
+
 router.post("/:productoId", middleVerificador, upload.fields([{ name: "imagenes", maxCount: 10 }]), async (req, res) => {
   try {
     const productoId = Number(req.params.productoId);
@@ -25,7 +28,22 @@ router.post("/:productoId", middleVerificador, upload.fields([{ name: "imagenes"
     if (!archivos || archivos.length === 0) {
       return res.status(400).json({ mensaje: "No se enviaron imágenes" });
     }
-    await baseDatos.query("DELETE FROM producto_imagenes WHERE producto_id = ?", [productoId]) //borramos fotos viejas y añadimos las nuevas
+  
+    const [rows] = await baseDatos.query(
+      "SELECT * FROM producto_imagenes WHERE producto_id = ?",
+      [productoId]
+    );
+
+    const eliminarCloudinary=rows.map ((imagen)=> {
+      const urlParts = imagen.imagen_url.split("/");
+      const publicId = "tu-compra-productos/" + urlParts[urlParts.length - 1].split(".")[0];
+      return cloudinary.uploader.destroy(publicId);
+    }); 
+
+    await Promise.all(eliminarCloudinary);
+    await baseDatos.query("DELETE FROM producto_imagenes WHERE producto_id = ?", [productoId]);
+    
+    
     const inserts = archivos.map((file, index) =>
       baseDatos.query(
         "INSERT INTO producto_imagenes (producto_id, imagen_url, orden) VALUES (?, ?, ?)",
@@ -34,6 +52,7 @@ router.post("/:productoId", middleVerificador, upload.fields([{ name: "imagenes"
     );
 
     await Promise.all(inserts);
+    
 
     res.json({
       mensaje: "Imágenes subidas correctamente",
@@ -47,7 +66,8 @@ router.post("/:productoId", middleVerificador, upload.fields([{ name: "imagenes"
   }
 });
 
-// GET — trae todas las fotos de un producto
+//===ENDPOINT GET PARA TRAER IMAGENES DE UN PRODUCTO===//
+
 router.get("/:productoId", async (req, res) => {
   try {
     const productoId = Number(req.params.productoId);
@@ -64,7 +84,8 @@ router.get("/:productoId", async (req, res) => {
   }
 });
 
-// DELETE — elimina una imagen por id
+//===ENDPOINT PARA ELIMINAR UNA IMAGEN===//
+
 router.delete("/:imagenId", middleVerificador, async (req, res) => {
   try {
     const imagenId = Number(req.params.imagenId);
