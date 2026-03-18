@@ -5,7 +5,8 @@ require ("dotenv").config ();
 const clave=process.env.SECRET_PASSW;
 
 async function verificarToken (req, res, next){
-    const token= req.headers.authorization
+    const authHeader = req.headers.authorization
+    const token = authHeader && authHeader.split(" ")[1] || authHeader
     if (!token){
         return res.status (401).json({mensaje:"Token requerido para continuar"})
     }

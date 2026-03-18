@@ -26,15 +26,17 @@ async function actualizarDatosFront(productId) {
 
 
 async function verificarProdcBD(productosIds) {
-  try{
-    const [rows]= await baseDatos.query ("SELECT * FROM productos WHERE id IN (?)",
+  if (!productosIds || productosIds.length === 0) {
+    throw new Error("No se enviaron IDs")
+  }
+  
+  try {
+    const [rows] = await baseDatos.query(
+      "SELECT * FROM productos WHERE id IN (?)", 
       [productosIds]
-    )
+    );
     return rows;
-
-  } catch (error){
+  } catch (error) {
     throw error
   }
 }
-
-module.exports= {actualizarDatosFront, verificarProdcBD};

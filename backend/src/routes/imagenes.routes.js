@@ -36,7 +36,7 @@ router.post("/:productoId", middleVerificador, upload.fields([{ name: "imagenes"
 
     const eliminarCloudinary=rows.map ((imagen)=> {
       const urlParts = imagen.imagen_url.split("/");
-      const publicId = "tu-compra-productos/" + urlParts[urlParts.length - 1].split(".")[0];
+      const publicId = urlParts.slice(-2).join("/").split(".")[0];
       return cloudinary.uploader.destroy(publicId);
     }); 
 
@@ -105,7 +105,7 @@ router.delete("/:imagenId", middleVerificador, async (req, res) => {
 
     const imagen = rows[0];
     const urlParts = imagen.imagen_url.split("/");
-    const publicId = "tu-compra-productos/" + urlParts[urlParts.length - 1].split(".")[0];
+    const publicId = urlParts.slice(-2).join("/").split(".")[0];
 
     await cloudinary.uploader.destroy(publicId);
     await baseDatos.query("DELETE FROM producto_imagenes WHERE id = ?", [imagenId]);
