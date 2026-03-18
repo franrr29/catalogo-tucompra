@@ -10,13 +10,16 @@ const baseDatos= mysql.createPool ({
     database: "tu_compra"
 });
 
-baseDatos.getConnection ((error, connection)=>{
-    if (error) {
-        console.log ("Error al conectar con la base de datos", error)
-    } else {
-        console.log ("Conectado a la bse de datos")
-        connection.release();
+async function testConexion() {
+    try {
+        const connection = await baseDatos.getConnection()
+        console.log("Conectado a la base de datos")
+        connection.release()
+    } catch (error) {
+        console.log("Error al conectar con la base de datos", error)
     }
-});
+}
+
+testConexion()
 
 module.exports= baseDatos; 

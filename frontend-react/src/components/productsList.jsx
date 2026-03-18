@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import Card from "./ProductCard";
 import { motion } from "framer-motion";
+import { API_URL } from "../config";
 
-function ListaProductos({ addCart }) {
+function ListaProductos({ addCart, isLogIn }) {
     const [productos, setProductos] = useState([]);
     const [precioMax, setPrecioMax] = useState(Infinity);
     const [loading, setLoading] = useState(true);
@@ -12,7 +13,7 @@ function ListaProductos({ addCart }) {
     useEffect(() => {
         async function obtenerProducts() {
             try {
-                const resp = await fetch("http://127.0.0.1:4000/api/productos");
+                const resp = await fetch( API_URL+"/api/productos");
                 if (!resp.ok) throw new Error("Error en el servidor");
                 const data = await resp.json();
                 setProductos(data);

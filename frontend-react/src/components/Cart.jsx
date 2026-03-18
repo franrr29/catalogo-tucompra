@@ -1,18 +1,32 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_URL } from "../config";
 
 function Cart({ fullCart, setCarrito }) {
 
   // Calcula el total sumando (precio * cantidad) de cada producto
   function totalCarrito() {
-    return fullCart.reduce((acc, prod) => acc + parseFloat(prod.precio) * prod.cantidad, 0);
-  }
+    return fullCart.reduce((acc, prod) => {
+    const precio = parseFloat(prod.precio)
+    const precioFinal = isNaN(precio) ? 0 : precio
+    return acc + precioFinal * prod.cantidad
+  }, 0)};
+
+
+  //Se ejecuta siempre que el carrito cambia, 
+  // primero verifica que el carrito no este vacio, 
+  // luego manda ids al back y por ultimo actualiza las cantidades en setcarrito
 
   useEffect(() => {
     async function sendProdctsIds() {
       try {
+
+        if (fullCart.length ===0){
+          return
+        }
+
         const productosIds = fullCart.map((productos) => productos.id);
-        const sendIds = await fetch("http://localhost:4000/api/cart/verificar", {
+        const sendIds = await fetch( API_URL + "/api/cart/verificar", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ productosIds })
@@ -30,7 +44,7 @@ function Cart({ fullCart, setCarrito }) {
       }
     }
     sendProdctsIds();
-  }, []);
+  }, [fullCart]);
 
   // Funciones de control (Aumentar, Disminuir, Eliminar)
   function aumentar(id) {

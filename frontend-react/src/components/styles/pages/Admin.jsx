@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { API_URL } from "../../../config";
+import { toast } from "react-hot-toast"
 
 function Admin({handleLogIn}) {
   const [usuario, setUsuario] = useState("");
@@ -10,7 +12,7 @@ function Admin({handleLogIn}) {
   //Logica para el envío de datos:
   async function sendUserData() {
     try {
-      const sendUserPassw = await fetch("http://localhost:4000/api/login/login", {
+      const sendUserPassw = await fetch(API_URL + "/api/login/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user: usuario, password: contra })
@@ -24,10 +26,31 @@ function Admin({handleLogIn}) {
       localStorage.setItem("token", data.token);
       handleLogIn ()
       navigate("/admin/dashboard");
+
+      //Notificacion al entrar como admin:
+       toast.success("Bienvenido Fran", {
+          style: {
+            background: '#f59e0b',
+            color: '#fff',
+            border: 'none',
+            fontWeight: 'bold',
+          }
+      })
       
 
     } catch (error) {
       console.error("Error en el acceso");
+      //Notificacion de error
+      toast.error("Error de usuario o contraseña", {
+        style: {
+          background: 'rgba(0,0,0,0.9)',
+          color: '#fff',
+          border: '1px solid rgba(239,68,68,0.5)',
+          backdropFilter: 'blur(10px)',
+          fontWeight: 'bold',
+          letterSpacing: '0.05em'
+        }
+      });
     }
   }
 
@@ -37,7 +60,7 @@ function Admin({handleLogIn}) {
       {/* Contenedor del Formulario con animación de entrada */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1.2 }}
+        animate={{ opacity: 1, scale: 1}}
         transition={{ duration: 0.8 }}
         className="w-full max-w-sm bg-[#0a0a0a] border border-white/5 p-10 flex flex-col gap-8 shadow-2xl"
       >
