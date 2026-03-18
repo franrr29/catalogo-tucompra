@@ -12,20 +12,22 @@ function Footer() {
         <h2 className="text-white text-[10px] tracking-[0.5em] uppercase font-bold">
           Tu<span className="text-amber-500">Compra</span>
         </h2>
-
       </div>
 
       {/* SECCIÓN CENTRAL: Links sociales con animación */}
       <div className="flex gap-8">
-        {["Instagram", "WhatsApp"].map((red) => (
+        {[
+          { nombre: "Instagram", url: "https://instagram.com/CMPRALO" },
+          { nombre: "WhatsApp", url: "https://wa.me/59891637161" }
+        ].map((red) => (
           <motion.a
-            key={red}
-            href={`#${red.toLowerCase()}`}
-            // Pequeña elevación al pasar el mouse
-            whileHover={{ y: -3, textShadow: "0px 0px 8px rgb(255,255,255,0.3)" }}
-            className="text-gray-400 text-[10px] tracking-[0.3em] uppercase hover:text-white transition-colors duration-300 relative group"
+            key={red.nombre}
+            href={red.url}
+            target="_blank"
+            className="group relative text-gray-500 text-[10px] tracking-[0.3em] uppercase hover:text-white transition-colors duration-300"
           >
-            {red}
+            {red.nombre}
+
             {/* Subrayado elegante que nace del centro */}
             <span className="absolute -bottom-1 left-1/2 w-0 h-[1px] bg-amber-500 transition-all duration-300 group-hover:w-full group-hover:left-0" />
           </motion.a>

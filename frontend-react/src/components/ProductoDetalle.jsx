@@ -48,7 +48,7 @@ function ProductoDetalle({ addCart }) {
             {producto.imagenes.map((imagen, index) => (
               <SwiperSlide key={index} className="flex items-center justify-center">
                 <img 
-                  imagen={imagen.url} 
+                  src={imagen.url} 
                   alt={`Vista ${index}`} 
                   className="object-contain h-full w-full transition-transform duration-500 group-hover:scale-105"
                 />
