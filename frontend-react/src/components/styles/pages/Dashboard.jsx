@@ -2,14 +2,16 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Card from "../../ProductCard";
+import CrearNuevoProdct from "./AdminCreateProduct";
+import EditarProductoAdmin from "./EditarProducto";
 import { API_URL } from "../../../config";
 
 function Dashboard({isLogIn}) {
-  const [control, setControl] = useState({ nombre: "", precio: "", stock: "", imagen: "" });
+  const [nuevoProducto, setNuevoProducto] = useState({ nombre: "", precio: "", stock: "", imagen: "" });
   const [productos, setProductos] = useState([]);
-  const [patchDatos, setPatchDatos] = useState({ nombre: "", precio: "", stock: "", imagen: "" });
-  const [idPatch, setIdPatch] = useState(null);
-  const [uploadFiles, setUploadFiles]= useState (null);
+  const [actualizarDatos, setActualizarDatos] = useState({ nombre: "", precio: "", stock: "", imagen: "" });
+  const [idProductoEditado , setIdProductoEditado ] = useState(null);
+  const [fotosSeleccionadas, setFotosSeleccionadas]= useState (null);
   const [imagenesEditor, setImagenesEditor] = useState([]);
   const navigate = useNavigate();
   const timerRef = useRef(null);
@@ -30,9 +32,9 @@ function Dashboard({isLogIn}) {
 
   //===FUNCION PARA CARGAR IMAGENES COMO ADMIN===//
 
-  async function uploadPhotos(productoId){
+  async function subirFotos(productoId){
     const formData= new FormData ()
-    Array.from(uploadFiles).forEach(file => { //aca convertimos en un array de JS con array.from para que el Foreach pueda iterar
+    Array.from(fotosSeleccionadas).forEach(file => { 
     formData.append("imagenes", file)
 })
     try {
@@ -57,10 +59,9 @@ function Dashboard({isLogIn}) {
     }
   }
 
-  //Funcion para fetch de imagenes y agregarla como favorito en card//
-  async function abrirEditor(id) {
+  async function abrirPanelEdicion(id) {
     try {
-      setIdPatch (id)
+      setIdProductoEditado  (id)
       const res= await fetch (`${API_URL}/api/productos/${id}`)
       const data= await res.json ();
       setImagenesEditor (data.imagenes)
@@ -70,12 +71,10 @@ function Dashboard({isLogIn}) {
   }
 
   useEffect(() => {
-    // Detectar actividad para resetear el timer
     const eventos = ["click", "keydown", "mousemove"];
     eventos.forEach(e => window.addEventListener(e, resetearTimer));
     resetearTimer();
 
-    // Verificación de Token
     const token = localStorage.getItem("token");
     if (!token) return navigate("/admin/login");
 
@@ -88,20 +87,18 @@ function Dashboard({isLogIn}) {
 
   //===LOGICA CRUD DEL ADMIN===//
 
-  //===CREAR PRODUCTO NUEVO COMO ADMIN===//
-
-  async function newProduct() {
-    if (!control.nombre || !control.precio || !control.stock) {
+  async function crearNuevoProdct() {
+    if (!nuevoProducto.nombre || !nuevoProducto.precio || !nuevoProducto.stock) {
       alert("Debes completar nombre, precio y stock");
       return;
     }
 
     try {
       const datosProducto = {
-        nombre: control.nombre.trim(),
-        precio: Number(control.precio),
-        stock: Number(control.stock),
-        imagen: control.imagen.trim() || null
+        nombre: crearNuevoProdct.nombre.trim(),
+        precio: Number(crearNuevoProdct.precio),
+        stock: Number(crearNuevoProdct.stock),
+        imagen: crearNuevoProdct.imagen.trim() || null
       };
 
       const resp = await fetch(API_URL + "/api/productos", {
@@ -122,10 +119,10 @@ function Dashboard({isLogIn}) {
 
       if (resp.ok) {
         setProductos([...productos, { ...datosProducto, id: data.id }]); 
-        setControl({ nombre: "", precio: "", stock: "", imagen: "" });
-        if (uploadFiles !== null) {
-        await uploadPhotos(data.id)
-        setUploadFiles (null)
+        setNuevoProducto({ nombre: "", precio: "", stock: "", imagen: "" });
+        if (fotosSeleccionadas !== null) {
+        await subirFotos(data.id)
+        setFotosSeleccionadas (null)
 }
       }
 
@@ -134,8 +131,6 @@ function Dashboard({isLogIn}) {
     }
   }
 
-
-  //===GET PRODUCTOS===//
    async function getProductos() {
       try {
         const resp = await fetch(API_URL + "/api/productos");
@@ -146,11 +141,7 @@ function Dashboard({isLogIn}) {
       }
     }
     
-
-
-  //===BORRAR PRODUCTO COMO ADMIN===//
-
-  async function deleteProdct(id) {
+  async function borrarProducto(id) {
     if (!window.confirm("Eliminar producto?")) return;
     try {
       const resp = await fetch(`${API_URL}/api/productos/${id}`, { method: "DELETE" ,
@@ -168,12 +159,10 @@ function Dashboard({isLogIn}) {
     } catch (error) { console.error("Error al borrar"); }
   }
 
-  //===EDITAR PRODUCTO COMO ADMIN===//
-
-  async function patchProduct(id) {
+  async function actualizarProducto(id) {
     try {
       const soloRellenos = Object.fromEntries(
-        Object.entries(patchDatos).filter(([_, valor]) => valor !== "")
+        Object.entries(actualizarDatos).filter(([_, valor]) => valor !== "")
       );
       const resp = await fetch(`${API_URL}/api/productos/${id}`, {
         method: "PATCH",
@@ -190,19 +179,16 @@ function Dashboard({isLogIn}) {
 
       if (resp.ok) {
         setProductos(productos.map(p => p.id === id ? { ...p, ...soloRellenos } : p));
-        setIdPatch(null);
-        setPatchDatos({ nombre: "", precio: "", stock: "", imagen: "" });
-        if (uploadFiles !== null){
-       await uploadPhotos(id)
+        setIdProductoEditado (null);
+        setActualizarDatos({ nombre: "", precio: "", stock: "", imagen: "" });
+        if (fotosSeleccionadas !== null){
+       await subirFotos(id)
       }
-      setUploadFiles(null)
+      setFotosSeleccionadas(null)
       }
 
     } catch (error) { console.error("Error al actualizar"); }
   }
-
-
-  //===ELEGIR FOTO DE PORTADA COMO ADMIN EN MENU DESPLEGABLE===//
 
   async function marcarPrincipal(imagenId, productoId) {
     try {
@@ -222,15 +208,13 @@ function Dashboard({isLogIn}) {
 
       const data= await res.json ()
       console.log (data)
-      abrirEditor (productoId)
+      abrirPanelEdicion (productoId)
       getProductos ()
     } catch (error){
       console.error ("Error al tratar de marcar imagen de portada", error)
     }
   }
 
-
-  // --- ESTILOS REUTILIZABLES ---
   const inputClass = "bg-white/5 border border-white/10 text-white text-xs px-4 py-3 focus:outline-none focus:border-amber-500/50 transition-all placeholder-gray-700 w-full";
   const btnPrimary = "bg-white text-black text-[10px] font-bold tracking-widest uppercase px-6 py-3 hover:bg-amber-500 transition-all";
   const btnDanger = "border border-red-900/50 text-red-500 text-[9px] tracking-widest uppercase px-4 py-2 hover:bg-red-900 hover:text-white transition-all";
@@ -247,20 +231,12 @@ function Dashboard({isLogIn}) {
         </div>
       </motion.div>
 
-      {/* SECCIÓN: CREAR PRODUCTO */}
-      <section className="bg-[#0a0a0a] border border-white/5 p-8 mb-20">
-        <h2 className="text-amber-500 text-[10px] tracking-[0.3em] uppercase mb-8 font-bold">Registrar Nuevo Producto</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <input type="text" placeholder="NOMBRE DEL MODELO" value={control.nombre} onChange={(e) => setControl({ ...control, nombre: e.target.value })} className={inputClass} />
-          <input type="number" placeholder="PRECIO UNITARIO" value={control.precio} onChange={(e) => setControl({ ...control, precio: e.target.value })} className={inputClass} />
-          <input type="number" placeholder="STOCK DISPONIBLE" value={control.stock} onChange={(e) => setControl({ ...control, stock: e.target.value })} className={inputClass} />
-          <input type="file"
-            multiple
-            onChange={(e)=>{setUploadFiles (e.target.files)}} className="text-[9px] text-gray-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-amber-500 file:text-black file:text-[9px] file:uppercase file:tracking-widest hover:file:bg-amber-600 cursor-pointer transition-all underline-none"
- />
-          </div>
-        <button onClick={newProduct} className={btnPrimary}>Cargar a Base de Datos</button>
-      </section>
+       <CrearNuevoProdct 
+      nuevoProducto={nuevoProducto}
+      setNuevoProducto={setNuevoProducto}
+      setFotosSeleccionadas={setFotosSeleccionadas}
+      crearNuevoProducto={crearNuevoProdct}
+    />
 
       {/* SECCIÓN: LISTADO Y EDICIÓN */}
       <section>
@@ -273,51 +249,26 @@ function Dashboard({isLogIn}) {
                 <Card producto={item} isLogIn={isLogIn} />
                 
                 <div className="flex gap-2">
-                  <button onClick={() => abrirEditor(item.id)} className={btnSecondary}>Editar Datos</button>
-                  <button onClick={() => deleteProdct(item.id)} className={btnDanger}>Eliminar</button>
+                  <button onClick={() => abrirPanelEdicion(item.id)} className={btnSecondary}>Editar Datos</button>
+                  <button onClick={() => borrarProducto(item.id)} className={btnDanger}>Eliminar</button>
                 </div>
 
-                {/* MODAL DE EDICIÓN RÁPIDA */}
-                <AnimatePresence>
-                  {idPatch === item.id && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-white/10 pt-4 mt-2 flex flex-col gap-3">
-                      <input type="text" placeholder="Nuevo Nombre" value={patchDatos.nombre} onChange={(e) => setPatchDatos({...patchDatos, nombre: e.target.value})} className={inputClass}/>
-                      <input type="number" placeholder="Nuevo Precio" value={patchDatos.precio} onChange={(e) => setPatchDatos({...patchDatos, precio: e.target.value})} className={inputClass}/>
-                      <input type="number" placeholder="Nuevo Stock" value={patchDatos.stock} onChange={(e) => setPatchDatos({...patchDatos, stock: e.target.value})} className={inputClass}/>
-                      
-                      {/* ÁREA DE CARGA DE ARCHIVOS PERSONALIZADA */}
-                      <div className="flex flex-col gap-2 bg-white/5 p-3 border border-white/5">
-                        <p className="text-[9px] text-amber-500/70 tracking-widest uppercase mb-1">Actualizar Multimedia</p>
-
-                        <input 
-                          type="file" 
-                          multiple
-                          onChange={(e)=> setUploadFiles(e.target.files)}
-                          className="text-[9px] text-gray-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-white/10 file:text-white file:text-[9px] file:uppercase file:tracking-widest hover:file:bg-white/20 cursor-pointer transition-all"
-                        />
-
-                        {imagenesEditor.map((imagen) => (
-                          <div key={imagen.id} className="flex items-center gap-2">
-                            <img src={imagen.url} className="w-16 h-16 object-contain" alt="imagenProducto"/>
-                            <button onClick={()=> marcarPrincipal(imagen.id, item.id)}>Agregar como portada</button>
-                          </div>
-                        ))}
-
-                      </div>
-
-                      <div className="flex gap-2 pt-2">
-                        <button onClick={() => patchProduct(item.id)} className="text-[10px] text-amber-500 uppercase tracking-widest font-bold">Guardar</button>
-                        <button onClick={() => setIdPatch(null)} className="text-[10px] text-gray-500 uppercase tracking-widest">Cancelar</button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <EditarProductoAdmin
+                actualizarDatos={actualizarDatos}
+                setActualizarDatos={setActualizarDatos}
+                imagenesEditor={imagenesEditor}
+                setFotosSeleccionadas={setFotosSeleccionadas}
+                actualizarProducto={actualizarProducto}
+                marcarPrincipal={marcarPrincipal}
+                inputClass={inputClass}
+                idProductoEditado={idProductoEditado}
+                item={item}
+                setIdProductoEditado={setIdProductoEditado}/>
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
       </section>
-
     </div>
   );
 }
