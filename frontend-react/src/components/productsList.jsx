@@ -5,10 +5,8 @@ import { motion } from "framer-motion";
 function ListaProductos({ addCart }) {
     const [productos, setProductos] = useState([]);
     const [precioMax, setPrecioMax] = useState(Infinity);
-    const [loading, setLoading]= useState (true);
+    const [loading, setLoading] = useState(true);
 
-
-    // Lógica de filtrado
     const productosFiltrados = productos.filter(p => p.precio <= precioMax);
 
     useEffect(() => {
@@ -18,13 +16,10 @@ function ListaProductos({ addCart }) {
                 if (!resp.ok) throw new Error("Error en el servidor");
                 const data = await resp.json();
                 setProductos(data);
-
             } catch (error) {
                 console.error("Error al traer los productos", error);
-            }
-
-            finally {
-                setLoading (false)
+            } finally {
+                setLoading(false);
             }
         }
         obtenerProducts();
@@ -32,8 +27,6 @@ function ListaProductos({ addCart }) {
 
     return (
         <div className="min-h-screen bg-black px-6 sm:px-12 py-24 selection:bg-amber-500/30">
-            
-            {/* ENCABEZADO: Título con estilo minimalista */}
             <header className="mb-16">
                 <motion.h1 
                     initial={{ opacity: 0, x: -20 }}
@@ -50,7 +43,6 @@ function ListaProductos({ addCart }) {
                 />
             </header>
 
-            {/* FILTRO: Estilizado para que no rompa la estética dark */}
             <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -71,8 +63,6 @@ function ListaProductos({ addCart }) {
                         />
                     </div>
                 </div>
-                
-                {/* Contador de productos encontrados */}
                 <div className="sm:mt-6">
                     <p className="text-gray-500 text-[10px] tracking-widest uppercase">
                         Mostrando: <span className="text-white">{productosFiltrados.length}</span> piezas
@@ -80,36 +70,33 @@ function ListaProductos({ addCart }) {
                 </div>
             </motion.div>
 
-           {loading ? ( //Aca puse el spinner y la logica con el estado const[loading] arriba
-            <div className="flex justify-center items-center py-20">
-            <div className="w-8 h-8 border-2 border-white/10 border-t-amber-500 rounded-full animate-spin"/>
-            </div>
-            ): (
-               <motion.div 
-                 initial="hidden"
-                 animate="show"
-                 variants={{
-                   hidden: { opacity: 0 },
-                   show: {
-                     opacity: 1,
-                     transition: { staggerChildren: 0.1 }
-                   }
-                 }}
-                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
-               >
-                 {productosFiltrados.length > 0 ? (
-                   productosFiltrados.map((prod) => (
-                     <Card key={prod.id} producto={prod} addCart={addCart} />
-                   ))
-                 ) : (
-                   <p className="text-gray-600 italic tracking-widest text-sm col-span-full py-20 text-center">
-                     No se encontraron productos
-                   </p>
-                 )}
-               </motion.div>
-                )}
-              </div>
-                 );
-                }             
-             
+            {loading ? (
+                <div className="flex justify-center items-center py-20">
+                    <div className="w-8 h-8 border-2 border-white/10 border-t-amber-500 rounded-full animate-spin"/>
+                </div>
+            ) : (
+                <motion.div 
+                    initial="hidden"
+                    animate="show"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+                    }}
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+                >
+                    {productosFiltrados.length > 0 ? (
+                        productosFiltrados.map((prod) => (
+                            <Card key={prod.id} producto={prod} addCart={addCart} />
+                        ))
+                    ) : (
+                        <p className="text-gray-600 italic tracking-widest text-sm col-span-full py-20 text-center">
+                            No se encontraron productos
+                        </p>
+                    )}
+                </motion.div>
+            )}
+        </div>
+    );
+}
+
 export default ListaProductos;
