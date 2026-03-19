@@ -32,9 +32,10 @@ async function verificarProdcBD(productosIds) {
   }
   
   try {
+    const placeholders = productosIds.map(() => "?").join(", "); //asigna a cada productoIds un ? y lo une con (",") asi mysql sabe cuantos valores esperar ( ?,?,?)
     const [rows] = await baseDatos.query(
-      "SELECT * FROM productos WHERE id IN (?)", 
-      [productosIds]
+      `SELECT * FROM productos WHERE id IN (${placeholders})`, 
+      productosIds
     );
     return rows;
   } catch (error) {

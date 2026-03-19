@@ -63,43 +63,6 @@ router.get("/:id", async (req, res) => {
 });
 
 
-//---ENDPOINT GET PRODUCTO POR ID CON SUS IMAGENES DE CLOUDINARY Y---//
-router.get("/:id/imagenes", async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-
-    if (isNaN(id)) {
-      return res.status(400).json({ mensaje: "El ID debe ser un numero" });
-    }
-
-    // TRAER EL PRODUCTO
-    const [producto] = await baseDatos.query(
-      "SELECT * FROM productos WHERE id = ? LIMIT 1",
-      [id]
-    );
-
-    if (producto.length === 0) {
-      return res.status(404).json({ mensaje: "Producto no encontrado" });
-    }
-
-    // TRAER SUS IMAGENES ORDENADAS
-    const [imagenes] = await baseDatos.query(
-      "SELECT * FROM producto_imagenes WHERE producto_id = ? ORDER BY orden ASC",
-      [id]
-    );
-
-    res.json({
-      ...producto[0],
-      imagenes
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error al obtener el producto" });
-  }
-});
-
-
 //===ENDPOINT PARA CREAR PRODUCTO NUEVO COMO ADMIN SIN IMAGEN OBLIGATORIA Y EVITANDO AGREGAR STRINGS EN LA BD===//
 router.post("/", middleVerificador, async (req, res) => {
   try {
