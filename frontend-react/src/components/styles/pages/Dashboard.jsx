@@ -136,6 +136,14 @@ function Dashboard({isLogIn}) {
 
     } catch (error) {
       console.error("Error al crear el producto", error);
+      toast.error ("Error al crear el producto", {
+          style:  {
+          background: '#bc0a0a',
+          color: '#fff',
+          border: 'none',
+          fontWeight: 'bold',
+          }
+        });
     }
   }
 
@@ -163,8 +171,30 @@ function Dashboard({isLogIn}) {
       adminLogOut ()
       return
     }
-      if (resp.ok) setProductos(productos.filter(item => item.id !== id));
-    } catch (error) { console.error("Error al borrar"); }
+      if (resp.ok){
+
+       setProductos(productos.filter(item => item.id !== id))
+       toast.success ("Producto eliminado", {
+          style:  {
+          background: '#bc0a0a',
+          color: '#fff',
+          border: 'none',
+          fontWeight: 'bold',
+          }
+        });}
+        
+      
+
+    } catch (error) { console.error("Error al borrar"); 
+      toast.error ("Error al eliminar", {
+          style:  {
+          background: '#bc0a0a',
+          color: '#fff',
+          border: 'none',
+          fontWeight: 'bold',
+          }
+        });
+    }
   }
 
   async function actualizarProducto(id) {
@@ -190,12 +220,29 @@ function Dashboard({isLogIn}) {
         setIdProductoEditado (null);
         setActualizarDatos({ nombre: "", precio: "", stock: "", imagen: "" });
         if (fotosSeleccionadas !== null){
-       await subirFotos(id)
+        await subirFotos(id)
       }
       setFotosSeleccionadas(null)
+      toast.success ("Producto actualizado", {
+          style:  {
+          background: '#0c09c6',
+          color: '#fff',
+          border: 'none',
+          fontWeight: 'bold',
+          }
+        });
       }
 
-    } catch (error) { console.error("Error al actualizar"); }
+    } catch (error) { console.error("Error al actualizar"); 
+      toast.error ("Error al actualizad", {
+          style:  {
+          background: '#bc0a0a',
+          color: '#fff',
+          border: 'none',
+          fontWeight: 'bold',
+          }
+        });
+    }
   }
 
   async function marcarPrincipal(imagenId, productoId) {
@@ -218,8 +265,60 @@ function Dashboard({isLogIn}) {
       console.log (data)
       abrirPanelEdicion (productoId)
       getProductos ()
+      toast.success ("Imagen agregada como portada", {
+          style:  {
+          background: '#100e6e',
+          color: '#fff',
+          border: 'none',
+          fontWeight: 'bold',
+          }
+        });
     } catch (error){
       console.error ("Error al tratar de marcar imagen de portada", error)
+    }
+  }
+
+  //BORRAR UNA FOTO COMO ADMIN:
+  async function borrarUnaFoto (imagenId){
+    try {
+      const res= await fetch (API_URL + `/api/imagenes/${imagenId}`, {
+        method: "DELETE",
+        headers: {
+        "Content-Type": "application/json",
+        "Authorization": localStorage.getItem("token")
+        }
+      });
+
+      if (res.status === 401){
+          adminLogOut ()
+          return;
+        }
+
+      if (res.ok){
+        setImagenesEditor (imagenesEditor.filter (imagen => imagen.id !==imagenId));
+        getProductos ()
+        toast.success ("Imagen eliminada", {
+          style:  {
+          background: '#080740',
+          color: '#fff',
+          border: 'none',
+          fontWeight: 'bold',
+          }
+        });
+      }
+
+
+
+    } catch (error){
+      console.error ("Error al eliminar la imagen", error)
+      toast.error ("Error al tratar de eliminar la foto", {
+          style:  {
+          background: '#050430',
+          color: '#fff',
+          border: 'none',
+          fontWeight: 'bold',
+          }
+        });
     }
   }
 
@@ -271,7 +370,8 @@ function Dashboard({isLogIn}) {
                 inputClass={inputClass}
                 idProductoEditado={idProductoEditado}
                 item={item}
-                setIdProductoEditado={setIdProductoEditado}/>
+                setIdProductoEditado={setIdProductoEditado}
+                borrarUnaFoto={borrarUnaFoto}/>
               </motion.div>
             ))}
           </AnimatePresence>
