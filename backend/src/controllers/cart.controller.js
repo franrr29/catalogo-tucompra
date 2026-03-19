@@ -2,6 +2,7 @@ const { actualizarDatosFront, verificarProdcBD } = require("../services/cart.ser
 
 
 async function addToCart(req, res) {
+  console.log("body recibido:", req.body)
   try {
     const { productId } = req.body;
 

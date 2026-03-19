@@ -66,7 +66,7 @@ function ListaProductos({ addCart, isLogIn }) {
                 </div>
                 <div className="sm:mt-6">
                     <p className="text-gray-500 text-[10px] tracking-widest uppercase">
-                        Mostrando: <span className="text-white">{productosFiltrados.length}</span> piezas
+                        Mostrando: <span className="text-white">{productosFiltrados.length}</span> productos.
                     </p>
                 </div>
             </motion.div>
@@ -87,7 +87,7 @@ function ListaProductos({ addCart, isLogIn }) {
                 >
                     {productosFiltrados.length > 0 ? (
                         productosFiltrados.map((prod) => (
-                            <Card key={prod.id} producto={prod} addCart={addCart} />
+                            <Card key={prod.id} producto={prod} addCart={addCart} isLogIn={isLogIn} />
                         ))
                     ) : (
                         <p className="text-gray-600 italic tracking-widest text-sm col-span-full py-20 text-center">

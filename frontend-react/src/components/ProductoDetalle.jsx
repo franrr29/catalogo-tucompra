@@ -59,7 +59,7 @@ function ProductoDetalle({ addCart }) {
                     <img
                       src={imagen.url}
                       alt={`Vista ${index}`}
-                      className="object-contain h-full w-full transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover h-full w-full"
                     />
                   </SwiperSlide>
                 ))

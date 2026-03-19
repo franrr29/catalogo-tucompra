@@ -1,4 +1,5 @@
 
+
 function CrearNuevoProdct ({nuevoProducto, setNuevoProducto, setFotosSeleccionadas, crearNuevoProducto}){
 
      // --- ESTILOS REUTILIZABLES ---
@@ -6,7 +7,7 @@ function CrearNuevoProdct ({nuevoProducto, setNuevoProducto, setFotosSeleccionad
   const btnPrimary = "bg-white text-black text-[10px] font-bold tracking-widest uppercase px-6 py-3 hover:bg-amber-500 transition-all";
 
     return (
-        <div className="min-h-screen bg-black text-white px-8 py-24">
+        <div className="bg-black text-white px-8 py-24">
         
               {/* SECCIÓN: CREAR PRODUCTO */}
               <section className="bg-[#0a0a0a] border border-white/5 p-8 mb-20">

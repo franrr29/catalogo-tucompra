@@ -100,6 +100,16 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
            
           </motion.li>
 
+          {isLogIn && (
+            <motion.li variants={itemVariants} whileHover={{ y: -2 }} className="group relative">
+            <Link to= "/admin/dashboard" className="text-gray-400 hover:text-white text-[11px] tracking-[0.3em] uppercase transition-colors" onClick={() => setMenuOpen(false)}>
+                Panel de administracion
+            </Link>  
+            <span className="absolute -bottom-1 left-0 w-0 h-px bg-amber-500 group-hover:w-full transition-all duration-400" />
+           
+          </motion.li>
+          )}
+
           {/* Botón Dinámico para Mobile */}
           <motion.li variants={itemVariants} className="md:hidden mt-4">
             {isLogIn ? (
@@ -122,14 +132,17 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
         </motion.ul>
 
         {/* DERECHA: Carrito e Interacción (Desktop) */}
+      
         <div className="flex items-center gap-6 w-10 md:w-auto justify-end">
           
+          {!isLogIn &&
           <Link to="/carrito">
             <motion.div 
               whileHover={{ scale: 1.15 }} 
               whileTap={{ scale: 0.9 }} 
               className="relative p-1 text-white hover:text-amber-500 transition-colors"
             >
+              
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
@@ -148,6 +161,8 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
               </AnimatePresence>
             </motion.div>
           </Link>
+          }
+
 
           {/* Botón Dinámico Desktop: Usamos div con motion para envolver el ternario */}
           <motion.div 

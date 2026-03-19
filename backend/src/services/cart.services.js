@@ -3,6 +3,7 @@ const baseDatos = require("../config/db");
 //===FUNCION VERIFICA QUE EL PRODUCTO EXISTE Y TIENE STOCK, SIN MODIFICAR LA BASE DE DATOS===//
 
 async function actualizarDatosFront(productId) {
+  
   try {
     const [rows]= await baseDatos.query ("SELECT * FROM productos WHERE id=?",
       [productId]
@@ -40,3 +41,5 @@ async function verificarProdcBD(productosIds) {
     throw error
   }
 }
+
+module.exports= {actualizarDatosFront, verificarProdcBD}
