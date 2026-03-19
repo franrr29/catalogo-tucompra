@@ -12,7 +12,8 @@ function EditarProductoAdmin ({
   inputClass,
   idProductoEditado,
   item,
-  setIdProductoEditado
+  setIdProductoEditado,
+  borrarUnaFoto
 })
 
 {
@@ -80,6 +81,7 @@ function EditarProductoAdmin ({
                   <button onClick={() => marcarPrincipal(imagen.id, item.id)}>
                     Agregar como portada
                   </button>
+                  <button onClick={()=>borrarUnaFoto(imagen.id)}>Eliminar foto</button>
                 </div>
               ))}
             </div>
