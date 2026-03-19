@@ -20,7 +20,8 @@ import { API_URL } from "./config.js";
 
 
 
-//=== FUNCION PRINCIPAL, CONTROLA CARRITO, PETICION AL BACK Y RENDERIZA COMPONENTES===//
+//===FUNCION PRINCIPAL, CONTROLA CARRITO, PETICION AL BACK Y RENDERIZA COMPONENTES===//
+
 function App() {
  const [carrito, setCarrito]= useState ([])
  const [isLogIn, setIsLogIn]= useState (false)
@@ -55,7 +56,7 @@ function App() {
 
 
  async function addCart(productId) {  
-
+  
   try {
     const sendRequest= await fetch (API_URL + "/api/cart/add",
       {
@@ -111,7 +112,7 @@ function App() {
       <Route path="/carrito" element= {<Cart fullCart={carrito} setCarrito={setCarrito}/>}/>
       
       <Route path= "/admin/login" element= {<Admin handleLogIn={handleLogIn}/>}/>
-      <Route path="/admin/dashboard" element={<RutaProtegida><Dashboard isLogIn={isLogIn}/></RutaProtegida>}/>
+      <Route path="/admin/dashboard" element={<RutaProtegida isLogIn={isLogIn}><Dashboard isLogIn={isLogIn}/></RutaProtegida>}/>
       <Route path="*" element={<NotFound/>}></Route>
       <Route path="/como-comprar" element={<ComoComprar/>}/>
       <Route path="/contacto" element={<Contacto/>}/>

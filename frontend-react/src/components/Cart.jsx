@@ -4,7 +4,6 @@ import { API_URL } from "../config";
 
 function Cart({ fullCart, setCarrito }) {
 
-  // Calcula el total sumando (precio * cantidad) de cada producto
   function totalCarrito() {
     return fullCart.reduce((acc, prod) => {
     const precio = parseFloat(prod.precio)
@@ -12,39 +11,32 @@ function Cart({ fullCart, setCarrito }) {
     return acc + precioFinal * prod.cantidad
   }, 0)};
 
-
-  //Se ejecuta siempre que el carrito cambia, 
-  // primero verifica que el carrito no este vacio, 
-  // luego manda ids al back y por ultimo actualiza las cantidades en setcarrito
-
   useEffect(() => {
-    async function sendProdctsIds() {
-      try {
+  async function sendProdctsIds() {
+    if (fullCart.length === 0) return;
 
-        if (fullCart.length ===0){
-          return
-        }
+    try {
+      const productosIds = fullCart.map((p) => p.id);
+      const res = await fetch(API_URL + "/api/cart/verificar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productosIds })
+      });
+      if (!res.ok) throw new Error();
 
-        const productosIds = fullCart.map((productos) => productos.id);
-        const sendIds = await fetch( API_URL + "/api/cart/verificar", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productosIds })
-        });
-        if (!sendIds.ok) throw new Error("Error al mandar los datos al back-end");
-
-        const data = await sendIds.json();
-        setCarrito(data.carrito.map((item) => {
-          const cantidades = fullCart.find(cantidad => cantidad.id === item.id);
-          const cantidad = cantidades ? cantidades.cantidad : 1;
-          return { ...item, cantidad };
-        }));
-      } catch (error) {
-        console.error("Error al enviar los ids al back-end");
-      }
+      const data = await res.json();
+      setCarrito(data.carrito.map((item) => {
+        const found = fullCart.find((p) => p.id === item.id);
+        return { ...item, cantidad: found ? found.cantidad : 1 };
+      }));
+    } catch {
+      console.error("Error al verificar carrito");
     }
-    sendProdctsIds();
-  }, [fullCart]);
+  }
+
+  sendProdctsIds();
+}, []);
+
 
   // Funciones de control (Aumentar, Disminuir, Eliminar)
   function aumentar(id) {
@@ -71,7 +63,7 @@ function Cart({ fullCart, setCarrito }) {
   // Envío de pedido a WhatsApp
   function whatsapp() {
     const productos = fullCart.map(prod => `• ${prod.nombre} (x${prod.cantidad}) - $${prod.precio}`).join("\n");
-    const mensaje = `¡Hola! Me gustaría finalizar mi pedido:\n\n${productos}\n\nTotal: $${totalCarrito()}\n\nQuedo atento/a.`;
+    const mensaje = `Hola! Me gustaría finalizar mi pedido:\n\n${productos}\n\nTotal: $${totalCarrito()}\n\nQuedo atento/a.`;
     window.open(`https://wa.me/59891637161?text=${encodeURIComponent(mensaje)}`);
   }
 

@@ -5,6 +5,7 @@ import Card from "../../ProductCard";
 import CrearNuevoProdct from "./AdminCreateProduct";
 import EditarProductoAdmin from "./EditarProducto";
 import { API_URL } from "../../../config";
+import { toast } from 'react-hot-toast'
 
 function Dashboard({isLogIn}) {
   const [nuevoProducto, setNuevoProducto] = useState({ nombre: "", precio: "", stock: "", imagen: "" });
@@ -89,16 +90,16 @@ function Dashboard({isLogIn}) {
 
   async function crearNuevoProdct() {
     if (!nuevoProducto.nombre || !nuevoProducto.precio || !nuevoProducto.stock) {
-      alert("Debes completar nombre, precio y stock");
+      toast.error("Debes completar nombre, precio y stock");
       return;
     }
 
     try {
       const datosProducto = {
-        nombre: crearNuevoProdct.nombre.trim(),
-        precio: Number(crearNuevoProdct.precio),
-        stock: Number(crearNuevoProdct.stock),
-        imagen: crearNuevoProdct.imagen.trim() || null
+        nombre: nuevoProducto.nombre.trim(),
+        precio: Number(nuevoProducto.precio),
+        stock: Number(nuevoProducto.stock),
+        imagen: nuevoProducto.imagen.trim() || null
       };
 
       const resp = await fetch(API_URL + "/api/productos", {
@@ -123,7 +124,14 @@ function Dashboard({isLogIn}) {
         if (fotosSeleccionadas !== null) {
         await subirFotos(data.id)
         setFotosSeleccionadas (null)
-}
+        toast.success ("Producto creado", {
+          style:  {
+          background: '#f59e0b',
+          color: '#fff',
+          border: 'none',
+          fontWeight: 'bold',
+          }
+        })}
       }
 
     } catch (error) {

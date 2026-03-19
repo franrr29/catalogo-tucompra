@@ -43,7 +43,7 @@ function ComoComprar() {
           {[
             { metodo: "Giros", detalle: "Mediante ABITAB o REDPAGOS." },
             { metodo: "Transferencia bancaria", detalle: "Te enviamos los datos por WhatsApp." },
-            { metodo: "MercadoPago", detalle: "Nos pedis el link del producto y te enviamos." },
+            { metodo: "Mercado Pago", detalle: "Nos pedis el link del producto y te enviamos." },
             { metodo: "Transferencias por tarjetas PREX o Mi Dinero", detalle: "Te enviamos numeros de cuenta." }
           ].map((item) => (
             <div key={item.metodo} className="flex justify-between items-center gap-4 border border-white/5 px-6 py-4 bg-white/5">
