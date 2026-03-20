@@ -25,6 +25,7 @@ import { API_URL } from "./config.js";
 function App() {
  const [carrito, setCarrito]= useState ([])
  const [isLogIn, setIsLogIn]= useState (false)
+ const [loading, setLoading]=useState (true)
 
   //AL MONTAR CARGA EL CARRITO GUARDADO UNA VEZ, BUSCA EL TOKEN PARA LOGGEAR Y MANDA AL NAVBAR DATOS:
   useEffect (()=>{
@@ -36,9 +37,10 @@ function App() {
     if (token){
       setIsLogIn (true)
     }
+    setLoading (false)
   },[])
 
-  //FUNCION PARA MANEJAR EL LOGGOUT, ACTUALIZAR EL ESTADO Y VA COMO PROP EN NAVBAR:
+  //FUNCION PARA MANEJAR EL LOGOUT, ACTUALIZAR EL ESTADO Y VA COMO PROP EN NAVBAR:
   function handleLogOut (){
     localStorage.removeItem ("token")
     setIsLogIn (false)
@@ -112,7 +114,7 @@ function App() {
       <Route path="/carrito" element= {<Cart fullCart={carrito} setCarrito={setCarrito}/>}/>
       
       <Route path= "/admin/login" element= {<Admin handleLogIn={handleLogIn}/>}/>
-      <Route path="/admin/dashboard" element={<RutaProtegida isLogIn={isLogIn}><Dashboard isLogIn={isLogIn}/></RutaProtegida>}/>
+      <Route path="/admin/dashboard" element={<RutaProtegida isLogIn={isLogIn} loading={loading}><Dashboard isLogIn={isLogIn}/></RutaProtegida>}/>
       <Route path="*" element={<NotFound/>}></Route>
       <Route path="/como-comprar" element={<ComoComprar/>}/>
       <Route path="/contacto" element={<Contacto/>}/>

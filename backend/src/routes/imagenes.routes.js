@@ -6,14 +6,9 @@ const baseDatos = require("../config/db");
 const middleVerificador= require ("../middleware/auth.middle")
 const router = Router();
 
-// DEBUG TEMPORAL
-process.on('unhandledRejection', (reason) => {
-  console.error('UNHANDLED:', reason);
-});
 
 
-
-//===POST SUBIR IMAGENES PARA UN PRODUCTO Y ELIMINAR FOTOS VIEJAS DE CLOUDINARY===//
+//===POST SUBIR IMAGENES PARA UN PRODUCTO===//
 
 router.post("/:productoId", middleVerificador, upload.fields([{ name: "imagenes", maxCount: 10 }]), async (req, res) => {
   try {
@@ -33,21 +28,11 @@ router.post("/:productoId", middleVerificador, upload.fields([{ name: "imagenes"
       "SELECT * FROM producto_imagenes WHERE producto_id = ?",
       [productoId]
     );
-
-    const eliminarCloudinary=rows.map ((imagen)=> {
-      const urlParts = imagen.imagen_url.split("/");
-      const publicId = urlParts.slice(-2).join("/").split(".")[0];
-      return cloudinary.uploader.destroy(publicId);
-    }); 
-
-    await Promise.all(eliminarCloudinary);
-    await baseDatos.query("DELETE FROM producto_imagenes WHERE producto_id = ?", [productoId]);
-    
     
     const inserts = archivos.map((file, index) =>
       baseDatos.query(
         "INSERT INTO producto_imagenes (producto_id, imagen_url, orden) VALUES (?, ?, ?)",
-        [productoId, file.path, index]
+        [productoId, file.path, index + rows.length]
       )
     );
 

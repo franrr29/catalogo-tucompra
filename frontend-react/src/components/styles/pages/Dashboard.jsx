@@ -17,6 +17,25 @@ function Dashboard({isLogIn}) {
   const navigate = useNavigate();
   const timerRef = useRef(null);
 
+  // ESTILO PARA NOTIFICACIONES
+  const toastStyle = {
+    style: {
+      background: '#0a0a0a',
+      color: '#fff',
+      border: '1px solid rgba(245, 158, 11, 0.3)',
+      borderRadius: '0px',
+      fontSize: '10px',
+      letterSpacing: '0.2em',
+      textTransform: 'uppercase',
+      fontWeight: 'bold',
+      padding: '16px'
+    },
+    iconTheme: {
+      primary: '#f59e0b',
+      secondary: '#000',
+    },
+  };
+
   //LÓGICA DE SESIÓN Y SEGURIDAD
 
   function resetearTimer() {
@@ -42,7 +61,7 @@ function Dashboard({isLogIn}) {
       const res= await fetch (`${API_URL}/api/imagenes/${productoId}`, {
         method: "POST",
         headers: { 
-        "Authorization": localStorage.getItem("token")
+        "Authorization": "Bearer " + localStorage.getItem("token")
       },
         body: formData
       });
@@ -62,6 +81,8 @@ function Dashboard({isLogIn}) {
 
   async function abrirPanelEdicion(id) {
     try {
+      setFotosSeleccionadas (null)
+      setImagenesEditor ([])
       setIdProductoEditado  (id)
       const res= await fetch (`${API_URL}/api/productos/${id}`)
       const data= await res.json ();
@@ -90,7 +111,7 @@ function Dashboard({isLogIn}) {
 
   async function crearNuevoProdct() {
     if (!nuevoProducto.nombre || !nuevoProducto.precio || !nuevoProducto.stock) {
-      toast.error("Debes completar nombre, precio y stock");
+      toast.error("Debes completar nombre, precio y stock", toastStyle);
       return;
     }
 
@@ -105,7 +126,7 @@ function Dashboard({isLogIn}) {
       const resp = await fetch(API_URL + "/api/productos", {
         method: "POST",
         headers: { "Content-Type": "application/json",
-        "Authorization": localStorage.getItem("token")
+        "Authorization": "Bearer " + localStorage.getItem("token")
          },
         body: JSON.stringify(datosProducto)
       });
@@ -118,32 +139,24 @@ function Dashboard({isLogIn}) {
       const data = await resp.json();
       console.log(data);
 
-      if (resp.ok) {
-        setProductos([...productos, { ...datosProducto, id: data.id }]); 
-        setNuevoProducto({ nombre: "", precio: "", stock: "", imagen: "" });
-        if (fotosSeleccionadas !== null) {
-        await subirFotos(data.id)
-        setFotosSeleccionadas (null)
-        toast.success ("Producto creado", {
-          style:  {
-          background: '#f59e0b',
-          color: '#fff',
-          border: 'none',
-          fontWeight: 'bold',
-          }
-        })}
-      }
+        if (resp.ok) { 
+     setNuevoProducto({ nombre: "", precio: "", stock: "", imagen: "" });
+     
+
+     if (fotosSeleccionadas !== null) {
+       await subirFotos(data.id)
+       getProductos()
+       setFotosSeleccionadas(null)
+       toast.success("Producto creado", toastStyle)
+     } else {
+       getProductos()
+       toast.success("Producto creado", toastStyle)
+     }};
+
 
     } catch (error) {
       console.error("Error al crear el producto", error);
-      toast.error ("Error al crear el producto", {
-          style:  {
-          background: '#bc0a0a',
-          color: '#fff',
-          border: 'none',
-          fontWeight: 'bold',
-          }
-        });
+      toast.error ("Error al crear el producto", toastStyle);
     }
   }
 
@@ -163,7 +176,7 @@ function Dashboard({isLogIn}) {
       const resp = await fetch(`${API_URL}/api/productos/${id}`, { method: "DELETE" ,
         headers: { 
         "Content-Type": "application/json",
-        "Authorization": localStorage.getItem("token")
+        "Authorization": "Bearer " + localStorage.getItem("token")
       }
       });
 
@@ -174,26 +187,12 @@ function Dashboard({isLogIn}) {
       if (resp.ok){
 
        setProductos(productos.filter(item => item.id !== id))
-       toast.success ("Producto eliminado", {
-          style:  {
-          background: '#bc0a0a',
-          color: '#fff',
-          border: 'none',
-          fontWeight: 'bold',
-          }
-        });}
+       toast.success ("Producto eliminado", toastStyle);}
         
       
 
     } catch (error) { console.error("Error al borrar"); 
-      toast.error ("Error al eliminar", {
-          style:  {
-          background: '#bc0a0a',
-          color: '#fff',
-          border: 'none',
-          fontWeight: 'bold',
-          }
-        });
+      toast.error ("Error al eliminar", toastStyle);
     }
   }
 
@@ -205,7 +204,7 @@ function Dashboard({isLogIn}) {
       const resp = await fetch(`${API_URL}/api/productos/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" ,
-        "Authorization": localStorage.getItem("token")
+        "Authorization": "Bearer " + localStorage.getItem("token")
         },
         body: JSON.stringify(soloRellenos)
       });
@@ -217,31 +216,17 @@ function Dashboard({isLogIn}) {
 
       if (resp.ok) {
         setProductos(productos.map(p => p.id === id ? { ...p, ...soloRellenos } : p));
-        setIdProductoEditado (null);
         setActualizarDatos({ nombre: "", precio: "", stock: "", imagen: "" });
         if (fotosSeleccionadas !== null){
         await subirFotos(id)
+        await abrirPanelEdicion(id)
       }
       setFotosSeleccionadas(null)
-      toast.success ("Producto actualizado", {
-          style:  {
-          background: '#0c09c6',
-          color: '#fff',
-          border: 'none',
-          fontWeight: 'bold',
-          }
-        });
+      toast.success ("Producto actualizado", toastStyle);
       }
 
     } catch (error) { console.error("Error al actualizar"); 
-      toast.error ("Error al actualizad", {
-          style:  {
-          background: '#bc0a0a',
-          color: '#fff',
-          border: 'none',
-          fontWeight: 'bold',
-          }
-        });
+      toast.error ("Error al actualizar", toastStyle);
     }
   }
 
@@ -251,7 +236,7 @@ function Dashboard({isLogIn}) {
         method: "PATCH",
         headers: { 
         "Content-Type": "application/json",
-        "Authorization": localStorage.getItem("token"),
+        "Authorization": "Bearer " + localStorage.getItem("token")
       }
       
     });
@@ -265,14 +250,7 @@ function Dashboard({isLogIn}) {
       console.log (data)
       abrirPanelEdicion (productoId)
       getProductos ()
-      toast.success ("Imagen agregada como portada", {
-          style:  {
-          background: '#100e6e',
-          color: '#fff',
-          border: 'none',
-          fontWeight: 'bold',
-          }
-        });
+      toast.success ("Imagen establecida como portada", toastStyle);
     } catch (error){
       console.error ("Error al tratar de marcar imagen de portada", error)
     }
@@ -285,7 +263,7 @@ function Dashboard({isLogIn}) {
         method: "DELETE",
         headers: {
         "Content-Type": "application/json",
-        "Authorization": localStorage.getItem("token")
+        "Authorization": "Bearer " + localStorage.getItem("token")
         }
       });
 
@@ -297,28 +275,14 @@ function Dashboard({isLogIn}) {
       if (res.ok){
         setImagenesEditor (imagenesEditor.filter (imagen => imagen.id !==imagenId));
         getProductos ()
-        toast.success ("Imagen eliminada", {
-          style:  {
-          background: '#080740',
-          color: '#fff',
-          border: 'none',
-          fontWeight: 'bold',
-          }
-        });
+        toast.success ("Imagen eliminada", toastStyle);
       }
 
 
 
     } catch (error){
       console.error ("Error al eliminar la imagen", error)
-      toast.error ("Error al tratar de eliminar la foto", {
-          style:  {
-          background: '#050430',
-          color: '#fff',
-          border: 'none',
-          fontWeight: 'bold',
-          }
-        });
+      toast.error ("Error al tratar de eliminar la foto", toastStyle);
     }
   }
 

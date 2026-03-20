@@ -207,27 +207,40 @@ router.patch ("/:id", middleVerificador, async (req, res)=>{
 
 
 
-
-//---ENDPOINT PARA ELIMINAR (DELETE) PRODUCTOS COMO ADMIN EN LA BASE DE DATOS---//
+//===BORRAR PRODUCTOS DE CLOUDIANARY===//
 
 router.delete("/:id", middleVerificador, async (req, res) => {
   try {
-    
-    const id= Number (req.params.id)
-     
-    if (isNaN (id) || id <0){
-      return res.status(400).json ({mensaje: "El ID debe ser un numero valido"})
-    }
-    const query = "DELETE FROM productos WHERE id = ?";
+    const id = Number(req.params.id);
 
-      //---VALIDAR QUE EL PRODUCTO EXISTA PARA ELIMINAR---//
-      
-    const [resultado]= await baseDatos.query (query, [id])
-    if (resultado.affectedRows ===0){
-      return res.status (404).json ({mensaje: "Producto no encontrado"})
+    if (isNaN(id) || id < 0) {
+      return res.status(400).json({ mensaje: "El ID debe ser un número válido" });
+    }
+
+    const [rows] = await baseDatos.query(
+      "SELECT * FROM producto_imagenes WHERE producto_id = ?", [id]
+    );
+
+    if (rows.length > 0) {
+      const eliminarCloudinary = rows.map((imagen) => {
+        const urlParts = imagen.imagen_url.split("/");
+        const publicId = urlParts.slice(-2).join("/").split(".")[0];
+        return cloudinary.uploader.destroy(publicId);
+      });
+      await Promise.all(eliminarCloudinary);
+    }
+
+    // BORRAR PRODUCTO
+    const [resultado] = await baseDatos.query(
+      "DELETE FROM productos WHERE id = ?", [id]
+    );
+
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({ mensaje: "Producto no encontrado" });
     }
 
     res.json({ mensaje: "Producto eliminado correctamente" });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al borrar el producto" });

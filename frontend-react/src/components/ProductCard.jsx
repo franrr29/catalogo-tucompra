@@ -8,13 +8,16 @@ function Card({ producto, addCart, isLogIn }) {
     return (
         <PanelUsuarioActivo {...panelUsuarioActivoProps}>
             <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4 }}
-                whileHover={{ y: -8, borderColor: "rgba(245, 210, 11, 0.4)" }} 
+                 initial={{ opacity: 0, y: 40, filter: "blur(6px)" }}
+                 whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                 viewport={{ once: true , amount: 0.3}}
+                 transition={{ type: "spring", stiffness: 80, damping: 15 }}
+                 whileHover={{ 
+                   y: -10,
+                   scale: 1.02,
+                   borderColor: "rgba(245, 210, 11, 0.4)"}}
                 className="bg-[#0a0a0a] border border-white/5 rounded-sm p-6 flex flex-col gap-4 transition-all duration-500 group shadow-2xl"
-            >
+                >
                 <div className="flex flex-col gap-1">
                     <h1 className="text-white font-light text-sm tracking-[0.2em] uppercase group-hover:text-amber-500 transition-colors duration-300">
                         {producto.nombre}

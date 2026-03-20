@@ -14,9 +14,7 @@ function EditarProductoAdmin ({
   item,
   setIdProductoEditado,
   borrarUnaFoto
-})
-
-{
+}) {
   return (
     <>
       {/* MODAL DE EDICIÓN RÁPIDA */}
@@ -26,7 +24,7 @@ function EditarProductoAdmin ({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-t border-white/10 pt-4 mt-2 flex flex-col gap-3"
+            className="overflow-hidden border-t border-white/10 pt-4 mt-2 flex flex-col gap-1"
           >
             <input
               type="text"
@@ -72,16 +70,28 @@ function EditarProductoAdmin ({
               />
 
               {imagenesEditor.map((imagen) => (
-                <div key={imagen.id} className="flex items-center gap-2">
+                <div key={imagen.id} className="flex items-center justify-between gap-3 bg-white/5 p-2 rounded-sm border border-white/5">
                   <img
                     src={imagen.url}
-                    className="w-16 h-16 object-contain"
-                    alt="imagenProducto"
+                    className="w-12 h-12 object-cover grayscale hover:grayscale-0 transition-all"
+                    alt="Producto"
                   />
-                  <button onClick={() => marcarPrincipal(imagen.id, item.id)}>
-                    Agregar como portada
-                  </button>
-                  <button onClick={()=>borrarUnaFoto(imagen.id)}>Eliminar foto</button>
+                  
+                  <div className="flex gap-4 items-end">
+                    <button 
+                      onClick={() => marcarPrincipal(imagen.id, item.id)}
+                      className="text-[8px] uppercase tracking-[0.2em] text-amber-500 hover:text-amber-400 transition-colors"
+                    >
+                      Portada
+                    </button>
+                    
+                    <button 
+                      onClick={() => borrarUnaFoto(imagen.id)}
+                      className="text-[8px] uppercase tracking-[0.2em] text-gray-500 hover:text-red-500 transition-colors"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
