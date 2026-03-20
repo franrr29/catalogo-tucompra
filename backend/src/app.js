@@ -8,7 +8,7 @@ const imagenesRoutes = require("./routes/imagenes.routes"); //===RUTAS DE LAS IM
 
 //--- APP ---
 const app = express();
-const PORT = 4000;
+const PORT= process.env.PORT || 4000;
 
 
 //--- MIDDLEWARES ---
@@ -24,6 +24,6 @@ app.use("/api/imagenes", imagenesRoutes);
 
 
 //--- SERVIDOR ---
-app.listen(PORT, () => {
-  console.log(`Servidor creado y escuchando en el puerto ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
