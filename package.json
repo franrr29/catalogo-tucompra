@@ -1,5 +1,5 @@
 {
-  "name": "catalogo-tucompra",
+  "name": "backend",
   "version": "1.0.0",
   "description": "",
   "main": "src/app.js",
@@ -11,8 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
