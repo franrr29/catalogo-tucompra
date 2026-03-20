@@ -1,13 +1,12 @@
 //===Conexion a la base de datos===//
 require('dotenv').config();
 
-const dbPasswrd= process.env.DATA_BASE_PASSW
-const mysql= require ("mysql2/promise")
-const baseDatos= mysql.createPool ({
-    host: "localhost",
-    user: "root",
-    password: dbPasswrd,
-    database: "tu_compra"
+const baseDatos = mysql.createPool({
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE,
+    port: process.env.MYSQLPORT
 });
 
 async function testConexion() {
