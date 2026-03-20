@@ -1,4 +1,5 @@
 //===Conexion a la base de datos===//
+const mysql = require('mysql2/promise'); 
 require('dotenv').config();
 
 const baseDatos = mysql.createPool({
