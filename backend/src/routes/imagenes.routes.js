@@ -91,7 +91,7 @@ router.delete("/:imagenId", middleVerificador, async (req, res) => {
       // Busca sus imágenes en la BD y, si existen, obtiene el publicId de cada URL de Cloudinary.
       // Elimina todas las img en paralelo con promiseall
       // Luego borra el producto de la base de datos
-      
+
      const imagen = rows[0];
      const posicion = imagen.imagen_url.indexOf("upload/") + 7;
      const resto = imagen.imagen_url.slice(posicion);
@@ -111,7 +111,7 @@ router.delete("/:imagenId", middleVerificador, async (req, res) => {
 
 
 
-//===ENDPOINT PARA SELECCIONAR QUE IMAGEN PRINCIPAL MOSTRAR COMO ADMIN===//
+//===ENDPOINT PARA SELECCIONAR QUE IMAGEN PRINCIPAL MOSTRAR COMO ADMINISTRADOR===//
 
 router.patch ("/:imagenId", middleVerificador, async (req, res)=>{
   try {
