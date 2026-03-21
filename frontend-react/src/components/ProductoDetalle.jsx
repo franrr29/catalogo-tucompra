@@ -27,76 +27,92 @@ function ProductoDetalle({ addCart }) {
   if (!producto) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <p className="text-white tracking-[0.3em] font-light animate-pulse">LOADING</p>
+        <p className="text-white tracking-[0.3em] font-light animate-pulse uppercase text-xs">Cargando productos...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-8 flex items-center justify-center">
-      {/* Contenedor Principal con Estética Glassmorphism */}
-      <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-2xl shadow-2xl">
+    <div className="min-h-screen bg-black text-white p-6 md:p-12 flex items-center justify-center">
+      
+      {/* CONTENEDOR PRINCIPAL: Glassmorphism Brillante */}
+      <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-10 items-center bg-white/5 backdrop-blur-xl border border-white/10 border-t-white/20 p-8 md:p-12 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         
-        {/* Columna Izquierda: Slider de Imágenes */}
-        <div className="w-full h-[500px] overflow-hidden rounded-xl bg-neutral-900 group">
+        {/* IZQUIERDA: Slider de Imágenes */}
+        <div className="w-full aspect-square md:h-[550px] overflow-hidden rounded-xl bg-neutral-900/50 relative group border border-white/5">
           <Swiper 
             modules={[Navigation, Pagination]} 
             navigation={true}
             pagination={{ clickable: true }}
-            className="h-full w-full"
+            className="h-full w-full mySwiper"
           >
-            {
-              !producto.imagenes || producto.imagenes.length === 0 ? (
-                <SwiperSlide className="flex items-center justify-center">
-                  <p>Imagen no encontrada</p>
+            {!producto.imagenes || producto.imagenes.length === 0 ? (
+              <SwiperSlide className="flex items-center justify-center">
+                <p className="text-neutral-500 tracking-widest text-xs uppercase">Sin imagen disponible</p>
+              </SwiperSlide>
+            ) : (
+              producto.imagenes.map((imagen, index) => (
+                <SwiperSlide key={index} className="flex items-center justify-center bg-transparent">
+                  <img
+                    src={imagen.url}
+                    alt={`${producto.nombre} - ${index}`}
+                    className="object-contain h-full w-full p-4 transition-transform duration-700 hover:scale-105"
+                  />
                 </SwiperSlide>
-              ) : (
-                producto.imagenes.map((imagen, index) => (
-                  <SwiperSlide
-                    key={index}
-                    className="flex items-center justify-center"
-                  >
-                    <img
-                      src={imagen.url}
-                      alt={`Vista ${index}`}
-                      className="object-cover h-full w-full"
-                    />
-                  </SwiperSlide>
-                ))
-              )
-            }
+              ))
+            )}
           </Swiper>
         </div> 
 
-        {/* Columna Derecha: Información del Producto */}
-        <div className="flex flex-col space-y-6">
-          <header className="space-y-2">
-            <span className="text-xs uppercase tracking-[0.4em] text-neutral-500 font-medium">Detalles del Producto</span>
-            <h1 className="text-4xl font-light tracking-tight">{producto.nombre}</h1>
+        {/* DERECHA: Información */}
+        <div className="flex flex-col space-y-8">
+          <header className="space-y-3">
+            <span className="text-[10px] uppercase tracking-[0.5em] text-amber-500 font-medium">Colección Exclusiva</span>
+            <h1 className="text-4xl md:text-5xl font-light tracking-tight leading-tight uppercase">
+              {producto.nombre}
+            </h1>
           </header>
 
-          <div className="h-px bg-gradient-to-r from-white/20 to-transparent w-full" />
+          {/* Línea divisoria elegante */}
+          <div className="h-px bg-gradient-to-r from-amber-500/40 via-white/10 to-transparent w-full" />
 
-          <div className="space-y-4">
-            <p className="text-3xl font-extralight">${producto.precio}</p>
-            <p className="text-sm text-neutral-400 leading-relaxed font-light">
-              Disponibles: <span className="text-white">{producto.stock} unidades</span>
+          <div className="space-y-2">
+            <p className="text-4xl font-extralight tracking-tighter">
+              <span className="text-amber-500 text-xl mr-2">$</span>
+              {producto.precio?.toLocaleString()}
             </p>
+            <div className="flex items-center gap-3 pt-2">
+              <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+              <p className="text-[11px] text-neutral-400 uppercase tracking-widest">
+                Stock: <span className="text-white font-medium">{producto.stock} disponibles</span>
+              </p>
+            </div>
           </div>
 
-          <div className="pt-6">
+          <p className="text-sm text-neutral-400 leading-relaxed font-light max-w-md">
+           Diseño premium
+          </p>
+
+          <div className="pt-4">
+            {/* BOTÓN: Ámbar sólido, texto blanco, sin sombras exteriores */}
             <button 
               onClick={() => addCart(producto.id)}
-              className="w-full py-4 bg-amber-500 text-white text-sm uppercase tracking-[0.2em] font-semibold hover:bg-amber-600 transition-colors duration-300 active:scale-[0.98] "
+              className="w-full py-4 bg-amber-500 text-white text-xs uppercase tracking-[0.3em] font-bold rounded-lg hover:bg-amber-400 transition-all duration-300 active:scale-[0.97]"
             >
               Añadir al Carrito
             </button>
           </div>
 
-          <footer className="pt-4">
-            <p className="text-[10px] text-neutral-600 uppercase tracking-widest text-center">
-              Diseño Premium
-            </p>
+          <footer className="pt-6 border-t border-white/5">
+            <div className="flex justify-between items-center">
+              <p className="text-[9px] text-neutral-600 uppercase tracking-[0.4em]">
+                Auténtico & Original
+              </p>
+              <div className="flex gap-2">
+                <div className="w-6 h-[1px] bg-neutral-800 self-center" />
+                <span className="text-[9px] text-neutral-600 uppercase tracking-widest">Premium</span>
+              </div>
+            </div>
           </footer>
         </div>
       </div>
