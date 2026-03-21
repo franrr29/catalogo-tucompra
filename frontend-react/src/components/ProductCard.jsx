@@ -13,7 +13,7 @@ function Card({ producto, addCart, isLogIn }) {
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 whileHover={{ y: -8 }}
-                // EFECTO VIDRIO BRILLANTE: bg-white/5, backdrop-blur-md, border-white/10 y border-t-white/20
+                // EFECTO VIDRIO BRILLANTE: 
                 className="relative bg-white/5 backdrop-blur-md border border-white/10 border-t-white/20 rounded-2xl p-6 flex flex-col gap-5 transition-all duration-500 overflow-hidden shadow-[0_10px_40px_-15px_rgba(0,0,0,0.7)] hover:border-white/20 hover:shadow-amber-500/5"
             >
                 {/* Cabecera: Nombre y Línea animada */}
@@ -56,17 +56,16 @@ function Card({ producto, addCart, isLogIn }) {
                     </div>
                 </div>
 
-                {/* BOTÓN ÁMBAR CORREGIDO: Letra siempre blanca */}
                 {!isLogIn && (
                     <motion.button 
-                        whileHover={{ scale: 1.02, backgroundColor: "#fbbf24" }} // Un ámbar ligeramente más claro en hover
+                        whileHover={{ scale: 1.02, backgroundColor: "#e7a90e" }} 
                         whileTap={{ scale: 0.98 }}
                         onClick={(e) => {
                             e.preventDefault(); 
                             addCart(producto.id);
                         }}
                         // bg-amber-500 para el color base, text-white para que no cambie, font-bold
-                        className="mt-2 bg-amber-500 text-white text-[10px] tracking-[0.2em] uppercase py-3.5 rounded-lg transition-all duration-300 font-bold shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+                        className="mt-2 bg-amber-500 text-white text-[10px] tracking-[0.2em] uppercase py-3.5 rounded-lg transition-all duration-300 font-bold"
                     >
                         Agregar al carrito
                     </motion.button>
