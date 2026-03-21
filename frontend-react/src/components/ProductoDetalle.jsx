@@ -33,7 +33,7 @@ function ProductoDetalle({ addCart }) {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 md:p-12 flex items-center justify-center">
+    <div className="min-h-screen bg-black text-white p-6 md:p-12 flex items-center justify-center gap-5">
       
       {/* CONTENEDOR PRINCIPAL: Glassmorphism Brillante */}
       <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-10 items-center bg-white/5 backdrop-blur-xl border border-white/10 border-t-white/20 p-8 md:p-12 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
@@ -90,7 +90,7 @@ function ProductoDetalle({ addCart }) {
           </div>
 
           <p className="text-sm text-neutral-400 leading-relaxed font-light max-w-md">
-           Diseño premium
+           Envíos a todo el país
           </p>
 
           <div className="pt-4">
@@ -102,18 +102,6 @@ function ProductoDetalle({ addCart }) {
               Añadir al Carrito
             </button>
           </div>
-
-          <footer className="pt-6 border-t border-white/5">
-            <div className="flex justify-between items-center">
-              <p className="text-[9px] text-neutral-600 uppercase tracking-[0.4em]">
-                Auténtico & Original
-              </p>
-              <div className="flex gap-2">
-                <div className="w-6 h-[1px] bg-neutral-800 self-center" />
-                <span className="text-[9px] text-neutral-600 uppercase tracking-widest">Premium</span>
-              </div>
-            </div>
-          </footer>
         </div>
       </div>
     </div>
