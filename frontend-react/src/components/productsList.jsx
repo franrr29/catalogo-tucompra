@@ -151,7 +151,7 @@ function ListaProductos({ addCart, isLogIn }) {
                                 <span className="text-amber-500/50 text-xl">∅</span>
                             </div>
                             <p className="text-gray-600 tracking-[0.3em] text-[10px] uppercase">
-                                Sin productos en este rango
+                                Sin productos en este rango de precios.
                             </p>
                         </motion.div>
                     )}
