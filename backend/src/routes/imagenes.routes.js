@@ -88,9 +88,16 @@ router.delete("/:imagenId", middleVerificador, async (req, res) => {
       return res.status(404).json({ mensaje: "Imagen no encontrada" });
     }
 
-    const imagen = rows[0];
-    const urlParts = imagen.imagen_url.split("/");
-    const publicId = urlParts.slice(-2).join("/").split(".")[0];
+      // Busca sus imágenes en la BD y, si existen, obtiene el publicId de cada URL de Cloudinary.
+      // Elimina todas las img en paralelo con promiseall
+      // Luego borra el producto de la base de datos
+      
+     const imagen = rows[0];
+     const posicion = imagen.imagen_url.indexOf("upload/") + 7;
+     const resto = imagen.imagen_url.slice(posicion);
+     const partes = resto.split("/");
+     partes.shift();
+     const publicId = partes.join("/").split(".")[0];
 
     await cloudinary.uploader.destroy(publicId);
     await baseDatos.query("DELETE FROM producto_imagenes WHERE id = ?", [imagenId]);

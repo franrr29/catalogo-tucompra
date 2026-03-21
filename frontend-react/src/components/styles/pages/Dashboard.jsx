@@ -52,14 +52,14 @@ function Dashboard({isLogIn}) {
 
   //===FUNCION PARA CARGAR IMAGENES COMO ADMIN===//
 
-  async function subirFotos(productoId){
+  async function subirFotos(productoId){ 
     const formData= new FormData ()
     Array.from(fotosSeleccionadas).forEach(file => { 
     formData.append("imagenes", file)
 })
     try {
       const res= await fetch (`${API_URL}/api/imagenes/${productoId}`, {
-        method: "POST",
+        method: "POST", //Envia el post a imagenes.routes.js
         headers: { 
         "Authorization": "Bearer " + localStorage.getItem("token")
       },
