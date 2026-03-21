@@ -33,8 +33,7 @@ function ProductoDetalle({ addCart }) {
   }
 
   return (
-<div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-10 items-center bg-white/5 backdrop-blur-xl border border-white/10 border-t-white/20 p-8 md:p-12 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">      {/* CONTENEDOR PRINCIPAL: Glassmorphism Brillante */}
-      <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-10 items-center bg-white/5 backdrop-blur-xl border border-white/10 border-t-white/20 p-8 md:p-12 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+<div className="min-h-screen bg-black text-white pt-24 pb-10 px-4 flex flex-col items-center justify-start overflow-y-auto">      <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-10 items-center bg-white/5 backdrop-blur-xl border border-white/10 border-t-white/20 p-8 md:p-12 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         
         {/* IZQUIERDA: Slider de Imágenes */}
         <div className="w-full aspect-square md:h-[550px] overflow-hidden rounded-xl bg-neutral-900/50 relative group border border-white/5">
