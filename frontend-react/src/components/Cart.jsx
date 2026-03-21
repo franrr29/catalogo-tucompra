@@ -74,7 +74,7 @@ function Cart({ fullCart, setCarrito }) {
 
         {fullCart.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20 bg-white/5 rounded-2xl border border-white/5 backdrop-blur-md">
-            <p className="text-neutral-500 tracking-[0.3em] uppercase text-xs">Tu selección está vacía</p>
+            <p className="text-neutral-500 tracking-[0.3em] uppercase text-xs">Tu carrito está vacío</p>
           </motion.div>
         ) : (
           <div className="flex flex-col gap-8">
@@ -125,7 +125,7 @@ function Cart({ fullCart, setCarrito }) {
               className="mt-8 bg-white/5 backdrop-blur-xl border border-white/10 border-t-white/20 p-8 rounded-2xl flex flex-col items-center md:items-end gap-8"
             >
               <div className="text-center md:text-right w-full">
-                <p className="text-neutral-500 text-[10px] tracking-[0.4em] uppercase mb-2">Inversión Total</p>
+                <p className="text-neutral-500 text-[10px] tracking-[0.4em] uppercase mb-2">Total</p>
                 <h2 className="text-5xl font-extralight text-white tracking-tighter italic md:not-italic">
                   <span className="text-amber-500 text-2xl mr-2 font-normal">$</span>
                   {totalCarrito().toLocaleString()}
@@ -141,7 +141,7 @@ function Cart({ fullCart, setCarrito }) {
                 <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                   <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.316 1.592 5.43 0 9.856-4.426 9.858-9.855.002-5.43-4.424-9.856-9.855-9.856-5.431 0-9.856 4.426-9.858 9.856-.001 1.938.529 3.403 1.486 5.15l-.95 3.468 3.553-.931z"/>
                 </svg>
-                Finalizar Pedido
+                Finalizar pedido por WhatsApp
               </motion.button>
             </motion.footer>
 
