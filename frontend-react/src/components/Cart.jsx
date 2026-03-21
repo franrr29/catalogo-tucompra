@@ -126,10 +126,10 @@ function Cart({ fullCart, setCarrito }) {
             >
               <div className="text-center md:text-right w-full">
                 <p className="text-neutral-500 text-[10px] tracking-[0.4em] uppercase mb-2">Total</p>
-                <h2 className="text-5xl font-extralight text-white tracking-tighter italic md:not-italic">
-                  <span className="text-amber-500 text-2xl mr-2 font-normal">$</span>
-                  {totalCarrito().toLocaleString()}
-                </h2>
+               <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+               <span className="text-amber-500 text-2xl mr-2 font-medium">$</span>
+               {totalCarrito().toLocaleString()}
+               </h2>
               </div>
 
               <motion.button 
