@@ -45,8 +45,7 @@ function ProductoDetalle({ addCart }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             // CAMBIO: p-4 en movil para que el contenido use todo el ancho, p-16 en desktop
-            className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start bg-white/[0.02] backdrop-blur-3xl border border-white/10 p-4 md:p-16 rounded-3xl shadow-[0_40px_100px_rgba(0,0,0,0.7)] relative z-10"
-        >
+            className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start bg-white/[0.02] backdrop-blur-3xl border border-white/10 md:p-16 rounded-3xl shadow-[0_40px_100px_rgba(0,0,0,0.7)] relative z-10"        >
         
         {/* IZQUIERDA: Slider de Imagenes */}
         {/* CAMBIO: Eliminamos aspect-square en movil y le damos una altura fija de 400px o 500px para que se vea GRANDE */}
@@ -77,7 +76,7 @@ function ProductoDetalle({ addCart }) {
         </div> 
 
         {/* DERECHA: Informacion */}
-        <div className="flex flex-col space-y-8 md:space-y-10 py-2 md:py-4">
+        <div className="flex flex-col space-y-8 md:space-y-10 py-2 md:py-4 px-4 md:px-0">
           <header className="space-y-4">
             <div className="flex items-center gap-3">
                 <div className="h-[1px] w-8 bg-amber-500/50" />
