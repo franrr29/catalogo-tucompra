@@ -75,15 +75,15 @@ function EditarProductoAdmin ({
                 <p className="text-[10px] text-amber-500 font-medium tracking-widest uppercase">
                   Fotos del producto
                 </p>
-                <label className="cursor-pointer bg-amber-500/10 hover:bg-white/20 px-3 py-1 transition-all border border-white/10">
-                  <span className="text-[9px] text-white uppercase tracking-widest">Subir Archivos</span>
-                  <input
-                    type="file"
-                    multiple
-                    onChange={(e) => setFotosSeleccionadas(e.target.files)}
-                    className="hidden"
-                  />
-                </label>
+               <label className="relative overflow-hidden cursor-pointer bg-amber-500/10 hover:bg-white/20 px-3 py-1 transition-all border border-white/10">
+  <span className="text-[9px] text-white uppercase tracking-widest">Subir Archivos</span>
+  <input
+    type="file"
+    multiple
+    onChange={(e) => setFotosSeleccionadas(e.target.files)}
+    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+  />
+</label>
               </div>
 
               {/* Grid de imagenes */}
