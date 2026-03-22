@@ -9,7 +9,7 @@ function Admin({handleLogIn}) {
   const [contra, setContra] = useState("");
   const navigate = useNavigate();
 
-  //Logica para el envío de datos:
+  // Logica para el envio de datos:
   async function sendUserData() {
     try {
       const sendUserPassw = await fetch(API_URL + "/api/login/login", {
@@ -24,97 +24,111 @@ function Admin({handleLogIn}) {
 
       const data = await sendUserPassw.json();
       localStorage.setItem("token", data.token);
-      handleLogIn ()
+      handleLogIn()
       navigate("/admin/dashboard");
 
-      //Notificacion al entrar como admin:
-       toast.success("Bienvenido Fran", {
+      // Notificacion al entrar como admin con estilo ambar:
+      toast.success("ACCESO CONCEDIDO", {
           style: {
-            background: '#f59e0b',
-            color: '#fff',
-            border: 'none',
+            background: '#000',
+            color: '#f59e0b',
+            border: '1px solid rgba(245,158,11,0.3)',
             fontWeight: 'bold',
+            fontSize: '10px',
+            letterSpacing: '0.2em'
           }
       })
       
 
     } catch (error) {
       console.error("Error en el acceso");
-      //Notificacion de error
-      toast.error("Error de usuario o contraseña", {
+      toast.error("CREDENCIALES INVALIDAS", {
         style: {
           background: 'rgba(0,0,0,0.9)',
-          color: '#fff',
-          border: '1px solid rgba(239,68,68,0.5)',
+          color: '#ef4444',
+          border: '1px solid rgba(239,68,68,0.3)',
           backdropFilter: 'blur(10px)',
+          fontSize: '10px',
           fontWeight: 'bold',
-          letterSpacing: '0.05em'
+          letterSpacing: '0.2em'
         }
       });
     }
   }
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-6 selection:bg-amber-500/30">
+    <div className="min-h-screen bg-black flex items-center justify-center px-6 selection:bg-amber-500/30 relative overflow-hidden">
       
-      {/* Contenedor del Formulario con animación de entrada */}
+      {/* Elementos decorativos de fondo (luces difusas ambar) */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-500/5 blur-[120px] rounded-full pointer-events-none" />
+
+      {/* Contenedor del Formulario */}
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1}}
-        transition={{ duration: 0.8 }}
-        className="w-full max-w-sm bg-[#0a0a0a] border border-white/5 p-10 flex flex-col gap-8 shadow-2xl"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="w-full max-w-sm bg-white/[0.02] backdrop-blur-xl border border-white/10 p-10 flex flex-col gap-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-sm relative z-10"
       >
 
-        {/* Encabezado del Login */}
-        <div className="text-center md:text-left">
-          <h1 className="text-white text-md tracking-[0.5em] uppercase font-bold mb-4">
-            Panel <span className="text-amber-500">Privado</span>
+        {/* Encabezado */}
+        <div className="space-y-2">
+          <h1 className="text-white text-sm tracking-[0.6em] uppercase font-light">
+            SISTEMA <span className="text-amber-500 font-bold">INTERNO</span>
           </h1>
-          <div className="w-12 h-[1px] bg-amber-500 mx-auto md:mx-0" />
+          <div className="w-8 h-[1px] bg-amber-500" />
         </div>
 
         {/* Grupo de Inputs */}
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <label className="text-[9px] text-gray-500 tracking-[0.2em] uppercase ml-1">Usuario</label>
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-2 group">
+            <label className="text-[10px] text-gray-500 tracking-[0.3em] uppercase ml-1 group-focus-within:text-amber-500 transition-colors">
+              Correo
+            </label>
             <input
               type="text"
-              placeholder="admin@tucompra.com"
+              placeholder="USUARIO"
               value={usuario}
               onChange={(e) => setUsuario(e.target.value)}
-              className="bg-transparent border border-white/10 text-white text-sm px-4 py-3 focus:outline-none focus:border-amber-500/50 transition-all duration-500 placeholder-gray-800 w-full"
+              className="bg-white/[0.03] border border-white/5 text-white text-[11px] px-4 py-4 focus:outline-none focus:border-amber-500/40 focus:bg-white/[0.05] transition-all duration-300 placeholder-gray-700 w-full tracking-widest uppercase rounded-sm"
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-[9px] text-gray-500 tracking-[0.2em] uppercase ml-1">Contraseña</label>
+          <div className="flex flex-col gap-2 group">
+            <label className="text-[10px] text-gray-500 tracking-[0.3em] uppercase ml-1 group-focus-within:text-amber-500 transition-colors">
+              Clave de seguridad
+            </label>
             <input
               type="password"
               placeholder="••••••••"
               value={contra}
               onChange={(e) => setContra(e.target.value)}
-              className="bg-transparent border border-white/10 text-white text-sm px-4 py-3 focus:outline-none focus:border-amber-500/50 transition-all duration-500 placeholder-gray-800 w-full"
+              className="bg-white/[0.03] border border-white/5 text-white text-[11px] px-4 py-4 focus:outline-none focus:border-amber-500/40 focus:bg-white/[0.05] transition-all duration-300 placeholder-gray-700 w-full tracking-widest rounded-sm"
             />
           </div>
         </div>
 
-        {/* Botón de Acceso con efectos de Framer Motion */}
-        <motion.button
-          whileHover={{ letterSpacing: "0.4em" }} // Se expande un poco el texto al pasar el mouse
-          whileTap={{ scale: 0.98 }}
-          onClick={sendUserData}
-          className="bg-white text-black text-[10px] font-bold tracking-[0.2em] uppercase px-4 py-4 hover:bg-amber-500 transition-all duration-500"
-        >
-          Acceder al Sistema
-        </motion.button>
+        {/* Boton de Acceso */}
+        <div className="pt-2">
+            <motion.button
+              whileHover={{ scale: 1.01, backgroundColor: "#f59e0b", color: "#000" }}
+              whileTap={{ scale: 0.99 }}
+              onClick={sendUserData}
+              className="w-full bg-transparent border border-amber-500/50 text-amber-500 text-[10px] font-bold tracking-[0.3em] uppercase px-4 py-4 transition-all duration-300 rounded-sm hover:shadow-[0_0_20px_rgba(245,158,11,0.1)]"
+            >
+              Ingresar
+            </motion.button>
+        </div>
 
-        {/* Pie de página del login */}
-        <p className="text-[9px] text-gray-600 text-center tracking-widest uppercase mt-2">
-          Solo personal autorizado
-        </p>
+        {/* Pie de pagina */}
+        <div className="flex flex-col items-center gap-4 mt-2">
+            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+            <p className="text-[10px] text-gray-600 text-center tracking-[0.3em] uppercase">
+              Tu Compra © 2026 | Restricted Area
+            </p>
+        </div>
 
       </motion.div>
-
     </div>
   );
 }
