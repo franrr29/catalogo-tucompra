@@ -152,7 +152,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
             {isLogIn ? (
               <button
                 onClick={() => { handleLogOut(); setMenuOpen(false); }}
-                className="text-red-500 text-[10px] tracking-[0.4em] uppercase border border-red-500/20 px-10 py-4 rounded-full"
+                className="text-red-500 text-[10px] tracking-[0.4em] uppercase border border-red-500/20 px-10 py-4 "
               >
                 Salir
               </button>
