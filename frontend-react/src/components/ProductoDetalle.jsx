@@ -68,7 +68,7 @@ function ProductoDetalle({ addCart }) {
                     src={imagen.url}
                     alt={`${producto.nombre} - ${index}`}
                     // CAMBIO: scale-125 en movil para que la imagen llene mas el espacio sin perder calidad
-                    className="object-contain h-full w-full p-0 scale-110 md:scale-100 transition-transform duration-1000 ease-out hover:scale-125"
+                    className="object-contain h-full w-full"
                   />
                 </SwiperSlide>
               ))
