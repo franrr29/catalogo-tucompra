@@ -11,6 +11,7 @@ function Cart({ fullCart, setCarrito }) {
       return acc + precioFinal * prod.cantidad;
     }, 0);
   }
+  console.log (fullCart)
 
   useEffect(() => {
     async function sendProdctsIds() {
@@ -57,8 +58,8 @@ function Cart({ fullCart, setCarrito }) {
   }
 
   function whatsapp() {
-    const productos = fullCart.map(prod => `• ${prod.nombre} (x${prod.cantidad}) - $${prod.precio} 🔗 ${prod.imagen_url}`).join("\n");
-    const mensaje = `Hola! Me gustaría finalizar mi pedido:\n\n${productos}\n\nTotal: $${totalCarrito()}\n\nQuedo atento/a.`;
+    const productos = fullCart.map(prod => `• ${prod.nombre} (x${prod.cantidad}) - $${prod.precio}`).join("\n");
+    const mensaje = `Buenas! Me gustaría finalizar mi pedido:\n\n${productos}\n\nTotal: $${totalCarrito()}\n\n Aguardo confirmacion`;
     window.open(`https://wa.me/59891637161?text=${encodeURIComponent(mensaje)}`);
   }
 
