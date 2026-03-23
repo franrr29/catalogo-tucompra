@@ -57,7 +57,7 @@ function Cart({ fullCart, setCarrito }) {
   }
 
   function whatsapp() {
-    const productos = fullCart.map(prod => `• ${prod.nombre} (x${prod.cantidad}) - $${prod.precio}`).join("\n");
+    const productos = fullCart.map(prod => `• ${prod.nombre} (x${prod.cantidad}) - $${prod.precio} - ${prod.imagen}`).join("\n");
     const mensaje = `Hola! Me gustaría finalizar mi pedido:\n\n${productos}\n\nTotal: $${totalCarrito()}\n\nQuedo atento/a.`;
     window.open(`https://wa.me/59891637161?text=${encodeURIComponent(mensaje)}`);
   }

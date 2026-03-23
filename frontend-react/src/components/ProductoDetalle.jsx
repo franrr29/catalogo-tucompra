@@ -44,11 +44,11 @@ function ProductoDetalle({ addCart }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            // CAMBIO: p-4 en movil para que el contenido use todo el ancho, p-16 en desktop
+            // p-4 en movil para que el contenido use todo el ancho, p-16 en desktop
             className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start bg-white/[0.02] backdrop-blur-3xl border border-white/10 md:p-16 rounded-3xl shadow-[0_40px_100px_rgba(0,0,0,0.7)] relative z-10"        >
         
         {/* IZQUIERDA: Slider de Imagenes */}
-        {/* CAMBIO: Eliminamos aspect-square en movil y le damos una altura fija de 400px o 500px para que se vea GRANDE */}
+        {/* Eliminamos aspect-square en movil y le damos una altura fija de 400px o 500px para que se vea GRANDE */}
         <div className="w-full h-[400px] md:h-[600px] overflow-hidden rounded-2xl bg-gradient-to-b from-white/[0.03] to-transparent relative group border border-white/5">
           <Swiper 
             modules={[Navigation, Pagination]} 
@@ -66,7 +66,7 @@ function ProductoDetalle({ addCart }) {
                   <img
                     src={imagen.url}
                     alt={`${producto.nombre} - ${index}`}
-                    // CAMBIO: scale-125 en movil para que la imagen llene mas el espacio sin perder calidad
+                    // scale-125 en movil para que la imagen llene mas el espacio sin perder calidad
                     className="object-contain h-full w-full"
                   />
                 </SwiperSlide>
