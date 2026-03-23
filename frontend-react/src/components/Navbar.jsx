@@ -80,7 +80,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
             to="/"
             className="text-white font-black text-xl tracking-[0.4em] uppercase group"
           >
-            TU<span className="text-amber-500 group-hover:text-white transition-colors duration-500">COMPRA</span>
+            T<span className="text-amber-500 group-hover:text-white transition-colors duration-500">C</span>
           </Link>
         </motion.div>
 
