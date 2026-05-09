@@ -1,6 +1,6 @@
-//===Conexion a la base de datos===//
 const mysql = require('mysql2/promise'); 
 const path = require('path');
+
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 const baseDatos = mysql.createPool({
@@ -9,6 +9,11 @@ const baseDatos = mysql.createPool({
     password: process.env.MYSQLPASSWORD,
     database: process.env.MYSQLDATABASE,
     port: process.env.MYSQLPORT || 3306,
+
+    ssl: {
+        rejectUnauthorized: false
+    },
+
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -16,14 +21,14 @@ const baseDatos = mysql.createPool({
 
 async function testConexion() {
     try {
-        const connection = await baseDatos.getConnection()
-        console.log("Conectado a la base de datos")
-        connection.release()
+        const connection = await baseDatos.getConnection();
+        console.log("Conectado a la base de datos");
+        connection.release();
     } catch (error) {
-        console.log("Error al conectar con la base de datos", error)
+        console.log("Error al conectar con la base de datos", error);
     }
 }
 
-testConexion()
+testConexion();
 
-module.exports= baseDatos; 
+module.exports = baseDatos;
