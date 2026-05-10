@@ -28,11 +28,17 @@ function Card({ producto, addCart, isLogIn }) {
                 {/* 2. IMAGEN */}
                 <div className="relative w-full aspect-square flex items-center justify-center p-2 mb-6">
                     <div className="absolute inset-0 bg-white/5 blur-3xl rounded-full group-hover:bg-amber-500/10 transition-colors duration-500" />
-                    <img 
-                        src={producto.imagen_url || "https://via.placeholder.com/300x300?text=No+Image"} 
-                        alt={producto.nombre}
-                        className="relative z-10 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
-                    />
+                    {producto.imagen_url ? (
+                        <img
+                            src={producto.imagen_url}
+                            alt={producto.nombre}
+                            className="relative z-10 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                        />
+                    ) : (
+                        <div className="relative z-10 w-full h-full flex items-center justify-center">
+                            <span className="text-white/20 text-[10px] tracking-widest uppercase">Sin imagen</span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Contenedor inferior con flex-grow para empujar el botón al fondo */}
