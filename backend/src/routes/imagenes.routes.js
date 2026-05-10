@@ -48,7 +48,7 @@ router.post(
 
       // Verificar si el producto existe
       const [producto] = await baseDatos.query(
-        "SELECT * FROM tucompra.productos WHERE id = ?",
+        "SELECT * FROM productos WHERE id = ?",
         [productoId]
       );
 
@@ -60,14 +60,14 @@ router.post(
 
       // Obtener imágenes existentes
       const [rows] = await baseDatos.query(
-        "SELECT * FROM tucompra.producto_imagenes WHERE producto_id = ?",
+        "SELECT * FROM producto_imagenes WHERE producto_id = ?",
         [productoId]
       );
 
       // Insertar imágenes nuevas
       const inserts = archivos.map((file, index) =>
         baseDatos.query(
-          `INSERT INTO tucompra.producto_imagenes 
+          `INSERT INTO producto_imagenes 
           (producto_id, imagen_url, orden) 
           VALUES (?, ?, ?)`,
           [productoId, file.path, index + rows.length]
@@ -100,7 +100,7 @@ router.get("/:productoId", async (req, res) => {
     const productoId = Number(req.params.productoId);
 
     const [rows] = await baseDatos.query(
-      `SELECT * FROM tucompra.producto_imagenes 
+      `SELECT * FROM producto_imagenes 
        WHERE producto_id = ? 
        ORDER BY orden ASC`,
       [productoId]
@@ -131,7 +131,7 @@ router.delete("/:imagenId", middleVerificador, async (req, res) => {
     }
 
     const [rows] = await baseDatos.query(
-      "SELECT * FROM tucompra.producto_imagenes WHERE id = ?",
+      "SELECT * FROM producto_imagenes WHERE id = ?",
       [imagenId]
     );
 
@@ -157,7 +157,7 @@ router.delete("/:imagenId", middleVerificador, async (req, res) => {
 
     // Eliminar de MySQL
     await baseDatos.query(
-      "DELETE FROM tucompra.producto_imagenes WHERE id = ?",
+      "DELETE FROM producto_imagenes WHERE id = ?",
       [imagenId]
     );
 
@@ -188,7 +188,7 @@ router.patch("/:imagenId", middleVerificador, async (req, res) => {
     }
 
     const [row] = await baseDatos.query(
-      "SELECT * FROM tucompra.producto_imagenes WHERE id = ?",
+      "SELECT * FROM producto_imagenes WHERE id = ?",
       [imagenId]
     );
 
@@ -202,13 +202,13 @@ router.patch("/:imagenId", middleVerificador, async (req, res) => {
 
     // Resetear orden de imágenes
     await baseDatos.query(
-      "UPDATE tucompra.producto_imagenes SET orden = 1 WHERE producto_id = ?",
+      "UPDATE producto_imagenes SET orden = 1 WHERE producto_id = ?",
       [productoId]
     );
 
     // Poner imagen principal
     await baseDatos.query(
-      "UPDATE tucompra.producto_imagenes SET orden = 0 WHERE id = ?",
+      "UPDATE producto_imagenes SET orden = 0 WHERE id = ?",
       [imagenId]
     );
 
