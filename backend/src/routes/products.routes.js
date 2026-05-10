@@ -208,7 +208,7 @@ router.patch ("/:id", middleVerificador, async (req, res)=>{
 
 
 
-//===BORRAR PRODUCTOS DE CLOUDIANARY===//
+//===BORRAR PRODUCTOS DE CLOUDINARY===//
 
 router.delete("/:id", middleVerificador, async (req, res) => {
   try {
@@ -224,57 +224,16 @@ router.delete("/:id", middleVerificador, async (req, res) => {
 
     if (rows.length > 0) {
       const eliminarCloudinary = rows.map((imagen) => {
-      router.delete("/:id", middleVerificador, async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-
-    if (isNaN(id) || id < 0) {
-      return res.status(400).json({ mensaje: "El ID debe ser un número válido" });
-    }
-
-    const [rows] = await baseDatos.query(
-      "SELECT * FROM producto_imagenes WHERE producto_id = ?", [id]
-    );
-
-       // Busca sus imágenes en la BD y, si existen, obtiene el publicId de cada URL de Cloudinary.
-       // Elimina todas las img en paralelo con promiseall
-       // Luego borra el producto de la base de datos
-       
-       if (rows.length > 0) {
-       const eliminarCloudinary = rows.map((imagen) => {
-       const posicion = imagen.imagen_url.indexOf("upload/") + 7;
-       const resto = imagen.imagen_url.slice(posicion);
-       const partes = resto.split("/");
-       partes.shift();
-       const publicId = partes.join("/").split(".")[0];
-       return cloudinary.uploader.destroy(publicId);
-     });
-     await Promise.all(eliminarCloudinary);
-   }
-
-    // BORRAR PRODUCTO
-    const [resultado] = await baseDatos.query(
-      "DELETE FROM productos WHERE id = ?", [id]
-    );
-
-    if (resultado.affectedRows === 0) {
-      return res.status(404).json({ mensaje: "Producto no encontrado" });
-    }
-
-    res.json({ mensaje: "Producto eliminado correctamente" });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error al borrar el producto" });
-  }
-});
-
-
+        const posicion = imagen.imagen_url.indexOf("upload/") + 7;
+        const resto = imagen.imagen_url.slice(posicion);
+        const partes = resto.split("/");
+        partes.shift();
+        const publicId = partes.join("/").split(".")[0];
+        return cloudinary.uploader.destroy(publicId);
       });
       await Promise.all(eliminarCloudinary);
     }
 
-    // BORRAR PRODUCTO
     const [resultado] = await baseDatos.query(
       "DELETE FROM productos WHERE id = ?", [id]
     );

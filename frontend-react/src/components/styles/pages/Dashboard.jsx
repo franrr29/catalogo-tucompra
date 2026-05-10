@@ -52,15 +52,15 @@ function Dashboard({isLogIn}) {
 
   //===FUNCION PARA CARGAR IMAGENES COMO ADMIN===//
 
-  async function subirFotos(productoId){ 
+  async function subirFotos(productoId){
     const formData= new FormData ()
-    Array.from(fotosSeleccionadas).forEach(file => { 
+    Array.from(fotosSeleccionadas).forEach(file => {
     formData.append("imagenes", file)
 })
     try {
       const res= await fetch (`${API_URL}/api/imagenes/${productoId}`, {
-        method: "POST", //Envia el post a imagenes.routes.js
-        headers: { 
+        method: "POST",
+        headers: {
         "Authorization": "Bearer " + localStorage.getItem("token")
       },
         body: formData
@@ -72,10 +72,17 @@ function Dashboard({isLogIn}) {
       }
 
       const data= await res.json()
-      console.log (data)
-      
+
+      if (!res.ok) {
+        toast.error(data.mensaje || "Error al subir las imágenes", toastStyle)
+        return
+      }
+
+      console.log(data)
+
     } catch (error){
       console.error ("Error al cargar las fotos", error)
+      toast.error("Error de conexión al subir imágenes", toastStyle)
     }
   }
 
@@ -145,11 +152,11 @@ function Dashboard({isLogIn}) {
 
      if (fotosSeleccionadas !== null) {
        await subirFotos(data.id)
-       getProductos()
+       await getProductos()
        setFotosSeleccionadas(null)
        toast.success("Producto creado", toastStyle)
      } else {
-       getProductos()
+       await getProductos()
        toast.success("Producto creado", toastStyle)
      }};
 
@@ -219,14 +226,14 @@ function Dashboard({isLogIn}) {
     }
 
       if (resp.ok) {
-        setProductos(productos.map(p => p.id === id ? { ...p, ...soloRellenos } : p));
         setActualizarDatos({ nombre: "", precio: "", stock: "", imagen: "" });
         if (fotosSeleccionadas !== null){
-        await subirFotos(id)
-        await abrirPanelEdicion(id)
-      }
-      setFotosSeleccionadas(null)
-      toast.success ("Producto actualizado", toastStyle);
+          await subirFotos(id)
+          await abrirPanelEdicion(id)
+          await getProductos()
+        }
+        setFotosSeleccionadas(null)
+        toast.success ("Producto actualizado", toastStyle);
       }
 
     } catch (error) { console.error("Error al actualizar"); 
