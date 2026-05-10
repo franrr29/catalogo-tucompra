@@ -161,14 +161,18 @@ function Dashboard({isLogIn}) {
   }
 
    async function getProductos() {
-      try {
-        const resp = await fetch(API_URL + "/api/productos");
-        const data = await resp.json();
-        setProductos(data);
-      } catch (error) {
-        console.error("Error al traer productos");
-      }
-    }
+  try {
+    const resp = await fetch(API_URL + "/api/productos");
+    const data = await resp.json();
+
+    console.log("PRODUCTOS:", data);
+
+    setProductos(Array.isArray(data) ? data : []);
+
+  } catch (error) {
+    console.error("Error al traer productos");
+  }
+}
     
   async function borrarProducto(id) {
     if (!window.confirm("Eliminar producto?")) return;
