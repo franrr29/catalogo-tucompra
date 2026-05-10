@@ -15,9 +15,9 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "tu-compra-productos", // carpeta en Cloudinary
+    folder: "tu-compra-productos", 
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
-    transformation: [{ width: 800, height: 800, crop: "limit" }], // limita el tamaño sin distorsionar
+    transformation: [{ width: 800, height: 800, crop: "limit" }], 
   },
 });
 

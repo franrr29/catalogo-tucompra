@@ -20,7 +20,7 @@ async function actualizarDatosFront(productId) {
   return rows [0];
 
   } catch (error){
-    throw error // <---RELANZAMOS EL ERROR AL CONTROLLER SINO, GENERA BUGS DIFICILES DE ENCONTRAR---
+    throw error // RELANZAMOS EL ERROR AL CONTROLLER SINO, GENERA BUGS DIFICILES DE ENCONTRAR
   }
 
 };
