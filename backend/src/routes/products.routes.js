@@ -85,21 +85,15 @@ router.post("/", middleVerificador, async (req, res) => {
       });
     }
 
-    const imagenProducto =
-      typeof imagen === "string" && imagen.trim() !== ""
-        ? imagen.trim()
-        : "";
-
     const query = `
-      INSERT INTO productos (nombre, precio, stock, imagen)
-      VALUES (?,?,?,?)
+      INSERT INTO productos (nombre, precio, stock)
+      VALUES (?,?,?)
     `;
 
     const [resultado] = await baseDatos.query(query, [
       nombre.trim(),
       precioNum,
       stockNum,
-      imagenProducto
     ]);
 
     res.json({
@@ -107,12 +101,11 @@ router.post("/", middleVerificador, async (req, res) => {
       nombre,
       precio: precioNum,
       stock: stockNum,
-      imagen: imagenProducto
     });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Error al crear el producto" });
+    res.status(500).json({ error: error.message || "Error al crear el producto" });
   }
 });
 
