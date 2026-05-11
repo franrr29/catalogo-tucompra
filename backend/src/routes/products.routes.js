@@ -88,7 +88,7 @@ router.post("/", middleVerificador, async (req, res) => {
     const imagenProducto =
       typeof imagen === "string" && imagen.trim() !== ""
         ? imagen.trim()
-        : null;
+        : "";
 
     const query = `
       INSERT INTO productos (nombre, precio, stock, imagen)
