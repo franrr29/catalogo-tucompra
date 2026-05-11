@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
     
   } catch (error) {
     console.error("Error al obtener productos:", error);
-    res.status(500).json({ mensaje: "Error interno del servidor" });
+    res.status(500).json({ mensaje: "Error interno del servidor", detalle: error.message });
   }
 });
 
