@@ -11,7 +11,8 @@ function EditarProductoAdmin ({
   idProductoEditado,
   item,
   setIdProductoEditado,
-  borrarUnaFoto
+  borrarUnaFoto,
+  previewsPendientes
 }) {
   return (
     <>
@@ -106,6 +107,26 @@ function EditarProductoAdmin ({
                       >
                         Quitar
                       </button>
+                    </div>
+                  </motion.div>
+                ))}
+
+                {previewsPendientes.map((url, i) => (
+                  <motion.div
+                    layout
+                    key={`pending-${i}`}
+                    className="flex items-center gap-3 bg-black/40 backdrop-blur-md p-3 rounded-md border border-amber-500/20 group"
+                  >
+                    <div className="relative overflow-hidden rounded-sm w-12 h-12 border border-amber-500/20 flex-shrink-0">
+                      <img
+                        src={url}
+                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"
+                        alt="Preview"
+                      />
+                    </div>
+                    <div className="flex flex-col min-w-[80px]">
+                      <span className="text-[7px] text-amber-500/60 uppercase tracking-widest">Estado</span>
+                      <span className="text-[9px] text-amber-500/70 whitespace-nowrap">Pendiente de subir</span>
                     </div>
                   </motion.div>
                 ))}

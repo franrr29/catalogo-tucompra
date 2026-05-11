@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-function CrearNuevoProdct({ nuevoProducto, setNuevoProducto, setFotosSeleccionadas, crearNuevoProducto }) {
+function CrearNuevoProdct({ nuevoProducto, setNuevoProducto, setFotosSeleccionadas, crearNuevoProducto, creando }) {
 
   //ESTILOS REUTILIZABLES ACTUALIZADOS
   const inputClass = "bg-white/[0.03] border border-white/10 text-white text-[11px] px-4 py-3 focus:outline-none focus:border-amber-500/40 transition-all placeholder-gray-600 w-full rounded-sm tracking-widest uppercase";
@@ -80,13 +80,14 @@ const btnPrimary = "bg-amber-500 text-black text-[10px] font-bold tracking-[0.2e
         </div>
 
         <div className="flex justify-start">
-          <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={crearNuevoProducto} 
-            className={btnPrimary}
+          <motion.button
+            whileHover={creando ? {} : { scale: 1.02 }}
+            whileTap={creando ? {} : { scale: 0.98 }}
+            onClick={crearNuevoProducto}
+            disabled={creando}
+            className={`${btnPrimary} ${creando ? "opacity-60 cursor-not-allowed" : ""}`}
           >
-            Publicar
+            {creando ? "Publicando..." : "Publicar"}
           </motion.button>
         </div>
         

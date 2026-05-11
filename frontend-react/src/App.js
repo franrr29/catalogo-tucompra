@@ -38,6 +38,8 @@ function App() {
       setIsLogIn (true)
     }
     setLoading (false)
+    // warm-up: wake Render backend so product list loads instantly on first visit
+    fetch(API_URL + "/api/productos").catch(() => {});
   },[])
 
   //FUNCION PARA MANEJAR EL LOGOUT, ACTUALIZAR EL ESTADO Y VA COMO PROP EN NAVBAR:

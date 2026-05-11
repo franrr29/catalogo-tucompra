@@ -14,6 +14,8 @@ function Dashboard({isLogIn}) {
   const [idProductoEditado , setIdProductoEditado ] = useState(null);
   const [fotosSeleccionadas, setFotosSeleccionadas]= useState (null);
   const [imagenesEditor, setImagenesEditor] = useState([]);
+  const [creando, setCreando] = useState(false);
+  const [previewsPendientes, setPreviewsPendientes] = useState([]);
   const navigate = useNavigate();
   const timerRef = useRef(null);
 
@@ -36,7 +38,7 @@ function Dashboard({isLogIn}) {
     },
   };
 
-  //LÓGICA DE SESIÓN Y SEGURIDAD
+  //LOGICA DE SESION Y SEGURIDAD
 
   function resetearTimer() {
     clearTimeout(timerRef.current);
@@ -49,6 +51,17 @@ function Dashboard({isLogIn}) {
     localStorage.removeItem("token");
     navigate("/admin/login");
   }
+
+  // generate preview URLs for newly selected files while edit panel is open
+  useEffect(() => {
+    if (!fotosSeleccionadas || !idProductoEditado) {
+      setPreviewsPendientes([]);
+      return;
+    }
+    const urls = Array.from(fotosSeleccionadas).map(f => URL.createObjectURL(f));
+    setPreviewsPendientes(urls);
+    return () => urls.forEach(url => URL.revokeObjectURL(url));
+  }, [fotosSeleccionadas, idProductoEditado]);
 
   //===FUNCION PARA CARGAR IMAGENES COMO ADMIN===//
 
@@ -117,11 +130,13 @@ function Dashboard({isLogIn}) {
   //===LOGICA CRUD DEL ADMIN===//
 
   async function crearNuevoProdct() {
+    if (creando) return;
     if (!nuevoProducto.nombre || !nuevoProducto.precio || !nuevoProducto.stock) {
       toast.error("Debes completar nombre, precio y stock", toastStyle);
       return;
     }
 
+    setCreando(true);
     try {
       const datosProducto = {
         nombre: nuevoProducto.nombre.trim(),
@@ -139,31 +154,32 @@ function Dashboard({isLogIn}) {
       });
 
       if (resp.status === 401){
-      adminLogOut ()
-      return
-    }
+        adminLogOut();
+        return;
+      }
 
       const data = await resp.json();
-      console.log(data);
 
-        if (resp.ok) { 
-     setNuevoProducto({ nombre: "", precio: "", stock: "", imagen: "" });
-     
+      if (resp.ok) {
+        setNuevoProducto({ nombre: "", precio: "", stock: "", imagen: "" });
 
-     if (fotosSeleccionadas !== null) {
-       await subirFotos(data.id)
-       await getProductos()
-       setFotosSeleccionadas(null)
-       toast.success("Producto creado", toastStyle)
-     } else {
-       await getProductos()
-       toast.success("Producto creado", toastStyle)
-     }};
-
+        if (fotosSeleccionadas !== null) {
+          await subirFotos(data.id);
+          await getProductos();
+          setFotosSeleccionadas(null);
+        } else {
+          await getProductos();
+        }
+        toast.success("Producto creado", toastStyle);
+      } else {
+        toast.error(data.error || data.mensaje || "Error al crear el producto", toastStyle);
+      }
 
     } catch (error) {
       console.error("Error al crear el producto", error);
-      toast.error ("Error al crear el producto", toastStyle);
+      toast.error("Error al crear el producto", toastStyle);
+    } finally {
+      setCreando(false);
     }
   }
 
@@ -180,12 +196,12 @@ function Dashboard({isLogIn}) {
     console.error("Error al traer productos");
   }
 }
-    
+
   async function borrarProducto(id) {
     if (!window.confirm("Eliminar producto?")) return;
     try {
       const resp = await fetch(`${API_URL}/api/productos/${id}`, { method: "DELETE" ,
-        headers: { 
+        headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + localStorage.getItem("token")
       }
@@ -199,10 +215,10 @@ function Dashboard({isLogIn}) {
 
        setProductos(productos.filter(item => item.id !== id))
        toast.success ("Producto eliminado", toastStyle);}
-        
-      
 
-    } catch (error) { console.error("Error al borrar"); 
+
+
+    } catch (error) { console.error("Error al borrar");
       toast.error ("Error al eliminar", toastStyle);
     }
   }
@@ -236,7 +252,7 @@ function Dashboard({isLogIn}) {
         toast.success ("Producto actualizado", toastStyle);
       }
 
-    } catch (error) { console.error("Error al actualizar"); 
+    } catch (error) { console.error("Error al actualizar");
       toast.error ("Error al actualizar", toastStyle);
     }
   }
@@ -245,11 +261,11 @@ function Dashboard({isLogIn}) {
     try {
       const res= await fetch (`${API_URL}/api/imagenes/${imagenId}`,{
         method: "PATCH",
-        headers: { 
+        headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + localStorage.getItem("token")
       }
-      
+
     });
 
     if (res.status === 401){
@@ -304,7 +320,7 @@ function Dashboard({isLogIn}) {
 
   return (
     <div className="min-h-screen bg-black text-white px-8 py-24">
-      
+
       {/* HEADER DASHBOARD */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-16">
         <div>
@@ -313,23 +329,24 @@ function Dashboard({isLogIn}) {
         </div>
       </motion.div>
 
-       <CrearNuevoProdct 
+       <CrearNuevoProdct
       nuevoProducto={nuevoProducto}
       setNuevoProducto={setNuevoProducto}
       setFotosSeleccionadas={setFotosSeleccionadas}
       crearNuevoProducto={crearNuevoProdct}
+      creando={creando}
     />
 
       {/* SECCIÓN: LISTADO Y EDICIÓN */}
       <section>
         <h2 className="text-gray-500 text-[10px] tracking-[0.3em] uppercase mb-10">Stock Actual ({productos.length})</h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
           <AnimatePresence>
             {productos.map((item) => (
               <motion.div key={item.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-4 bg-[#0a0a0a] p-4 border border-white/5">
                 <Card producto={item} isLogIn={isLogIn} />
-                
+
                 <div className="flex gap-2">
                   <button onClick={() => abrirPanelEdicion(item.id)} className={btnSecondary}>Editar Datos</button>
                   <button onClick={() => borrarProducto(item.id)} className={btnDanger}>Eliminar</button>
@@ -346,7 +363,8 @@ function Dashboard({isLogIn}) {
                 idProductoEditado={idProductoEditado}
                 item={item}
                 setIdProductoEditado={setIdProductoEditado}
-                borrarUnaFoto={borrarUnaFoto}/>
+                borrarUnaFoto={borrarUnaFoto}
+                previewsPendientes={previewsPendientes}/>
               </motion.div>
             ))}
           </AnimatePresence>
