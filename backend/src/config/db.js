@@ -2,7 +2,14 @@ require("dotenv").config();
 
 const mysql = require("mysql2/promise");
 
-const baseDatos = mysql.createPool(process.env.DATABASE_URL);
+const baseDatos = mysql.createPool({
+  uri: process.env.DATABASE_URL,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
+});
 
 async function testConexion() {
   try {

@@ -21,6 +21,7 @@ router.get("/", async (req, res) => {
     `;
 
     const [productos] = await baseDatos.query(query);
+    res.set("Cache-Control", "public, max-age=60");
     res.json(productos);
     
   } catch (error) {
@@ -39,22 +40,29 @@ router.get("/:id", async (req, res) => {
       return res.status(400).json({ mensaje: "ID inválido" });
     }
 
-    const [productos] = await baseDatos.query("SELECT * FROM productos WHERE id = ?", [id]);
-
-    if (productos.length === 0) {
-      return res.status(404).json({ mensaje: "Producto no encontrado" });
-    }
-
-    const [fotos] = await baseDatos.query(
-      "SELECT id, imagen_url, orden FROM producto_imagenes WHERE producto_id = ?", 
+    const [rows] = await baseDatos.query(
+      `SELECT p.*, pi.id AS foto_id, pi.imagen_url AS foto_url, pi.orden AS foto_orden
+       FROM productos p
+       LEFT JOIN producto_imagenes pi ON pi.producto_id = p.id
+       WHERE p.id = ?
+       ORDER BY pi.orden ASC`,
       [id]
     );
 
+    if (rows.length === 0) {
+      return res.status(404).json({ mensaje: "Producto no encontrado" });
+    }
+
+    const { foto_id, foto_url, foto_orden, ...productoBase } = rows[0];
+
     const respuestaFinal = {
-      ...productos[0],
-      imagenes: fotos.map(f => ({ id: f.id, url: f.imagen_url, orden: f.orden }))
+      ...productoBase,
+      imagenes: rows
+        .filter(r => r.foto_id !== null)
+        .map(r => ({ id: r.foto_id, url: r.foto_url, orden: r.foto_orden }))
     };
 
+    res.set("Cache-Control", "public, max-age=60");
     res.json(respuestaFinal);
 
   } catch (error) {

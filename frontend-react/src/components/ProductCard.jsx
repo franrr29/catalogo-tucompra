@@ -1,6 +1,11 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
+function optimizarUrl(url) {
+  if (!url || !url.includes("/upload/")) return url;
+  return url.replace("/upload/", "/upload/q_auto,f_auto,w_400/");
+}
+
 function Card({ producto, addCart, isLogIn }) {
     const PanelBase = isLogIn ? "div" : Link;
     const enlace = isLogIn ? {} : { to: `/producto/${producto.id}` };
@@ -30,7 +35,7 @@ function Card({ producto, addCart, isLogIn }) {
                     <div className="absolute inset-0 bg-white/5 blur-3xl rounded-full group-hover:bg-amber-500/10 transition-colors duration-500" />
                     {producto.imagen_url ? (
                         <img
-                            src={producto.imagen_url}
+                            src={optimizarUrl(producto.imagen_url)}
                             alt={producto.nombre}
                             className="relative z-10 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                         />
