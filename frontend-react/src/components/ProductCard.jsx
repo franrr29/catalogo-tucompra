@@ -31,8 +31,8 @@ function Card({ producto, addCart, isLogIn }) {
           )}
         </div>
 
-        {/* INFO */}
-        <div className="p-4 flex flex-col gap-3 bg-zinc-900">
+        {/* INFO - se monta encima de la imagen con bordes redondeados arriba */}
+        <div className="-mt-5 rounded-t-2xl relative z-10 p-4 flex flex-col gap-3 bg-zinc-900">
 
           {/* NOMBRE + STOCK */}
           <div className="flex items-start justify-between gap-2">
@@ -40,9 +40,6 @@ function Card({ producto, addCart, isLogIn }) {
               <h2 className="text-white font-bold text-sm uppercase tracking-wide leading-snug">
                 {producto.nombre}
               </h2>
-              {producto.descripcion && (
-                <p className="text-zinc-400 text-xs mt-0.5">{producto.descripcion}</p>
-              )}
             </div>
             <span className="flex items-center gap-1.5 bg-zinc-800 text-zinc-300 text-xs px-3 py-1 rounded-full shrink-0">
               <span className="w-2 h-2 rounded-full bg-green-500" />
@@ -65,9 +62,9 @@ function Card({ producto, addCart, isLogIn }) {
                 e.preventDefault();
                 addCart(producto.id);
               }}
-              className="w-full py-3 bg-gradient-to-b from-amber-500 to-amber-600 text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:from-amber-400 hover:to-amber-500 transition-all duration-200 flex items-center justify-center gap-3"
+              className="w-full py-3 bg-gradient-to-b from-yellow-400 via-amber-500 to-orange-600 text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:from-yellow-300 hover:via-amber-400 hover:to-orange-500 transition-all duration-200 flex items-center justify-center gap-3 shadow-[0_2px_12px_rgba(245,158,11,0.35)]"
             >
-              <span className="text-base leading-none">+</span>
+              <span className="text-xl leading-none font-bold">+</span>
               Agregar al carrito
             </button>
           )}
