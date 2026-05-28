@@ -15,7 +15,7 @@ function Card({ producto, addCart, isLogIn }) {
   return (
     <Wrapper {...wrapperProps} className="block group">
 
-      <div className="rounded-2xl overflow-hidden flex flex-col backdrop-blur-md bg-white/5 border border-white/10 hover:border-white/25 transition-all duration-300">
+      <div className="rounded-xl overflow-hidden flex flex-col border border-white/10 hover:border-white/25 transition-all duration-300">
 
         {/* IMAGEN - cuadrada, llena el espacio */}
         <div className="aspect-square overflow-hidden">
@@ -36,8 +36,8 @@ function Card({ producto, addCart, isLogIn }) {
         {/* DIVISOR */}
         <div className="h-px bg-white/10" />
 
-        {/* CONTENIDO */}
-        <div className="p-5 flex flex-col gap-4">
+        {/* CONTENIDO - fondo vidrio gris */}
+        <div className="p-5 flex flex-col gap-4 backdrop-blur-md bg-zinc-400/10">
 
           {/* NOMBRE */}
           <h2 className="text-white font-bold text-sm uppercase tracking-wide leading-snug">
@@ -59,7 +59,7 @@ function Card({ producto, addCart, isLogIn }) {
                 e.preventDefault();
                 addCart(producto.id);
               }}
-              className="w-full py-3 bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-amber-500 hover:border-amber-500 hover:text-black transition-all duration-200"
+              className="w-full py-3 bg-amber-500 text-black text-xs font-bold uppercase tracking-widest rounded-lg hover:bg-amber-400 transition-colors duration-200"
             >
               Agregar al carrito
             </button>
