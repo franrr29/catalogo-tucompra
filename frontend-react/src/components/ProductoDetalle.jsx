@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
-import { motion } from "framer-motion"; 
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -28,100 +27,81 @@ function ProductoDetalle({ addCart }) {
   if (!producto) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <p className="text-white tracking-[0.5em] font-light animate-pulse uppercase text-[10px]">Cargando producto</p>
+        <p className="text-white/40 text-xs tracking-[0.5em] uppercase animate-pulse">Cargando...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-10 px-4 md:px-6 flex flex-col items-center justify-start overflow-y-auto selection:bg-amber-500/30"> 
-        
-        <div className="fixed inset-0 pointer-events-none">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/5 blur-[120px] rounded-full" />
-        </div>
+    <div className="min-h-screen bg-black pt-24 pb-16 px-4 md:px-8">
+      <div className="max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
 
-        <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            // p-4 en movil para que el contenido use todo el ancho, p-16 en desktop
-            className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start bg-white/[0.02] backdrop-blur-3xl border border-white/10 md:p-16 rounded-3xl shadow-[0_40px_100px_rgba(0,0,0,0.7)] relative z-10"        >
-        
-        {/* IZQUIERDA: Slider de Imagenes */}
-        {/* Eliminamos aspect-square en movil y le damos una altura fija de 400px o 500px para que se vea GRANDE */}
-        <div className="w-full h-[400px] md:h-[600px] overflow-hidden rounded-2xl bg-gradient-to-b from-white/[0.03] to-transparent relative group border border-white/5">
-          <Swiper 
-            modules={[Navigation, Pagination]} 
-            navigation={true}
-            pagination={{ clickable: true }}
-            className="h-full w-full mySwiper"
-          >
-            {!producto.imagenes || producto.imagenes.length === 0 ? (
-              <SwiperSlide className="flex items-center justify-center">
-                <p className="text-neutral-600 tracking-[0.3em] text-[10px] uppercase">Sin imagen disponible</p>
-              </SwiperSlide>
-            ) : (
-              producto.imagenes.map((imagen, index) => (
-                <SwiperSlide key={index} className="flex items-center justify-center bg-transparent">
-                  <img
-                    src={imagen.url}
-                    alt={`${producto.nombre} - ${index}`}
-                    // scale-125 en movil para que la imagen llene mas el espacio sin perder calidad
-                    className="object-contain h-full w-full"
-                  />
+          {/* IMAGEN - cuadrada con carrusel */}
+          <div className="aspect-square rounded-xl overflow-hidden border border-white/10">
+            <Swiper
+              modules={[Navigation, Pagination]}
+              navigation={true}
+              pagination={{ clickable: true }}
+              className="h-full w-full mySwiper"
+            >
+              {!producto.imagenes || producto.imagenes.length === 0 ? (
+                <SwiperSlide className="flex items-center justify-center bg-zinc-900">
+                  <p className="text-zinc-600 text-xs uppercase tracking-widest">Sin imagen</p>
                 </SwiperSlide>
-              ))
-            )}
-          </Swiper>
-        </div> 
+              ) : (
+                producto.imagenes.map((imagen, index) => (
+                  <SwiperSlide key={index} className="bg-zinc-900">
+                    <img
+                      src={imagen.url}
+                      alt={`${producto.nombre} - ${index + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </SwiperSlide>
+                ))
+              )}
+            </Swiper>
+          </div>
 
-        {/* DERECHA: Informacion */}
-        <div className="flex flex-col space-y-8 md:space-y-10 py-2 md:py-4 px-4 md:px-0">
-          <header className="space-y-4">
-            <div className="flex items-center gap-3">
-                <div className="h-[1px] w-8 bg-amber-500/50" />
-                <span className="text-[9px] uppercase tracking-[0.6em] text-amber-500 font-bold">Coleccion Exclusiva</span>
-            </div>
-            <h1 className="text-4xl md:text-6xl font-light tracking-tighter leading-[1.1] uppercase">
+          {/* CONTENIDO - mismo estilo glass que los cards */}
+          <div className="rounded-xl border border-white/10 backdrop-blur-md bg-zinc-400/10 p-6 flex flex-col gap-6">
+
+            {/* NOMBRE */}
+            <h1 className="text-white font-bold text-xl uppercase tracking-wide leading-snug">
               {producto.nombre}
             </h1>
-          </header>
 
-          <div className="h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent w-full" />
+            <div className="h-px bg-white/10" />
 
-          <div className="space-y-4">
-            <div className="space-y-1">
-                <span className="text-[11px] text-neutral-500 uppercase tracking-[0.4em]">Precio</span>
-                <p className="text-5xl font-extralight tracking-tighter flex items-start">
-                  <span className="text-amber-500 text-xl mt-1 mr-2">$</span>
-                  {producto.precio?.toLocaleString()}
-                </p>
-            </div>
+            {/* PRECIO */}
+            <p className="text-white text-4xl font-bold">
+              ${producto.precio?.toLocaleString()}
+            </p>
 
-            <div className="flex items-center gap-4 pt-4 ">
-              <span className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.6)]" />
-              <p className="text-[10px] text-neutral-300 uppercase tracking-[0.2em]">
-                 Disponibles: <span className="text-white font-bold">{producto.stock}</span>
+            {/* DISPONIBILIDAD */}
+            <div className="flex items-center gap-3">
+              <span className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+              <p className="text-zinc-300 text-sm">
+                {producto.stock} disponibles
               </p>
             </div>
-          </div>
 
-          <div className="space-y-6">
-              <p className="text-[14px] text-neutral-400 leading-relaxed font-light max-w-sm tracking-wide border-l border-amber-500/30 pl-4">
-                Envios a todo el pais.
-              </p>
+            {/* ENVIO */}
+            <p className="text-zinc-500 text-sm">
+              Envios a todo el pais.
+            </p>
 
-              <div className="pt-6">
-                <button 
-                  onClick={() => addCart(producto.id)}
-                  className="w-full py-5 bg-white text-black text-[10px] uppercase tracking-[0.4em] font-black rounded-full hover:bg-amber-500 hover:text-white transition-all duration-500 active:scale-[0.98] shadow-2xl"
-                >
-                  Agregar al carrito
-                </button>
-              </div>
+            {/* BOTON */}
+            <button
+              onClick={() => addCart(producto.id)}
+              className="w-full py-4 bg-amber-500 text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-amber-400 transition-colors duration-200"
+            >
+              Agregar al carrito
+            </button>
+
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
