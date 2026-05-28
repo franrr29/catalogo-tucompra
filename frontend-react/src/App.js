@@ -13,7 +13,16 @@ import ComoComprar from "./components/ComoComprar.jsx";
 import Contacto from "./components/Contacto.jsx";
 
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+
+// sube el scroll al tope cada vez que cambia de pagina
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 import "./components/styles/Navbar.css";
 import toast, { Toaster } from 'react-hot-toast'
 import { API_URL } from "./config.js";
@@ -107,6 +116,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
     <div className="App">
       <Toaster/>
       <Navbar cartCounter={carrito.length} isLogIn={isLogIn} handleLogOut={handleLogOut}/>
