@@ -18,13 +18,13 @@ function Card({ producto, addCart, isLogIn }) {
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col hover:border-zinc-700 transition-colors duration-200">
 
         {/* IMAGEN */}
-        <div className="h-56 bg-zinc-800 flex items-center justify-center p-4">
+        <div className="h-56 bg-zinc-800 overflow-hidden">
           {producto.imagen_url ? (
             <img
               src={optimizarUrl(producto.imagen_url)}
               alt={producto.nombre}
               loading="lazy"
-              className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-300"
+              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
             <span className="text-zinc-600 text-xs uppercase tracking-widest">Sin imagen</span>
