@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 
-// reduce el peso de las imagenes de Cloudinary
 function optimizarUrl(url) {
   if (!url || !url.includes("/upload/")) return url;
   return url.replace("/upload/", "/upload/q_auto,f_auto,w_400/");
@@ -8,49 +7,56 @@ function optimizarUrl(url) {
 
 function Card({ producto, addCart, isLogIn }) {
 
-  // si el admin esta logueado, la card no navega al producto
   const Wrapper = isLogIn ? "div" : Link;
   const wrapperProps = isLogIn ? {} : { to: `/producto/${producto.id}` };
 
   return (
     <Wrapper {...wrapperProps} className="block group">
 
-      <div className="rounded-xl overflow-hidden flex flex-col border border-white/10 hover:border-white/25 transition-all duration-300">
+      <div className="rounded-2xl overflow-hidden flex flex-col bg-zinc-900 hover:scale-[1.02] transition-transform duration-300">
 
-        {/* IMAGEN - cuadrada, llena el espacio */}
-        <div className="aspect-square overflow-hidden">
+        {/* IMAGEN */}
+        <div className="aspect-[3/4] overflow-hidden">
           {producto.imagen_url ? (
             <img
               src={optimizarUrl(producto.imagen_url)}
               alt={producto.nombre}
               loading="lazy"
-              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="h-full w-full flex items-center justify-center bg-white/5">
+            <div className="h-full w-full flex items-center justify-center bg-zinc-800">
               <span className="text-zinc-600 text-xs uppercase tracking-widest">Sin imagen</span>
             </div>
           )}
         </div>
 
-        {/* DIVISOR */}
-        <div className="h-px bg-white/10" />
+        {/* INFO */}
+        <div className="p-4 flex flex-col gap-3 bg-zinc-900">
 
-        {/* CONTENIDO - fondo vidrio gris */}
-        <div className="p-5 flex flex-col gap-4 backdrop-blur-md bg-zinc-400/10">
-
-          {/* NOMBRE */}
-          <h2 className="text-white font-bold text-sm uppercase tracking-wide leading-snug">
-            {producto.nombre}
-          </h2>
-
-          {/* PRECIO Y STOCK */}
-          <div className="flex items-center justify-between">
-            <p className="text-white text-2xl font-bold">
-              ${Number(producto.precio).toLocaleString()}
-            </p>
-            <span className="text-zinc-400 text-xs">{producto.stock} u.</span>
+          {/* NOMBRE + STOCK */}
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h2 className="text-white font-bold text-sm uppercase tracking-wide leading-snug">
+                {producto.nombre}
+              </h2>
+              {producto.descripcion && (
+                <p className="text-zinc-400 text-xs mt-0.5">{producto.descripcion}</p>
+              )}
+            </div>
+            <span className="flex items-center gap-1.5 bg-zinc-800 text-zinc-300 text-xs px-3 py-1 rounded-full shrink-0">
+              <span className="w-2 h-2 rounded-full bg-green-500" />
+              {producto.stock} disponibles
+            </span>
           </div>
+
+          {/* DIVISOR */}
+          <div className="h-px bg-white/10" />
+
+          {/* PRECIO */}
+          <p className="text-amber-500 text-3xl font-bold">
+            ${Number(producto.precio).toLocaleString()}
+          </p>
 
           {/* BOTON */}
           {!isLogIn && (
@@ -59,8 +65,9 @@ function Card({ producto, addCart, isLogIn }) {
                 e.preventDefault();
                 addCart(producto.id);
               }}
-              className="w-full py-3 bg-amber-500 text-black text-xs font-bold uppercase tracking-widest rounded-lg hover:bg-amber-400 transition-colors duration-200"
+              className="w-full py-3 bg-gradient-to-b from-amber-500 to-amber-600 text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:from-amber-400 hover:to-amber-500 transition-all duration-200 flex items-center justify-center gap-3"
             >
+              <span className="text-base leading-none">+</span>
               Agregar al carrito
             </button>
           )}
