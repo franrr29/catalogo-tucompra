@@ -18,7 +18,7 @@ function Card({ producto, addCart, isLogIn }) {
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col hover:border-zinc-700 transition-colors duration-200">
 
         {/* IMAGEN */}
-        <div className="h-56 bg-zinc-800 overflow-hidden">
+        <div className="aspect-square bg-zinc-800 overflow-hidden">
           {producto.imagen_url ? (
             <img
               src={optimizarUrl(producto.imagen_url)}
