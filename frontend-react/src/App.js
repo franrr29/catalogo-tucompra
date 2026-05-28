@@ -11,6 +11,9 @@ import NotFound from "./components/NotFound.jsx";
 import ProductoDetalle from "./components/ProductoDetalle.jsx";
 import ComoComprar from "./components/ComoComprar.jsx";
 import Contacto from "./components/Contacto.jsx";
+import "./components/styles/Navbar.css";
+import toast, { Toaster } from 'react-hot-toast'
+import { API_URL } from "./config.js";
 
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
@@ -23,9 +26,6 @@ function ScrollToTop() {
   }, [pathname]);
   return null;
 }
-import "./components/styles/Navbar.css";
-import toast, { Toaster } from 'react-hot-toast'
-import { API_URL } from "./config.js";
 
 
 
