@@ -6,8 +6,6 @@ const router= express.Router ()
 const middleVerificador= require ("../middleware/auth.middle")
 const { upload, cloudinary } = require("../config/cloudinary");
 
-//--- OBTENER TODOS LOS PRODUCTOS CON SU IMAGEN PRINCIPAL ---//
-
 router.get("/", async (req, res) => {
   try {
       const query = `
@@ -31,7 +29,6 @@ router.get("/", async (req, res) => {
 });
 
 
-//--- OBTENER UN PRODUCTO CON TODAS SUS IMÁGENES ---//
 router.get("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -72,7 +69,6 @@ router.get("/:id", async (req, res) => {
 });
 
 
-//===ENDPOINT PARA CREAR PRODUCTO NUEVO COMO ADMIN SIN IMAGEN OBLIGATORIA Y EVITANDO AGREGAR STRINGS EN LA BD===//
 router.post("/", middleVerificador, async (req, res) => {
   try {
     const { nombre, precio, stock, imagen } = req.body;
@@ -117,8 +113,6 @@ router.post("/", middleVerificador, async (req, res) => {
   }
 });
 
-
-//---ENDPOINT PATCH (actualiza solo algunos campos) PARA ACTUALIZAR PRODUCTO COMO ADMIN (nombre, precio, stock, imagen)---//
 
 router.patch ("/:id", middleVerificador, async (req, res)=>{
   try {
@@ -187,8 +181,6 @@ router.patch ("/:id", middleVerificador, async (req, res)=>{
       return res.status (400).json ({mensaje: "No se enviaron campos para actualizar"})
     }
 
-    //---UNIR LOS CAMPOS Y HACER LA QUERY A BASE DATOS---//
-
     const setCampos= campos.join (", ")
     const query= `UPDATE productos SET  ${setCampos} WHERE id = ?`
     valores.push (id);
@@ -208,8 +200,6 @@ router.patch ("/:id", middleVerificador, async (req, res)=>{
 })
 
 
-
-//===BORRAR PRODUCTOS DE CLOUDINARY===//
 
 router.delete("/:id", middleVerificador, async (req, res) => {
   try {
@@ -254,5 +244,4 @@ router.delete("/:id", middleVerificador, async (req, res) => {
 
 
 
-//---EXPORTAR ROUTER---//
 module.exports= router; 

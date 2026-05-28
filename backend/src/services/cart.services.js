@@ -1,7 +1,5 @@
 const baseDatos = require("../config/db");
 
-//===FUNCION VERIFICA QUE EL PRODUCTO EXISTE Y TIENE STOCK, SIN MODIFICAR LA BASE DE DATOS===//
-
 async function actualizarDatosFront(productId) {
   
   try {
@@ -20,7 +18,7 @@ async function actualizarDatosFront(productId) {
   return rows [0];
 
   } catch (error){
-    throw error // RELANZAMOS EL ERROR AL CONTROLLER SINO, GENERA BUGS DIFICILES DE ENCONTRAR
+    throw error // si no relanzamos el error, el controller no lo recibe
   }
 
 };

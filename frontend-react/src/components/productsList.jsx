@@ -8,7 +8,6 @@ function ListaProductos({ addCart, isLogIn }) {
     const [precioMax, setPrecioMax] = useState(Infinity);
     const [loading, setLoading] = useState(true);
 
-    // ===FILTRADO DE PRODUCTOS POR PRECIO=== //
     const productosFiltrados = productos.filter(p => p.precio <= precioMax);
 
     useEffect(() => {
@@ -30,13 +29,13 @@ function ListaProductos({ addCart, isLogIn }) {
     return (
         <div className="min-h-screen bg-black px-6 sm:px-12 py-24 selection:bg-amber-500/30 relative overflow-hidden">
 
-            {/* ===FONDO ATMOSFERICO: LUCES DIFUSAS=== */}
+            {/* fondo */}
             <div className="fixed inset-0 pointer-events-none z-0">
                 <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-amber-500/[0.03] rounded-full blur-[120px]" />
                 <div className="absolute bottom-[10%] right-[-10%] w-[500px] h-[500px] bg-amber-600/[0.02] rounded-full blur-[100px]" />
             </div>
 
-            {/* ===HEADER PRINCIPAL=== */}
+            {/* header */}
             <header className="relative z-10 mb-20 max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
@@ -54,14 +53,14 @@ function ListaProductos({ addCart, isLogIn }) {
                 </motion.div>
             </header>
 
-            {/* ===BARRA DE HERRAMIENTAS: FILTROS Y CONTADOR=== */}
+            {/* filtros */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
                 className="relative z-10 mb-16 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end gap-8"
             >
-                {/* Filtro de precio premium */}
+                {/* filtro de precio */}
                 <div className="flex flex-col gap-3 w-full md:w-auto">
                     <label className="text-gray-500 text-[8px] tracking-[0.4em] uppercase font-bold ml-1">
                         Filtrar por presupuesto
@@ -79,7 +78,7 @@ function ListaProductos({ addCart, isLogIn }) {
                     </div>
                 </div>
 
-                {/* Contador de stock visual */}
+                {/* contador */}
                 <div className="flex items-center gap-6 border-l border-white/10 pl-8 h-12">
                     <div className="flex flex-col">
                         <span className="text-amber-500 text-xl font-light leading-none">{productosFiltrados.length}</span>
@@ -92,10 +91,10 @@ function ListaProductos({ addCart, isLogIn }) {
                 </div>
             </motion.div>
 
-            {/* ===CONTENIDO PRINCIPAL=== */}
+            {/* productos */}
             <div className="max-w-7xl mx-auto relative z-10">
                 {loading ? (
-                    /* Loader Minimalista */
+                    /* loader */
                     <div className="flex flex-col justify-center items-center py-40 gap-6">
                         <div className="w-12 h-12 relative">
                             <motion.div 
@@ -142,7 +141,7 @@ function ListaProductos({ addCart, isLogIn }) {
                                 ))}
                             </motion.div>
                         ) : (
-                            /* Estado Vacio Premium */
+                            /* sin resultados */
                             <motion.div
                                 key="empty"
                                 initial={{ opacity: 0 }}

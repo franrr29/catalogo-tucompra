@@ -6,7 +6,6 @@ const router = Router();
 
 router.post("/add", addToCart);
 
-//===ENDPOINT QUE RECIBE ID PARA VER SI ESTAN AGREGADOS YA EN EL CARRITO===//
 router.post ("/verificar", verificar )
 
 

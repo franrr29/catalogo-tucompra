@@ -36,7 +36,6 @@ function App() {
  const [isLogIn, setIsLogIn]= useState (false)
  const [loading, setLoading]=useState (true)
 
-  //AL MONTAR CARGA EL CARRITO GUARDADO UNA VEZ, BUSCA EL TOKEN PARA LOGGEAR Y MANDA AL NAVBAR DATOS:
   useEffect (()=>{
     const token= localStorage.getItem ("token")
     const carritoGuardado= localStorage.getItem ("productos")
@@ -47,22 +46,19 @@ function App() {
       setIsLogIn (true)
     }
     setLoading (false)
-    // warm-up: wake Render backend so product list loads instantly on first visit
+    // despierta el servidor antes de que el usuario pida los productos
     fetch(API_URL + "/api/productos").catch(() => {});
   },[])
 
-  //FUNCION PARA MANEJAR EL LOGOUT, ACTUALIZAR EL ESTADO Y VA COMO PROP EN NAVBAR:
   function handleLogOut (){
     localStorage.removeItem ("token")
     setIsLogIn (false)
   }
 
-  //FUNCION ACTUALIZA LOGIN Y PASA COMO PROP A ADMIN.JSX:
   function handleLogIn (){
     setIsLogIn (true)
   }
 
-  //GUARDAMOS EN LOCALSTORAGE EL CARRITO DEL USUARIO:
   useEffect (()=>{
   localStorage.setItem ("productos", JSON.stringify (carrito))
   }, [carrito]);
@@ -85,7 +81,6 @@ function App() {
     
     const data= await sendRequest.json ()
 
-    //FILTRAR PRODUCTO, CREAR CANTIDAD Y SUMAR O AGREGAR POR PRIMERA VEZ
     const findProdCart = carrito.find(item => item.id === data.producto.id);
 
     if (!findProdCart) {

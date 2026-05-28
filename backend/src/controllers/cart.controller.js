@@ -2,7 +2,6 @@ const { actualizarDatosFront, verificarProdcBD } = require("../services/cart.ser
 
 
 async function addToCart(req, res) {
-  console.log("body recibido:", req.body)
   try {
     const { productId } = req.body;
 
@@ -26,8 +25,6 @@ async function addToCart(req, res) {
   }
 }
 
-
-//=== ENDPOINT PARA VERIFICAR SI productosIds VIENE DE LA BASE DE DATOS===//
 
 async function verificar(req, res) {
   try {
