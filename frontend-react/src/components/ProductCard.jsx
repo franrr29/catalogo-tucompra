@@ -16,7 +16,7 @@ function Card({ producto, addCart, isLogIn }) {
       <div className="rounded-2xl overflow-hidden flex flex-col bg-zinc-900 hover:scale-[1.02] transition-transform duration-300">
 
         {/* IMAGEN */}
-        <div className="aspect-[3/4] overflow-hidden">
+        <div className="aspect-square overflow-hidden">
           {producto.imagen_url ? (
             <img
               src={optimizarUrl(producto.imagen_url)}
@@ -62,7 +62,7 @@ function Card({ producto, addCart, isLogIn }) {
                 e.preventDefault();
                 addCart(producto.id);
               }}
-              className="w-full py-3 bg-gradient-to-b from-yellow-400 via-amber-500 to-orange-600 text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:from-yellow-300 hover:via-amber-400 hover:to-orange-500 transition-all duration-200 flex items-center justify-center gap-3 shadow-[0_2px_12px_rgba(245,158,11,0.35)]"
+              className="w-full py-3 bg-gradient-to-b from-yellow-400 via-amber-500 to-orange-600 text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:from-yellow-300 hover:via-amber-400 hover:to-orange-500 transition-all duration-200 flex items-center justify-center gap-3"
             >
               <span className="text-xl leading-none font-bold">+</span>
               Agregar al carrito
