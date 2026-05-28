@@ -1,87 +1,70 @@
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
+// reduce el peso de las imagenes de Cloudinary
 function optimizarUrl(url) {
   if (!url || !url.includes("/upload/")) return url;
   return url.replace("/upload/", "/upload/q_auto,f_auto,w_400/");
 }
 
 function Card({ producto, addCart, isLogIn }) {
-    const PanelBase = isLogIn ? "div" : Link;
-    const enlace = isLogIn ? {} : { to: `/producto/${producto.id}` };
 
-    return (
-        <PanelBase {...enlace} className="block group">
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                whileHover={{ y: -5 }}
-                className="relative bg-white/[0.05] backdrop-blur-2xl border border-white/10 rounded-2xl p-6 flex flex-col h-full transition-all duration-300 hover:bg-white/[0.08] hover:border-white/20 shadow-2xl"
+  // si el admin esta logueado, la card no tiene link
+  const Wrapper = isLogIn ? "div" : Link;
+  const wrapperProps = isLogIn ? {} : { to: `/producto/${producto.id}` };
+
+  return (
+    <Wrapper {...wrapperProps} className="block group">
+
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col hover:border-zinc-700 transition-colors duration-200">
+
+        {/* IMAGEN */}
+        <div className="h-56 bg-zinc-800 flex items-center justify-center p-4">
+          {producto.imagen_url ? (
+            <img
+              src={optimizarUrl(producto.imagen_url)}
+              alt={producto.nombre}
+              loading="lazy"
+              className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <span className="text-zinc-600 text-xs uppercase tracking-widest">Sin imagen</span>
+          )}
+        </div>
+
+        {/* CONTENIDO */}
+        <div className="p-5 flex flex-col gap-4 flex-grow">
+
+          {/* NOMBRE */}
+          <h2 className="text-white font-semibold text-sm uppercase tracking-wide leading-snug">
+            {producto.nombre}
+          </h2>
+
+          {/* PRECIO Y STOCK */}
+          <div className="flex items-center justify-between">
+            <p className="text-amber-500 text-2xl font-bold">
+              ${Number(producto.precio).toLocaleString()}
+            </p>
+            <span className="text-zinc-500 text-xs">{producto.stock} u.</span>
+          </div>
+
+          {/* BOTON */}
+          {!isLogIn && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                addCart(producto.id);
+              }}
+              className="mt-auto w-full py-3 bg-white text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-amber-500 hover:text-white transition-colors duration-200"
             >
-                {/* 1. TEXTO SUPERIOR */}
-                <div className="mb-6 h-14"> {/* Altura fija para alinear el nombre */}
-                    <p className="text-amber-500 text-[9px] tracking-[0.3em] uppercase font-bold mb-1">
-                        Nuevo Ingreso
-                    </p>
-                    <h2 className="text-white text-sm tracking-widest uppercase font-bold whitespace-normal break-words leading-tight">
-                        {producto.nombre}
-                    </h2>
-                </div>
+              Agregar al carrito
+            </button>
+          )}
 
-                {/* 2. IMAGEN */}
-                <div className="relative w-full aspect-square flex items-center justify-center p-2 mb-6">
-                    <div className="absolute inset-0 bg-white/5 blur-3xl rounded-full group-hover:bg-amber-500/10 transition-colors duration-500" />
-                    {producto.imagen_url ? (
-                        <img
-                            src={optimizarUrl(producto.imagen_url)}
-                            alt={producto.nombre}
-                            className="relative z-10 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
-                        />
-                    ) : (
-                        <div className="relative z-10 w-full h-full flex items-center justify-center">
-                            <span className="text-white/20 text-[10px] tracking-widest uppercase">Sin imagen</span>
-                        </div>
-                    )}
-                </div>
+        </div>
+      </div>
 
-                {/* Contenedor inferior con flex-grow para empujar el botón al fondo */}
-                <div className="flex-grow flex flex-col justify-end gap-6">
-                    
-                    {/* 3. PRECIO Y STOCK */}
-                    <div className="flex justify-between items-end border-t border-white/5 pt-4">
-                        <div className="flex flex-col">
-                            <span className="text-gray-500 text-[12px] uppercase tracking-widest mb-1">Precio</span>
-                            <p className="text-white text-xl font-medium tracking-tighter">
-                                <span className="text-amber-500 text-xs mr-0.5">$</span>
-                                {Number(producto.precio).toLocaleString()}
-                            </p>
-                        </div>
-                        
-                        <div className="text-right">
-                            <span className="text-gray-500 text-[12px] uppercase tracking-widest mb-1">Stock</span>
-                            <p className="text-white/60 text-[12px] font-bold">{producto.stock} u.</p>
-                        </div>
-                    </div>
-
-                    {/* 4. BOTON ACCION */}
-                    {!isLogIn && (
-                        <button 
-                            onClick={(e) => {
-                                e.preventDefault(); 
-                                addCart(producto.id);
-                            }}
-                            className="w-full bg-white text-black text-[10px] font-black tracking-[0.2em] uppercase py-4 rounded-xl hover:bg-amber-500 transition-all duration-300 active:scale-95 shadow-lg"
-                        >
-                            Agregar al carrito
-                        </button>
-                    )}
-                </div>
-                
-            </motion.div> 
-        </PanelBase>
-    ); 
-} 
+    </Wrapper>
+  );
+}
 
 export default Card;
