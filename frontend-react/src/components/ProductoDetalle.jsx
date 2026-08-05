@@ -27,23 +27,25 @@ function ProductoDetalle({ addCart }) {
   if (!producto) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <p className="text-white/40 text-xs tracking-[0.5em] uppercase animate-pulse">Cargando...</p>
+        <p className="text-zinc-500 text-xs tracking-[0.2em] uppercase">Cargando...</p>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-black pt-24 pb-16 px-4 md:px-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+  const tieneStock = Number(producto.stock) > 0;
 
-          {/* IMAGEN - cuadrada con carrusel */}
-          <div className="aspect-square rounded-xl overflow-hidden border border-white/10">
+  return (
+    <div className="min-h-screen bg-black text-[#f4f1ea] pt-24 pb-16 px-4 md:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+
+          {/* GALERÍA / CARRUSEL */}
+          <div className="aspect-square rounded-sm overflow-hidden bg-zinc-900 border border-zinc-800">
             <Swiper
               modules={[Navigation, Pagination]}
               navigation={true}
               pagination={{ clickable: true }}
-              className="h-full w-full mySwiper"
+              className="h-full w-full"
             >
               {!producto.imagenes || producto.imagenes.length === 0 ? (
                 <SwiperSlide className="flex items-center justify-center bg-zinc-900">
@@ -63,43 +65,60 @@ function ProductoDetalle({ addCart }) {
             </Swiper>
           </div>
 
-          {/* CONTENIDO - mismo estilo glass que los cards */}
-          <div className="rounded-xl border border-white/10 backdrop-blur-md bg-zinc-400/10 p-6 flex flex-col gap-6">
+          {/* PANEL DE INFORMACIÓN */}
+          <div className="bg-zinc-900/80 border border-zinc-800 rounded-sm p-6 flex flex-col gap-6">
 
-            {/* NOMBRE */}
-            <h1 className="text-white font-bold text-xl uppercase tracking-wide leading-snug">
-              {producto.nombre}
-            </h1>
-
-            <div className="h-px bg-white/10" />
-
-            {/* PRECIO */}
-            <p className="text-white text-4xl font-bold">
-              ${producto.precio?.toLocaleString()}
-            </p>
-
-            {/* DISPONIBILIDAD */}
-            <div className="flex items-center gap-3">
-              <span className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-              <p className="text-zinc-300 text-sm">
-                {producto.stock} disponibles
+            {/* ENCABEZADO */}
+            <div>
+              <h1 className="text-white font-semibold text-xl uppercase tracking-wide leading-snug">
+                {producto.nombre}
+              </h1>
+              <p className="text-amber-400 text-3xl font-light tracking-tight mt-3">
+                ${producto.precio?.toLocaleString()}
               </p>
             </div>
 
-            {/* ENVIO */}
-            <p className="text-zinc-500 text-sm">
-              Envios a todo el pais.
-            </p>
+            <div className="h-px bg-zinc-800" />
 
-            {/* BOTON */}
+            {/* DISPONIBILIDAD */}
+            <div className="flex items-center gap-2.5">
+              <span 
+                className={`w-2 h-2 rounded-full ${
+                  tieneStock ? "bg-emerald-500" : "bg-zinc-600"
+                }`} 
+              />
+              <span className="text-xs font-medium tracking-wide uppercase text-zinc-400">
+                {tieneStock ? `${producto.stock} unidades disponibles` : "Agotado"}
+              </span>
+            </div>
+
+            {/* DETALLES */}
+            <div className="text-xs text-zinc-400 space-y-1.5 leading-relaxed">
+              <p>• Envíos a todo el país.</p>
+              <p>• Garantía oficial de tienda.</p>
+            </div>
+
+            {/* BOTÓN CTA */}
             <button
               onClick={() => addCart(producto.id)}
-              className="w-full py-4 bg-amber-500 text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-amber-400 transition-colors duration-200"
+              disabled={!tieneStock}
+              className="w-full h-12 bg-[#0f172a] border border-slate-800 text-white text-xs font-medium uppercase tracking-wider rounded-sm flex items-center justify-center gap-2 transition-colors hover:bg-[#1e293b] active:bg-[#020617] disabled:bg-zinc-800 disabled:border-transparent disabled:text-zinc-600 disabled:cursor-not-allowed mt-2"
             >
-              Agregar al carrito
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-4 h-4 stroke-[2] opacity-80"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+              </svg>
+
+              <span>Agregar al carrito</span>
             </button>
 
           </div>
+
         </div>
       </div>
     </div>

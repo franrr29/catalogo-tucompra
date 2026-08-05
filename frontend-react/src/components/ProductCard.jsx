@@ -6,73 +6,89 @@ function optimizarUrl(url) {
 }
 
 function Card({ producto, addCart, isLogIn }) {
-
   const Wrapper = isLogIn ? "div" : Link;
   const wrapperProps = isLogIn ? {} : { to: `/producto/${producto.id}` };
 
+  const tieneStock = Number(producto.stock) > 0;
+
   return (
-    <Wrapper {...wrapperProps} className="block group">
-
-      <div className="rounded-2xl overflow-hidden flex flex-col bg-zinc-900 hover:scale-[1.02] transition-transform duration-300">
-
-        {/* IMAGEN */}
-        <div className="aspect-square overflow-hidden">
-          {producto.imagen_url ? (
-            <img
-              src={optimizarUrl(producto.imagen_url)}
-              alt={producto.nombre}
-              loading="lazy"
-              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-          ) : (
-            <div className="h-full w-full flex items-center justify-center bg-zinc-800">
-              <span className="text-zinc-600 text-xs uppercase tracking-widest">Sin imagen</span>
-            </div>
-          )}
-        </div>
-
-        {/* INFO - se monta encima de la imagen con bordes redondeados arriba */}
-        <div className="-mt-5 rounded-t-2xl relative z-10 p-4 flex flex-col gap-3 bg-zinc-900">
-
-          {/* NOMBRE + STOCK */}
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h2 className="text-white font-bold text-sm uppercase tracking-wide leading-snug">
-                {producto.nombre}
-              </h2>
-            </div>
-            <span className="flex items-center gap-1.5 bg-zinc-800 text-zinc-300 text-xs px-3 py-1 rounded-full shrink-0">
-              <span className="w-2 h-2 rounded-full bg-green-500" />
-              {producto.stock} disponibles
-            </span>
+    <div className="flex flex-col gap-3 group">
+      {/* TARJETA BLANCA TOTALMENTE RECTA Y PLANA */}
+      <Wrapper {...wrapperProps} className="block">
+        <div className="relative flex flex-col bg-white overflow-hidden border rounded-sm border-white/10 group-hover:shadow-lg group-hover:shadow-amber-500/20 transition-all duration-300">          
+          {/* CONTENEDOR DE IMAGEN */}
+          <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-100">
+            {producto.imagen_url ? (
+              <img
+                src={optimizarUrl(producto.imagen_url)}
+                alt={producto.nombre}
+                loading="lazy"
+                className="h-full w-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-300 ease-out"
+              />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-neutral-100">
+                <span className="text-neutral-400 text-[11px] uppercase tracking-[0.2em] font-medium">
+                  Sin imagen
+                </span>
+              </div>
+            )}
           </div>
 
-          {/* DIVISOR */}
-          <div className="h-px bg-white/10" />
+          {/* INFORMACIÓN DEL PRODUCTO */}
+          <div className="p-5 flex flex-col gap-3 bg-white">
+            
+            {/* DISPONIBILIDAD */}
+            <div className="flex items-center gap-2">
+              <span 
+                className={`w-1.5 h-1.5 ${
+                  tieneStock ? "bg-amber-600" : "bg-neutral-300"
+                }`} 
+              />
+              <span className="text-[11px] font-medium tracking-[0.15em] uppercase text-neutral-500">
+                {tieneStock ? `${producto.stock} disponibles` : "Agotado"}
+              </span>
+            </div>
 
-          {/* PRECIO */}
-          <p className="text-amber-500 text-3xl font-bold">
-            ${Number(producto.precio).toLocaleString()}
-          </p>
+            {/* NOMBRE DEL PRODUCTO */}
+            <h2 className="text-neutral-900 font-semibold text-sm uppercase tracking-[0.08em] leading-snug line-clamp-2 min-h-[2.5rem]">
+              {producto.nombre}
+            </h2>
 
-          {/* BOTON */}
-          {!isLogIn && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                addCart(producto.id);
-              }}
-              className="w-full py-3 bg-gradient-to-b from-yellow-400 via-amber-500 to-orange-600 text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:from-yellow-300 hover:via-amber-400 hover:to-orange-500 transition-all duration-200 flex items-center justify-center gap-3"
-            >
-              <span className="text-xl leading-none font-bold">+</span>
-              Agregar al carrito
-            </button>
-          )}
+            {/* PRECIO */}
+            <div>
+              <p className="text-neutral-950 text-2xl font-light tracking-tight">
+                ${Number(producto.precio).toLocaleString()}
+              </p>
+            </div>
 
+          </div>
         </div>
-      </div>
+      </Wrapper>
 
-    </Wrapper>
+      {/* BOTÓN FUERA DEL CARD (RECTO, NEGRO MATE) */}
+      {!isLogIn && (
+       <button
+  onClick={(e) => {
+    e.preventDefault();
+    addCart(producto.id);
+  }}
+  className="w-full h-12 bg-slate-900 text-white text-xs font-semibold uppercase tracking-wider rounded-sm flex items-center justify-center gap-2 transition hover:bg-slate-800 active:scale-95"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 text-amber-400"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+  </svg>
+
+  <span>Agregar al carrito</span>
+</button>
+      )}
+    </div>
   );
 }
 
