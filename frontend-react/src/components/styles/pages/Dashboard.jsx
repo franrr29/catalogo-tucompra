@@ -1,50 +1,49 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import Card from "../../ProductCard";
 import CrearNuevoProdct from "./AdminCreateProduct";
 import EditarProductoAdmin from "./EditarProducto";
 import { API_URL } from "../../../config";
-import { toast } from 'react-hot-toast'
+import { toast } from "react-hot-toast";
 
-function Dashboard({isLogIn}) {
+function Dashboard({ isLogIn }) {
   const [nuevoProducto, setNuevoProducto] = useState({ nombre: "", precio: "", stock: "", imagen: "" });
   const [productos, setProductos] = useState([]);
   const [actualizarDatos, setActualizarDatos] = useState({ nombre: "", precio: "", stock: "", imagen: "" });
-  const [idProductoEditado , setIdProductoEditado ] = useState(null);
-  const [fotosSeleccionadas, setFotosSeleccionadas]= useState (null);
+  const [idProductoEditado, setIdProductoEditado] = useState(null);
+  const [fotosSeleccionadas, setFotosSeleccionadas] = useState(null);
   const [imagenesEditor, setImagenesEditor] = useState([]);
   const [creando, setCreando] = useState(false);
   const [previewsPendientes, setPreviewsPendientes] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const timerRef = useRef(null);
+  const dropdownRef = useRef(null);
 
-  // ESTILO PARA NOTIFICACIONES
   const toastStyle = {
     style: {
-      background: '#0a0a0a',
-      color: '#fff',
-      border: '1px solid rgba(245, 158, 11, 0.3)',
+      background: '#F4F4F2',
+      color: '#111111',
+      border: '1px solid #CCCCCC',
       borderRadius: '0px',
-      fontSize: '10px',
-      letterSpacing: '0.2em',
+      fontSize: '11px',
+      letterSpacing: '0.05em',
       textTransform: 'uppercase',
       fontWeight: 'bold',
-      padding: '16px'
+      padding: '16px',
+      fontFamily: 'sans-serif'
     },
     iconTheme: {
-      primary: '#f59e0b',
-      secondary: '#000',
+      primary: '#C89211',
+      secondary: '#F4F4F2',
     },
   };
-
-  //LOGICA DE SESION Y SEGURIDAD
 
   function resetearTimer() {
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       adminLogOut();
-    }, 15 * 60 * 1000); // 15 minutos
+    }, 15 * 60 * 1000);
   }
 
   function adminLogOut() {
@@ -52,7 +51,16 @@ function Dashboard({isLogIn}) {
     navigate("/admin/login");
   }
 
-  // generate preview URLs for newly selected files while edit panel is open
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   useEffect(() => {
     if (!fotosSeleccionadas || !idProductoEditado) {
       setPreviewsPendientes([]);
@@ -63,52 +71,65 @@ function Dashboard({isLogIn}) {
     return () => urls.forEach(url => URL.revokeObjectURL(url));
   }, [fotosSeleccionadas, idProductoEditado]);
 
-  //===FUNCION PARA CARGAR IMAGENES COMO ADMIN===//
-
-  async function subirFotos(productoId){
-    const formData= new FormData ()
+  async function subirFotos(productoId) {
+    const formData = new FormData();
     Array.from(fotosSeleccionadas).forEach(file => {
-    formData.append("imagenes", file)
-})
+      formData.append("imagenes", file);
+    });
     try {
-      const res= await fetch (`${API_URL}/api/imagenes/${productoId}`, {
+      const res = await fetch(`${API_URL}/api/imagenes/${productoId}`, {
         method: "POST",
         headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      },
+          "Authorization": "Bearer " + localStorage.getItem("token")
+        },
         body: formData
       });
 
-      if (res.status === 401){
-        adminLogOut ()
-        return
+      if (res.status === 401) {
+        adminLogOut();
+        return;
       }
 
-      const data= await res.json()
+      const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.mensaje || "Error al subir las imágenes", toastStyle)
-        return
+        toast.error(data.mensaje || "Error al subir las imágenes", toastStyle);
+        return;
       }
-
-      console.log(data)
-
-    } catch (error){
-      console.error ("Error al cargar las fotos", error)
-      toast.error("Error de conexión al subir imágenes", toastStyle)
+    } catch (error) {
+      toast.error("Error de conexión al subir imágenes", toastStyle);
     }
   }
 
   async function abrirPanelEdicion(id) {
+    const numericId = Number(id);
+    if (!numericId) {
+      setIdProductoEditado(null);
+      setImagenesEditor([]);
+      setActualizarDatos({ nombre: "", precio: "", stock: "", imagen: "" });
+      return;
+    }
     try {
-      setFotosSeleccionadas (null)
-      setImagenesEditor ([])
-      setIdProductoEditado  (id)
-      const res= await fetch (`${API_URL}/api/productos/${id}`)
-      const data= await res.json ();
-      setImagenesEditor (data.imagenes)
-    } catch (error){
-      console.error ("Error al cargar las imagenes del editor", error)
+      setFotosSeleccionadas(null);
+      setImagenesEditor([]);
+      setIdProductoEditado(numericId);
+      setDropdownOpen(false);
+      
+      const productoSeleccionado = productos.find(p => p.id === numericId);
+      if (productoSeleccionado) {
+        setActualizarDatos({
+          nombre: productoSeleccionado.nombre || "",
+          precio: productoSeleccionado.precio || "",
+          stock: productoSeleccionado.stock || "",
+          imagen: ""
+        });
+      }
+
+      const res = await fetch(`${API_URL}/api/productos/${numericId}`);
+      const data = await res.json();
+      setImagenesEditor(data.imagenes || []);
+    } catch (error) {
+      console.error("Error al cargar las imagenes del editor", error);
     }
   }
 
@@ -120,14 +141,12 @@ function Dashboard({isLogIn}) {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/admin/login");
 
-    getProductos ();
+    getProductos();
     return () => {
       eventos.forEach(e => window.removeEventListener(e, resetearTimer));
       clearTimeout(timerRef.current);
     };
   }, []);
-
-  //===LOGICA CRUD DEL ADMIN===//
 
   async function crearNuevoProdct() {
     if (creando) return;
@@ -147,13 +166,14 @@ function Dashboard({isLogIn}) {
 
       const resp = await fetch(API_URL + "/api/productos", {
         method: "POST",
-        headers: { "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-         },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("token")
+        },
         body: JSON.stringify(datosProducto)
       });
 
-      if (resp.status === 401){
+      if (resp.status === 401) {
         adminLogOut();
         return;
       }
@@ -176,50 +196,50 @@ function Dashboard({isLogIn}) {
       }
 
     } catch (error) {
-      console.error("Error al crear el producto", error);
       toast.error("Error al crear el producto", toastStyle);
     } finally {
       setCreando(false);
     }
   }
 
-   async function getProductos() {
-  try {
-    const resp = await fetch(API_URL + "/api/productos");
-    const data = await resp.json();
-
-    console.log("PRODUCTOS:", data);
-
-    setProductos(Array.isArray(data) ? data : []);
-
-  } catch (error) {
-    console.error("Error al traer productos");
+  async function getProductos() {
+    try {
+      const resp = await fetch(API_URL + "/api/productos");
+      const data = await resp.json();
+      setProductos(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error al traer productos");
+    }
   }
-}
 
   async function borrarProducto(id) {
-    if (!window.confirm("Eliminar producto?")) return;
+    const numericId = Number(id);
+    if (!numericId) return;
+    if (!window.confirm("¿Estás seguro de eliminar este producto?")) return;
     try {
-      const resp = await fetch(`${API_URL}/api/productos/${id}`, { method: "DELETE" ,
+      const resp = await fetch(`${API_URL}/api/productos/${numericId}`, { 
+        method: "DELETE",
         headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      }
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("token")
+        }
       });
 
-      if (resp.status === 401){
-      adminLogOut ()
-      return
-    }
-      if (resp.ok){
+      if (resp.status === 401) {
+        adminLogOut();
+        return;
+      }
 
-       setProductos(productos.filter(item => item.id !== id))
-       toast.success ("Producto eliminado", toastStyle);}
-
-
-
-    } catch (error) { console.error("Error al borrar");
-      toast.error ("Error al eliminar", toastStyle);
+      if (resp.ok) {
+        setProductos(productos.filter(item => item.id !== numericId));
+        if (idProductoEditado === numericId) {
+          setIdProductoEditado(null);
+          setActualizarDatos({ nombre: "", precio: "", stock: "", imagen: "" });
+        }
+        toast.success("Producto eliminado", toastStyle);
+      }
+    } catch (error) {
+      toast.error("Error al eliminar", toastStyle);
     }
   }
 
@@ -230,146 +250,231 @@ function Dashboard({isLogIn}) {
       );
       const resp = await fetch(`${API_URL}/api/productos/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" ,
-        "Authorization": "Bearer " + localStorage.getItem("token")
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("token")
         },
         body: JSON.stringify(soloRellenos)
       });
 
-      if (resp.status === 401){
-      adminLogOut ()
-      return
-    }
-
-      if (resp.ok) {
-        setActualizarDatos({ nombre: "", precio: "", stock: "", imagen: "" });
-        if (fotosSeleccionadas !== null){
-          await subirFotos(id)
-          await abrirPanelEdicion(id)
-          await getProductos()
-        }
-        setFotosSeleccionadas(null)
-        toast.success ("Producto actualizado", toastStyle);
+      if (resp.status === 401) {
+        adminLogOut();
+        return;
       }
 
-    } catch (error) { console.error("Error al actualizar");
-      toast.error ("Error al actualizar", toastStyle);
+      if (resp.ok) {
+        if (fotosSeleccionadas !== null) {
+          await subirFotos(id);
+        }
+        setFotosSeleccionadas(null);
+        await abrirPanelEdicion(id);
+        await getProductos();
+        toast.success("Producto actualizado", toastStyle);
+      }
+    } catch (error) {
+      toast.error("Error al actualizar", toastStyle);
     }
   }
 
   async function marcarPrincipal(imagenId, productoId) {
     try {
-      const res= await fetch (`${API_URL}/api/imagenes/${imagenId}`,{
+      const res = await fetch(`${API_URL}/api/imagenes/${imagenId}`, {
         method: "PATCH",
         headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      }
-
-    });
-
-    if (res.status === 401){
-      adminLogOut ()
-      return
-    }
-
-      const data= await res.json ()
-      console.log (data)
-      abrirPanelEdicion (productoId)
-      getProductos ()
-      toast.success ("Imagen establecida como portada", toastStyle);
-    } catch (error){
-      console.error ("Error al tratar de marcar imagen de portada", error)
-    }
-  }
-
-  //BORRAR UNA FOTO COMO ADMIN:
-  async function borrarUnaFoto (imagenId){
-    try {
-      const res= await fetch (API_URL + `/api/imagenes/${imagenId}`, {
-        method: "DELETE",
-        headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("token")
         }
       });
 
-      if (res.status === 401){
-          adminLogOut ()
-          return;
-        }
-
-      if (res.ok){
-        setImagenesEditor (imagenesEditor.filter (imagen => imagen.id !==imagenId));
-        getProductos ()
-        toast.success ("Imagen eliminada", toastStyle);
+      if (res.status === 401) {
+        adminLogOut();
+        return;
       }
 
-
-
-    } catch (error){
-      console.error ("Error al eliminar la imagen", error)
-      toast.error ("Error al tratar de eliminar la foto", toastStyle);
+      await res.json();
+      await abrirPanelEdicion(productoId);
+      await getProductos();
+      toast.success("Portada establecida", toastStyle);
+    } catch (error) {
+      console.error("Error al marcar portada", error);
     }
   }
 
-  const inputClass = "bg-white/5 border border-white/10 text-white text-xs px-4 py-3 focus:outline-none focus:border-amber-500/50 transition-all placeholder-gray-700 w-full";
-  const btnPrimary = "bg-white text-black text-[10px] font-bold tracking-widest uppercase px-6 py-3 hover:bg-amber-500 transition-all";
-  const btnDanger = "border border-red-900/50 text-red-500 text-[9px] tracking-widest uppercase px-4 py-2 hover:bg-red-900 hover:text-white transition-all";
-  const btnSecondary = "border border-white/10 text-gray-400 text-[9px] tracking-widest uppercase px-4 py-2 hover:border-white hover:text-white transition-all";
+  async function borrarUnaFoto(imagenId) {
+    try {
+      const res = await fetch(API_URL + `/api/imagenes/${imagenId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("token")
+        }
+      });
+
+      if (res.status === 401) {
+        adminLogOut();
+        return;
+      }
+
+      if (res.ok) {
+        setImagenesEditor(imagenesEditor.filter(imagen => imagen.id !== imagenId));
+        getProductos();
+        toast.success("Imagen eliminada", toastStyle);
+      }
+    } catch (error) {
+      toast.error("Error al eliminar foto", toastStyle);
+    }
+  }
+
+  const inputClass = "bg-transparent border border-[#CCCCCC] text-[#111111] text-xs px-4 py-3.5 focus:outline-none focus:border-[#111111] transition-all placeholder-[#999999] w-full font-mono";
+  const btnDanger = "border border-red-300 text-red-600 text-xs tracking-wider uppercase px-4 py-3.5 hover:bg-red-600 hover:text-white transition-colors font-mono flex items-center justify-center gap-2 whitespace-nowrap";
+
+  const productoActualObj = productos.find(p => p.id === Number(idProductoEditado));
 
   return (
-    <div className="min-h-screen bg-black text-white px-8 py-24">
+    <div className="min-h-screen bg-[#F4F4F2] text-[#111111] font-sans antialiased px-4 sm:px-12 lg:px-16 pt-28 sm:pt-32 pb-24 selection:bg-[#E2E2DF]">
+      <div className="max-w-3xl mx-auto flex flex-col gap-10">
 
-      {/* HEADER DASHBOARD */}
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-16">
-        <div>
-          <h1 className="text-2xl font-light tracking-[0.4em] uppercase">Control de <span className="text-amber-500 font-bold">Inventario</span></h1>
-          <div className="w-16 h-px bg-amber-500 mt-2" />
-        </div>
-      </motion.div>
+        {/* Header Dashboard Premium Minimal */}
+        <header className="border-b border-[#CCCCCC] pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5 font-mono">
+              <span className="w-1.5 h-1.5 bg-[#C89211]" />
+              <span className="text-[10px] text-[#666666] uppercase tracking-widest">Panel de Gestión</span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl font-light tracking-tight text-[#111111]">
+              CONTROL DE <span className="font-semibold text-[#C89211]">INVENTARIO</span>
+            </h1>
+          </div>
+          <div className="font-mono text-[11px] text-[#666666] uppercase self-start sm:self-auto bg-[#E2E2DF]/50 px-3 py-1.5 border border-[#CCCCCC]">
+            Activos: <span className="text-[#111111] font-semibold">{productos.length}</span>
+          </div>
+        </header>
 
-       <CrearNuevoProdct
-      nuevoProducto={nuevoProducto}
-      setNuevoProducto={setNuevoProducto}
-      setFotosSeleccionadas={setFotosSeleccionadas}
-      crearNuevoProducto={crearNuevoProdct}
-      creando={creando}
-    />
+        {/* Sección 1: Crear Producto Nuevo */}
+        <section className="border border-[#CCCCCC] p-6 sm:p-8 bg-white/40 backdrop-blur-sm relative shadow-sm">
+          <div className="absolute top-0 right-0 w-2 h-2 bg-[#C89211]" />
+          <div className="flex items-center gap-2 mb-6 font-mono">
+            <span className="w-1.5 h-1.5 bg-[#C89211]" />
+            <h2 className="text-xs uppercase tracking-widest text-[#111111] font-semibold">
+              01 / Nuevo Artículo
+            </h2>
+          </div>
+          <CrearNuevoProdct
+            nuevoProducto={nuevoProducto}
+            setNuevoProducto={setNuevoProducto}
+            setFotosSeleccionadas={setFotosSeleccionadas}
+            crearNuevoProducto={crearNuevoProdct}
+            creando={creando}
+          />
+        </section>
 
-      {/* SECCIÓN: LISTADO Y EDICIÓN */}
-      <section>
-        <h2 className="text-gray-500 text-[10px] tracking-[0.3em] uppercase mb-10">Stock Actual ({productos.length})</h2>
+        {/* Sección 2: Selector Textual Minimalista & Panel de Edición */}
+        <section className="border border-[#CCCCCC] p-6 sm:p-8 bg-white/40 backdrop-blur-sm flex flex-col gap-6 relative shadow-sm">
+          <div className="absolute top-0 right-0 w-2 h-2 bg-[#C89211]" />
+          <div className="flex items-center gap-2 font-mono">
+            <span className="w-1.5 h-1.5 bg-[#C89211]" />
+            <h2 className="text-xs uppercase tracking-widest text-[#111111] font-semibold">
+              02 / Modificar o Eliminar Artículo
+            </h2>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch relative" ref={dropdownRef}>
+            
+            {/* Dropdown Custom Textual Premium */}
+            <div className="flex-1 relative">
+              <div 
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="bg-transparent border border-[#CCCCCC] hover:border-[#111111] text-[#111111] text-xs px-4 py-3.5 flex items-center justify-between cursor-pointer transition-colors font-mono uppercase select-none bg-white"
+              >
+                <span className="truncate font-medium text-[#111111]">
+                  {productoActualObj 
+                    ? `${productoActualObj.nombre} — $${productoActualObj.precio} (Stock: ${productoActualObj.stock})` 
+                    : "-- Seleccionar producto para editar --"}
+                </span>
+                <span className={`transform transition-transform duration-200 text-[#C89211] font-bold ml-2 ${dropdownOpen ? "rotate-180" : ""}`}>
+                  ▼
+                </span>
+              </div>
+
+              {/* Lista Desplegable Textual Móvil Optimizada */}
+              <AnimatePresence>
+                {dropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 right-0 top-full mt-1 bg-[#F4F4F2] border border-[#CCCCCC] z-50 max-h-60 overflow-y-auto shadow-2xl"
+                  >
+                    {productos.length === 0 ? (
+                      <div className="p-4 text-xs font-mono text-[#666666] uppercase text-center">
+                        No hay productos disponibles
+                      </div>
+                    ) : (
+                      productos.map((item) => {
+                        const isSelected = item.id === idProductoEditado;
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => {
+                              abrirPanelEdicion(item.id);
+                            }}
+                            className={`flex flex-col px-4 py-3.5 cursor-pointer border-b border-[#E2E2DF] last:border-b-0 hover:bg-[#E2E2DF] transition-colors ${
+                              isSelected ? "bg-[#E2E2DF] font-semibold" : ""
+                            }`}
+                          >
+                            <span className="font-mono text-xs text-[#111111] uppercase">{item.nombre}</span>
+                            <span className="font-mono text-[10px] text-[#666666] mt-0.5">
+                              Precio: ${item.precio} — Stock: {item.stock} unidades
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {idProductoEditado && (
+              <button
+                onClick={() => borrarProducto(idProductoEditado)}
+                className={btnDanger}
+              >
+                Eliminar
+              </button>
+            )}
+          </div>
+
           <AnimatePresence>
-            {productos.map((item) => (
-              <motion.div key={item.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-4 bg-[#0a0a0a] p-4 border border-white/5">
-                <Card producto={item} isLogIn={isLogIn} />
-
-                <div className="flex gap-2">
-                  <button onClick={() => abrirPanelEdicion(item.id)} className={btnSecondary}>Editar Datos</button>
-                  <button onClick={() => borrarProducto(item.id)} className={btnDanger}>Eliminar</button>
-                </div>
-
+            {idProductoEditado && productoActualObj && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden border-t border-[#CCCCCC] pt-6 mt-2"
+              >
                 <EditarProductoAdmin
-                actualizarDatos={actualizarDatos}
-                setActualizarDatos={setActualizarDatos}
-                imagenesEditor={imagenesEditor}
-                setFotosSeleccionadas={setFotosSeleccionadas}
-                actualizarProducto={actualizarProducto}
-                marcarPrincipal={marcarPrincipal}
-                inputClass={inputClass}
-                idProductoEditado={idProductoEditado}
-                item={item}
-                setIdProductoEditado={setIdProductoEditado}
-                borrarUnaFoto={borrarUnaFoto}
-                previewsPendientes={previewsPendientes}/>
+                  actualizarDatos={actualizarDatos}
+                  setActualizarDatos={setActualizarDatos}
+                  imagenesEditor={imagenesEditor}
+                  setFotosSeleccionadas={setFotosSeleccionadas}
+                  actualizarProducto={actualizarProducto}
+                  marcarPrincipal={marcarPrincipal}
+                  inputClass={inputClass}
+                  idProductoEditado={idProductoEditado}
+                  item={productoActualObj}
+                  setIdProductoEditado={setIdProductoEditado}
+                  borrarUnaFoto={borrarUnaFoto}
+                  previewsPendientes={previewsPendientes}
+                />
               </motion.div>
-            ))}
+            )}
           </AnimatePresence>
-        </div>
-      </section>
+        </section>
+
+      </div>
     </div>
   );
 }

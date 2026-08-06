@@ -12,12 +12,13 @@ function Card({ producto, addCart, isLogIn }) {
   const tieneStock = Number(producto.stock) > 0;
 
   return (
-    <div className="flex flex-col gap-3 group">
-      {/* TARJETA BLANCA TOTALMENTE RECTA Y PLANA */}
-      <Wrapper {...wrapperProps} className="block">
-        <div className="relative flex flex-col bg-white overflow-hidden border rounded-sm border-white/10 group-hover:shadow-lg group-hover:shadow-amber-500/20 transition-all duration-300">          
-          {/* CONTENEDOR DE IMAGEN */}
-          <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-100">
+    <div className="flex flex-col gap-2 font-mono group">
+      {/* tarjeta de producto */}
+      <Wrapper {...wrapperProps} className="block no-underline text-inherit">
+        <div className="relative flex flex-col bg-[#E5E5E5] border-[0.5px] border-[#1A1A1A]/20 rounded-none overflow-hidden">
+          
+          {/* contenedor de imagen */}
+          <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#DEDEDE] border-b-[0.5px] border-[#1A1A1A]/20">
             {producto.imagen_url ? (
               <img
                 src={optimizarUrl(producto.imagen_url)}
@@ -26,67 +27,99 @@ function Card({ producto, addCart, isLogIn }) {
                 className="h-full w-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-300 ease-out"
               />
             ) : (
-              <div className="h-full w-full flex items-center justify-center bg-neutral-100">
-                <span className="text-neutral-400 text-[11px] uppercase tracking-[0.2em] font-medium">
+              <div className="h-full w-full flex items-center justify-center bg-[#DEDEDE]">
+                <span className="text-[#888888] text-[10px] uppercase tracking-widest font-bold">
                   Sin imagen
                 </span>
               </div>
             )}
           </div>
 
-          {/* INFORMACIÓN DEL PRODUCTO */}
-          <div className="p-5 flex flex-col gap-3 bg-white">
+          {/* info del producto */}
+          <div className="p-3.5 flex flex-col bg-[#E5E5E5] gap-2.5">
             
-            {/* DISPONIBILIDAD */}
-            <div className="flex items-center gap-2">
-              <span 
-                className={`w-1.5 h-1.5 ${
-                  tieneStock ? "bg-amber-600" : "bg-neutral-300"
-                }`} 
-              />
-              <span className="text-[11px] font-medium tracking-[0.15em] uppercase text-neutral-500">
-                {tieneStock ? `${producto.stock} disponibles` : "Agotado"}
+            {/* cabecera sutil */}
+            <div className="flex items-center justify-between border-b border-[#1A1A1A]/15 pb-1.5">
+              <span className="text-[9px] font-bold tracking-[0.18em] uppercase text-[#666666]">
+                DETALLES
               </span>
             </div>
 
-            {/* NOMBRE DEL PRODUCTO */}
-            <h2 className="text-neutral-900 font-semibold text-sm uppercase tracking-[0.08em] leading-snug line-clamp-2 min-h-[2.5rem]">
-              {producto.nombre}
-            </h2>
+            {/* disponibilidad */}
+            <div className="flex items-center justify-between border-b border-[#1A1A1A]/15 pb-2">
+              <span className="text-[10px] font-bold text-[#777777] uppercase tracking-wider">
+                DISPONIBILIDAD
+              </span>
 
-            {/* PRECIO */}
-            <div>
-              <p className="text-neutral-950 text-2xl font-light tracking-tight">
-                ${Number(producto.precio).toLocaleString()}
-              </p>
+              <div className="flex items-center gap-1.5">
+                <span
+                  className={`w-2 h-2 rounded-none ${
+                    tieneStock ? "bg-emerald-600" : "bg-[#888888]"
+                  }`}
+                />
+                <span className="text-[10px] font-bold tracking-wider uppercase text-[#1A1A1A]">
+                  {tieneStock ? `${producto.stock} EN STOCK` : "AGOTADO"}
+                </span>
+              </div>
+            </div>
+
+            {/* nombre del producto */}
+            <div className="border-b border-[#1A1A1A]/15 pb-2">
+              <h2 className="text-[#1A1A1A] font-bold text-xs uppercase tracking-wider leading-snug line-clamp-2 min-h-[2.25rem]">
+                {producto.nombre}
+              </h2>
+            </div>
+
+            {/* precio limpio con separacion / */}
+            <div className="pt-1 flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase text-[#666666] tracking-widest">
+                PRECIO
+              </span>
+
+              <div className="flex items-center gap-2">
+                {/* barra diagonal estetica */}
+                <span className="text-[#C89211] font-bold text-sm">/</span>
+
+                <div className="flex items-baseline">
+                  <span className="text-sm font-sans font-bold text-[#C89211] mr-0.5">$</span>
+                  <span className="font-sans font-black text-2xl tracking-tight text-[#1A1A1A] leading-none">
+                    {Number(producto.precio).toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </div>
 
           </div>
         </div>
       </Wrapper>
 
-      {/* BOTÓN FUERA DEL CARD (RECTO, NEGRO MATE) */}
+      {/* boton de accion */}
       {!isLogIn && (
-       <button
-  onClick={(e) => {
-    e.preventDefault();
-    addCart(producto.id);
-  }}
-  className="w-full h-12 bg-slate-900 text-white text-xs font-semibold uppercase tracking-wider rounded-sm flex items-center justify-center gap-2 transition hover:bg-slate-800 active:scale-95"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-4 h-4 text-amber-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
-  </svg>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            addCart(producto.id);
+          }}
+          disabled={!tieneStock}
+          className={`w-full h-11 text-xs font-bold uppercase tracking-widest rounded-none flex items-center justify-center gap-2 transition-colors duration-200 border-[0.5px] ${
+            tieneStock
+              ? "bg-[#1A1A1A] text-white border-[#1A1A1A] hover:bg-[#C89211] hover:border-[#C89211] active:bg-[#A3740A]"
+              : "bg-[#D1D1D1] text-[#888888] cursor-not-allowed border-[#D1D1D1]"
+          }`}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-3.5 h-3.5 text-[#C89211] group-hover:text-white transition-colors"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
+            <path strokeLinecap="square" strokeLinejoin="miter" d="M12 5v14M5 12h14" />
+          </svg>
 
-  <span>Agregar al carrito</span>
-</button>
+          <span>{tieneStock ? "Agregar al carrito" : "Sin Stock"}</span>
+        </button>
       )}
     </div>
   );

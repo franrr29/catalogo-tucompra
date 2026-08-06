@@ -1,7 +1,6 @@
 import { Navigate } from "react-router-dom"
 
-//--COMPONENTE QUE PROTEGE LA RUTA DE DASHBOARD Y VERIFICA SI HAY TOKEN PARA DEJAR PASAR--//
-
+//ruta protegida para que solo los usuarios logueados puedan acceder a ciertas rutas
 function RutaProtegida ({ children, isLogIn, loading}){
      
     if (loading) return null;

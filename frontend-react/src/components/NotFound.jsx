@@ -1,50 +1,43 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
-//---COMPONENTE QUE INDICA QUE NO EXISTE Y REDIRIGE A INICIO---//
-
 function NotFound() {
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-6 selection:bg-amber-500/30">
+    <div className="min-h-screen bg-[#F4F4F2] text-[#111111] font-sans antialiased flex flex-col items-center justify-center px-6 selection:bg-[#E2E2DF]">
       
-      {/* Contenedor principal con entrada suave */}
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center"
+        transition={{ duration: 0.5 }}
+        className="text-center max-w-md mx-auto"
       >
-        {/* Número 404 con estilo de lujo */}
-        <h1 className="text-white text-8xl md:text-9xl font-bold tracking-tighter mb-4">
-          40<span className="text-amber-500">4</span>
-        </h1>
-
-        {/* Mensaje de error */}
-        <div className="flex flex-col items-center gap-2 mb-12">
-          <h2 className="text-white text-sm tracking-[0.4em] uppercase font-light">
-            Página no encontrada
-          </h2>
-          <div className="h-px w-12 bg-amber-500/50" />
+        <div className="flex items-center justify-center gap-2 mb-6 font-mono">
+          <span className="w-1.5 h-1.5 bg-[#C89211]" />
+          <span className="text-[11px] text-[#666666] uppercase tracking-widest">
+            ERROR 404
+          </span>
         </div>
 
-        {/* Botón de retorno siguiendo tu estética de botones */}
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Link 
-            to="/" 
-            className="border border-white/20 px-10 py-4 text-[11px] text-white tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-500 inline-block"
-          >
-            Volver al inicio
-          </Link>
-        </motion.div>
-      </motion.div>
+        <h1 className="text-6xl sm:text-8xl font-light tracking-tight text-[#111111] mb-6 font-mono">
+          40<span className="font-medium text-[#C89211]">4</span>
+        </h1>
 
-      {/* Decoración sutil de fondo */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-500/5 blur-[120px] rounded-full" />
-      </div>
+        <div className="flex flex-col items-center gap-3 mb-12">
+          <h2 className="text-sm font-medium tracking-wide uppercase text-[#111111]">
+            Página no encontrada
+          </h2>
+          <p className="text-xs text-[#666666] leading-relaxed font-mono">
+            El recurso solicitado no existe o ha sido reubicado dentro del catálogo general.
+          </p>
+        </div>
+
+        <Link 
+          to="/" 
+          className="text-xs text-[#111111] border border-[#CCCCCC] hover:border-[#111111] hover:bg-[#111111] hover:text-[#F4F4F2] px-8 py-3.5 transition-all uppercase tracking-wider font-mono inline-block"
+        >
+          Volver al inicio
+        </Link>
+      </motion.div>
 
     </div>
   );

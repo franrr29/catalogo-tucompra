@@ -1,238 +1,184 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 
 function Navbar({ cartCounter, isLogIn, handleLogOut }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
 
-  // ===CAMBIO DE FONDO AL HACER SCROLL===//
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ===VARIANTES PARA ANIMACION EN CASCADA DEL MENU MOBILE===//
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 16 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-  };
-
-  // ===CLASES REUTILIZABLES DE BOTONES===//
-  
-  const btnClasses =
-    "border border-white/10 bg-white/5 backdrop-blur-md px-7 py-2.5 text-[10px] text-white tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-500 flex items-center justify-center font-bold";
-  
-  const btnDanger =
-    "border border-red-500/20 text-red-500 text-[9px] tracking-[0.3em] uppercase px-6 py-2.5 hover:bg-red-500 hover:text-white transition-all duration-500 rounded-full font-bold";
+  const navLinks = [
+    { name: "Inicio", path: "/" },
+    { name: "Cómo comprar", path: "/como-comprar" },
+    { name: "Contacto", path: "/contacto" },
+  ];
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-700 ${
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-black/80 backdrop-blur-2xl border-b border-white/5 py-3"
-          : "bg-transparent py-5"
+          ? "bg-[#F4F4F2]/95 border-b border-[#CCCCCC] py-4"
+          : "bg-[#F4F4F2] border-b border-transparent py-6"
       }`}
     >
-      <div className="max-w-[1400px] mx-auto px-8 flex items-center justify-between">
-
-        {/* ===IZQUIERDA: Hamburguesa mobile con animacion de 3 lineas → X=== */}
-        <div className="flex items-center md:hidden w-10">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            className="text-white focus:outline-none z-[60] flex flex-col gap-[6px] p-1"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <motion.span
-              animate={menuOpen ? { rotate: 45, y: 7.5 } : { rotate: 0, y: 0 }}
-              className="block w-6 h-[1.5px] bg-white origin-center"
-            />
-            <motion.span
-              animate={menuOpen ? { opacity: 0, x: -10 } : { opacity: 1, x: 0 }}
-              className="block w-4 h-[1.5px] bg-amber-500"
-            />
-            <motion.span
-              animate={menuOpen ? { rotate: -45, y: -7.5 } : { rotate: 0, y: 0 }}
-              className="block w-6 h-[1.5px] bg-white origin-center"
-            />
-          </motion.button>
-        </div>
-
-        {/* ===LOGO=== */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="flex-shrink-0"
+      <div className="max-w-7xl mx-auto px-6 sm:px-12 flex items-center justify-between">
+        
+        {/* Hamburguesa Mobile */}
+        <button
+          className="md:hidden text-[#111111] focus:outline-none z-50 p-1"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Menú"
         >
-          <Link
-            to="/"
-            className="text-white font-black text-xl tracking-[0.4em] uppercase group"
-          >
-            T<span className="text-amber-500 group-hover:text-white transition-colors duration-500">C</span>
-          </Link>
-        </motion.div>
+          <div className="w-5 flex flex-col gap-1.5">
+            <span
+              className={`block h-[2px] bg-[#111111] transition-transform duration-200 ${
+                menuOpen ? "rotate-45 translate-y-[7.5px]" : ""
+              }`}
+            />
+            <span
+              className={`block h-[2px] bg-[#111111] transition-opacity duration-200 ${
+                menuOpen ? "opacity-0" : ""
+              }`}
+            />
+            <span
+              className={`block h-[2px] bg-[#111111] transition-transform duration-200 ${
+                menuOpen ? "-rotate-45 -translate-y-[7.5px]" : ""
+              }`}
+            />
+          </div>
+        </button>
 
-        {/* ===CENTRO: Links de navegacion desktop + menu mobile=== */}
-        <motion.ul
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
+        {/* Marca / Logo */}
+        <Link
+          to="/"
+          className="text-[#111111] font-sans text-lg tracking-tight uppercase flex items-center gap-2"
+        >
+          <span className="w-1.5 h-1.5 bg-[#C89211]" />
+          <span className="font-light">TU</span>
+          <span className="font-semibold text-[#C89211]">COMPRA</span>
+        </Link>
+
+        {/* Links del menú */}
+        <div
           className={`
             fixed md:static top-0 left-0 w-full h-screen md:h-auto
-            bg-black md:bg-transparent backdrop-blur-3xl md:backdrop-blur-none
-            flex flex-col md:flex-row items-center justify-center gap-12
-            transition-all duration-700 ease-in-out z-50
-            ${menuOpen ? "translate-x-0 opacity-100" : "-translate-x-full md:translate-x-0 md:opacity-100"}
+            bg-[#F4F4F2] md:bg-transparent
+            flex flex-col md:flex-row items-center justify-center gap-8 md:gap-10
+            transition-opacity duration-200 z-40
+            ${
+              menuOpen
+                ? "opacity-100 pointer-events-auto"
+                : "opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto"
+            }
           `}
         >
-          {/* Link: Inicio */}
-          <motion.li variants={itemVariants} className="group relative">
+          {navLinks.map((link) => (
             <Link
-              to="/"
-              className="text-gray-400 group-hover:text-white text-[10px] tracking-[0.4em] uppercase transition-all duration-500"
+              key={link.path}
+              to={link.path}
               onClick={() => setMenuOpen(false)}
+              className="text-[#111111] font-sans font-medium hover:text-[#C89211] text-base md:text-xs tracking-wider uppercase transition-colors"
             >
-              Inicio
+              {link.name}
             </Link>
-            <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-amber-500 group-hover:w-full transition-all duration-500" />
-          </motion.li>
+          ))}
 
-          {/* Link: Como comprar */}
-          <motion.li variants={itemVariants} className="group relative">
-            <Link
-              to="/como-comprar"
-              className="text-gray-400 group-hover:text-white text-[10px] tracking-[0.4em] uppercase transition-all duration-500"
-              onClick={() => setMenuOpen(false)}
-            >
-              Como comprar
-            </Link>
-            <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-amber-500 group-hover:w-full transition-all duration-500" />
-          </motion.li>
-
-          {/* Link: Contacto */}
-          <motion.li variants={itemVariants} className="group relative">
-            <Link
-              to="/contacto"
-              className="text-gray-400 group-hover:text-white text-[10px] tracking-[0.4em] uppercase transition-all duration-500"
-              onClick={() => setMenuOpen(false)}
-            >
-              Contacto
-            </Link>
-            <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-amber-500 group-hover:w-full transition-all duration-500" />
-          </motion.li>
-
-          {/* Link: Panel admin — solo visible si esta logueado */}
           {isLogIn && (
-            <motion.li variants={itemVariants} className="group relative">
-              <Link
-                to="/admin/dashboard"
-                className="text-amber-500/70 group-hover:text-amber-500 text-[10px] tracking-[0.4em] uppercase transition-all duration-500"
-                onClick={() => setMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-white group-hover:w-full transition-all duration-500" />
-            </motion.li>
+            <Link
+              to="/admin/dashboard"
+              onClick={() => setMenuOpen(false)}
+              className="text-[#C89211] font-sans font-semibold hover:text-[#A3740A] text-base md:text-xs tracking-wider uppercase transition-colors"
+            >
+              Dashboard
+            </Link>
           )}
 
-          {/* ===BOTON DINAMICO MOBILE: Login / Logout=== */}
-          <motion.li variants={itemVariants} className="md:hidden mt-8">
+          {/* Acción móvil */}
+          <div className="md:hidden mt-6">
             {isLogIn ? (
               <button
-                onClick={() => { handleLogOut(); setMenuOpen(false); }}
-                className="text-red-500 text-[10px] tracking-[0.4em] uppercase border border-red-500/20 px-10 py-4 "
+                onClick={() => {
+                  handleLogOut();
+                  setMenuOpen(false);
+                }}
+                className="text-[#111111] font-sans text-xs uppercase tracking-wider underline underline-offset-4"
               >
                 Salir
               </button>
             ) : (
-             <Link
-             to="/admin/login"
-             className="text-white text-[10px] tracking-[0.4em] uppercase border border-amber-500/40 bg-black/50 backdrop-blur-sm px-10 py-4 font-bold  hover:bg-amber-500/10 transition-all duration-300 block text-center"
-             onClick={() => setMenuOpen(false)}
-            >
-              Ingresar
-            </Link>
-            )}
-            
-          </motion.li>
-        </motion.ul>
-
-        {/* ===DERECHA: Carrito + boton desktop=== */}
-        <div className="flex items-center gap-8 w-10 md:w-auto justify-end">
-
-          {/* Icono de carrito — oculto si esta logueado como admin */}
-          {!isLogIn && (
-            <Link to="/carrito">
-              <motion.div
-                whileHover={{ scale: 1.1, y: -2 }}
-                whileTap={{ scale: 0.9 }}
-                className="relative p-2 text-white hover:text-amber-500 transition-all duration-500"
+              <Link
+                to="/admin/login"
+                onClick={() => setMenuOpen(false)}
+                className="text-white bg-[#C89211] font-sans text-xs font-medium uppercase tracking-wider px-8 py-3 block transition-colors"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.2}
-                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                  />
-                </svg>
-
-                {/* Badge contador del carrito con animacion de entrada/salida */}
-                <AnimatePresence>
-                  {cartCounter > 0 && (
-                    <motion.span
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      className="absolute top-0 right-0 bg-amber-500 text-black text-[7px] font-black h-4 w-4 flex items-center justify-center rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)]"
-                    >
-                      {cartCounter}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            </Link>
-          )}
-
-          {/* ===BOTON DINAMICO DESKTOP: Login / Logout=== */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="hidden md:block"
-          >
-            {isLogIn ? (
-              <button
-                onClick={() => { handleLogOut(); navigate("/admin/login"); }}
-                className={btnDanger}
-              >
-                Cerrar sesion
-              </button>
-            ) : (
-              <Link to="/admin/login" className={btnClasses}>
                 Ingresar
               </Link>
             )}
-          </motion.div>
-
+          </div>
         </div>
+
+        {/* Acciones derechas */}
+        <div className="flex items-center gap-6">
+          {!isLogIn && (
+            <Link
+              to="/carrito"
+              className="relative text-[#111111] hover:text-[#C89211] transition-colors p-1 flex items-center gap-1.5"
+              aria-label="Carrito de compras"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.8}
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.25 10.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm7.5 0a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
+                />
+              </svg>
+
+              <AnimatePresence>
+                {cartCounter > 0 && (
+                  <span className="font-mono text-xs font-bold text-[#C89211]">
+                    ({cartCounter})
+                  </span>
+                )}
+              </AnimatePresence>
+            </Link>
+          )}
+
+          {/* Botón Ingresar Desktop */}
+          <div className="hidden md:block">
+            {isLogIn ? (
+              <button
+                onClick={() => {
+                  handleLogOut();
+                  navigate("/admin/login");
+                }}
+                className="text-xs font-sans text-[#111111] font-medium hover:text-[#C89211] tracking-wider uppercase transition-colors"
+              >
+                Salir
+              </button>
+            ) : (
+              <Link
+                to="/admin/login"
+                className="text-xs font-sans text-white bg-[#C89211] hover:bg-[#A3740A] px-5 py-2 transition-colors uppercase tracking-wider font-medium"
+              >
+                Ingresar
+              </Link>
+            )}
+          </div>
+        </div>
+
       </div>
     </nav>
   );
