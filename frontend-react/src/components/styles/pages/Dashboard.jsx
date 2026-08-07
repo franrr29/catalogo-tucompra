@@ -446,32 +446,22 @@ function Dashboard({ isLogIn }) {
             )}
           </div>
 
-          <AnimatePresence>
-            {idProductoEditado && productoActualObj && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden border-t border-[#CCCCCC] pt-6 mt-2"
-              >
-                <EditarProductoAdmin
-                  actualizarDatos={actualizarDatos}
-                  setActualizarDatos={setActualizarDatos}
-                  imagenesEditor={imagenesEditor}
-                  setFotosSeleccionadas={setFotosSeleccionadas}
-                  actualizarProducto={actualizarProducto}
-                  marcarPrincipal={marcarPrincipal}
-                  inputClass={inputClass}
-                  idProductoEditado={idProductoEditado}
-                  item={productoActualObj}
-                  setIdProductoEditado={setIdProductoEditado}
-                  borrarUnaFoto={borrarUnaFoto}
-                  previewsPendientes={previewsPendientes}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {idProductoEditado && productoActualObj && (
+            <EditarProductoAdmin
+              actualizarDatos={actualizarDatos}
+              setActualizarDatos={setActualizarDatos}
+              imagenesEditor={imagenesEditor}
+              setFotosSeleccionadas={setFotosSeleccionadas}
+              actualizarProducto={actualizarProducto}
+              marcarPrincipal={marcarPrincipal}
+              inputClass={inputClass}
+              idProductoEditado={idProductoEditado}
+              item={productoActualObj}
+              setIdProductoEditado={setIdProductoEditado}
+              borrarUnaFoto={borrarUnaFoto}
+              previewsPendientes={previewsPendientes}
+            />
+          )}
         </section>
 
       </div>

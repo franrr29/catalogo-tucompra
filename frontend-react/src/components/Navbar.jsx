@@ -13,7 +13,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-[#111111] border-b border-[#2A2A2A] py-4">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-black border-b border-[#222222] py-4">
       <div className="max-w-7xl mx-auto px-6 sm:px-12 flex items-center justify-between">
 
         {/* Hamburguesa Mobile */}
@@ -54,7 +54,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
         <div
           className={`
             fixed md:static top-0 left-0 w-full h-screen md:h-auto
-            bg-[#111111] md:bg-transparent
+            bg-black md:bg-transparent
             flex flex-col md:flex-row items-center justify-center gap-8 md:gap-10
             transition-opacity duration-200 z-40
             ${

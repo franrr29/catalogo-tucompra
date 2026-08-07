@@ -15,8 +15,8 @@ function Footer() {
   ];
 
   return (
-    <footer className="bg-[#111111] border-t-2 border-[#C89211] px-6 sm:px-12 lg:px-16 py-14 font-sans">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-start justify-between gap-12 pb-10 border-b border-[#2A2A2A]">
+    <footer className="bg-black border-t-2 border-[#C89211] px-6 sm:px-12 lg:px-16 py-14 font-sans">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-start justify-between gap-12 pb-10 border-b border-[#222222]">
 
         {/* Marca */}
         <div>
