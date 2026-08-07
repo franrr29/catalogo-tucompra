@@ -1,17 +1,10 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
 function Navbar({ cartCounter, isLogIn, handleLogOut }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const navLinks = [
     { name: "Inicio", path: "/" },
@@ -20,34 +13,28 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
   ];
 
   return (
-    <nav
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-[#F4F4F2]/95 border-b border-[#CCCCCC] py-4"
-          : "bg-[#F4F4F2] border-b border-transparent py-6"
-      }`}
-    >
+    <nav className="fixed top-0 left-0 w-full z-50 bg-[#111111] border-b border-[#2A2A2A] py-4">
       <div className="max-w-7xl mx-auto px-6 sm:px-12 flex items-center justify-between">
-        
+
         {/* Hamburguesa Mobile */}
         <button
-          className="md:hidden text-[#111111] focus:outline-none z-50 p-1"
+          className="md:hidden text-white focus:outline-none z-50 p-1"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Menú"
         >
           <div className="w-5 flex flex-col gap-1.5">
             <span
-              className={`block h-[2px] bg-[#111111] transition-transform duration-200 ${
+              className={`block h-[2px] bg-white transition-transform duration-200 ${
                 menuOpen ? "rotate-45 translate-y-[7.5px]" : ""
               }`}
             />
             <span
-              className={`block h-[2px] bg-[#111111] transition-opacity duration-200 ${
+              className={`block h-[2px] bg-white transition-opacity duration-200 ${
                 menuOpen ? "opacity-0" : ""
               }`}
             />
             <span
-              className={`block h-[2px] bg-[#111111] transition-transform duration-200 ${
+              className={`block h-[2px] bg-white transition-transform duration-200 ${
                 menuOpen ? "-rotate-45 -translate-y-[7.5px]" : ""
               }`}
             />
@@ -57,18 +44,17 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
         {/* Marca / Logo */}
         <Link
           to="/"
-          className="text-[#111111] font-sans text-lg tracking-tight uppercase flex items-center gap-2"
+          className="font-sans leading-[0.85] uppercase flex flex-col"
         >
-          <span className="w-1.5 h-1.5 bg-[#C89211]" />
-          <span className="font-light">TU</span>
-          <span className="font-semibold text-[#C89211]">COMPRA</span>
+          <span className="font-light text-white text-lg tracking-tight">TU</span>
+          <span className="font-bold text-[#C89211] text-lg tracking-tight">COMPRA</span>
         </Link>
 
         {/* Links del menú */}
         <div
           className={`
             fixed md:static top-0 left-0 w-full h-screen md:h-auto
-            bg-[#F4F4F2] md:bg-transparent
+            bg-[#111111] md:bg-transparent
             flex flex-col md:flex-row items-center justify-center gap-8 md:gap-10
             transition-opacity duration-200 z-40
             ${
@@ -79,24 +65,37 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
           `}
         >
           {navLinks.map((link) => (
-            <Link
+            <NavLink
               key={link.path}
               to={link.path}
+              end={link.path === "/"}
               onClick={() => setMenuOpen(false)}
-              className="text-[#111111] font-sans font-medium hover:text-[#C89211] text-base md:text-xs tracking-wider uppercase transition-colors"
+              className={({ isActive }) =>
+                `font-sans font-medium text-base md:text-xs tracking-wider uppercase transition-colors pb-1 border-b-2 ${
+                  isActive
+                    ? "text-[#C89211] border-[#C89211]"
+                    : "text-white border-transparent hover:text-[#C89211]"
+                }`
+              }
             >
               {link.name}
-            </Link>
+            </NavLink>
           ))}
 
           {isLogIn && (
-            <Link
+            <NavLink
               to="/admin/dashboard"
               onClick={() => setMenuOpen(false)}
-              className="text-[#C89211] font-sans font-semibold hover:text-[#A3740A] text-base md:text-xs tracking-wider uppercase transition-colors"
+              className={({ isActive }) =>
+                `font-sans font-semibold text-base md:text-xs tracking-wider uppercase transition-colors pb-1 border-b-2 ${
+                  isActive
+                    ? "text-[#C89211] border-[#C89211]"
+                    : "text-white border-transparent hover:text-[#C89211]"
+                }`
+              }
             >
               Dashboard
-            </Link>
+            </NavLink>
           )}
 
           {/* Acción móvil */}
@@ -107,7 +106,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
                   handleLogOut();
                   setMenuOpen(false);
                 }}
-                className="text-[#111111] font-sans text-xs uppercase tracking-wider underline underline-offset-4"
+                className="text-white font-sans text-xs uppercase tracking-wider underline underline-offset-4"
               >
                 Salir
               </button>
@@ -128,7 +127,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
           {!isLogIn && (
             <Link
               to="/carrito"
-              className="relative text-[#111111] hover:text-[#C89211] transition-colors p-1 flex items-center gap-1.5"
+              className="relative text-white hover:text-[#C89211] transition-colors p-1 flex items-center gap-1.5"
               aria-label="Carrito de compras"
             >
               <svg
@@ -148,7 +147,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
 
               <AnimatePresence>
                 {cartCounter > 0 && (
-                  <span className="font-mono text-xs font-bold text-[#C89211]">
+                  <span className="font-sans text-xs font-bold text-[#C89211]">
                     ({cartCounter})
                   </span>
                 )}
@@ -156,7 +155,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
             </Link>
           )}
 
-          {/* Botón Ingresar Desktop */}
+          {/* Estado de sesión / Ingresar Desktop */}
           <div className="hidden md:block">
             {isLogIn ? (
               <button
@@ -164,9 +163,33 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
                   handleLogOut();
                   navigate("/admin/login");
                 }}
-                className="text-xs font-sans text-[#111111] font-medium hover:text-[#C89211] tracking-wider uppercase transition-colors"
+                className="flex items-center gap-2 text-xs font-sans text-white font-medium hover:text-[#C89211] tracking-wider uppercase transition-colors"
               >
-                Salir
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.8}
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                  />
+                </svg>
+                Usuario autenticado
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-3 h-3"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
               </button>
             ) : (
               <Link

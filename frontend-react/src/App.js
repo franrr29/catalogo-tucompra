@@ -24,6 +24,36 @@ function ScrollToTop() {
   return null;
 }
 
+function AppBody({ carrito, setCarrito, isLogIn, loading, handleLogOut, handleLogIn, addCart }) {
+  return (
+    <div className="min-h-screen bg-[#F4F4F2] text-[#111111] flex flex-col font-sans selection:bg-[#E2E2DF]">
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          duration: 3000,
+        }}
+      />
+
+      <Navbar cartCounter={carrito.length} isLogIn={isLogIn} handleLogOut={handleLogOut} />
+
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<ListaProductos addCart={addCart} isLogIn={isLogIn} />} />
+          <Route path="/carrito" element={<Cart fullCart={carrito} setCarrito={setCarrito} />} />
+          <Route path="/admin/login" element={<Admin handleLogIn={handleLogIn} />} />
+          <Route path="/admin/dashboard" element={<RutaProtegida isLogIn={isLogIn} loading={loading}><Dashboard isLogIn={isLogIn} /></RutaProtegida>} />
+          <Route path="/como-comprar" element={<ComoComprar />} />
+          <Route path="/contacto" element={<Contacto />} />
+          <Route path="/producto/:id" element={<ProductoDetalle addCart={addCart} />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
+
 function App() {
   const [carrito, setCarrito] = useState([]);
   const [isLogIn, setIsLogIn] = useState(false);
@@ -119,30 +149,15 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <div className="min-h-screen bg-[#F4F4F2] text-[#111111] flex flex-col font-sans selection:bg-[#E2E2DF]">
-        <Toaster 
-          position="bottom-right"
-          toastOptions={{
-            duration: 3000,
-          }}
-        />
-        <Navbar cartCounter={carrito.length} isLogIn={isLogIn} handleLogOut={handleLogOut} />
-        
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<ListaProductos addCart={addCart} isLogIn={isLogIn} />} />
-            <Route path="/carrito" element={<Cart fullCart={carrito} setCarrito={setCarrito} />} />
-            <Route path="/admin/login" element={<Admin handleLogIn={handleLogIn} />} />
-            <Route path="/admin/dashboard" element={<RutaProtegida isLogIn={isLogIn} loading={loading}><Dashboard isLogIn={isLogIn} /></RutaProtegida>} />
-            <Route path="/como-comprar" element={<ComoComprar />} />
-            <Route path="/contacto" element={<Contacto />} />
-            <Route path="/producto/:id" element={<ProductoDetalle addCart={addCart} />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-        
-        <Footer />
-      </div>
+      <AppBody
+        carrito={carrito}
+        setCarrito={setCarrito}
+        isLogIn={isLogIn}
+        loading={loading}
+        handleLogOut={handleLogOut}
+        handleLogIn={handleLogIn}
+        addCart={addCart}
+      />
     </BrowserRouter>
   );
 }

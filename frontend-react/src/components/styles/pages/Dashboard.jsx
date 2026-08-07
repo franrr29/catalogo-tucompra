@@ -325,8 +325,8 @@ function Dashboard({ isLogIn }) {
     }
   }
 
-  const inputClass = "bg-transparent border border-[#CCCCCC] text-[#111111] text-xs px-4 py-3.5 focus:outline-none focus:border-[#111111] transition-all placeholder-[#999999] w-full font-mono";
-  const btnDanger = "border border-red-300 text-red-600 text-xs tracking-wider uppercase px-4 py-3.5 hover:bg-red-600 hover:text-white transition-colors font-mono flex items-center justify-center gap-2 whitespace-nowrap";
+  const inputClass = "bg-transparent border border-[#CCCCCC] text-[#111111] text-xs px-4 py-3.5 focus:outline-none focus:border-[#111111] transition-all placeholder-[#999999] w-full font-sans rounded";
+  const btnDanger = "border border-red-300 text-red-600 text-xs tracking-wider uppercase px-4 py-3.5 hover:bg-red-600 hover:text-white transition-colors font-sans flex items-center justify-center gap-2 whitespace-nowrap rounded";
 
   const productoActualObj = productos.find(p => p.id === Number(idProductoEditado));
 
@@ -337,7 +337,7 @@ function Dashboard({ isLogIn }) {
         {/* Header Dashboard Premium Minimal */}
         <header className="border-b border-[#CCCCCC] pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2 mb-1.5 font-mono">
+            <div className="flex items-center gap-2 mb-1.5 font-sans">
               <span className="w-1.5 h-1.5 bg-[#C89211]" />
               <span className="text-[10px] text-[#666666] uppercase tracking-widest">Panel de Gestión</span>
             </div>
@@ -345,15 +345,15 @@ function Dashboard({ isLogIn }) {
               CONTROL DE <span className="font-semibold text-[#C89211]">INVENTARIO</span>
             </h1>
           </div>
-          <div className="font-mono text-[11px] text-[#666666] uppercase self-start sm:self-auto bg-[#E2E2DF]/50 px-3 py-1.5 border border-[#CCCCCC]">
+          <div className="font-sans text-[11px] text-[#666666] uppercase self-start sm:self-auto bg-[#E2E2DF]/50 px-3 py-1.5 border border-[#CCCCCC] rounded">
             Activos: <span className="text-[#111111] font-semibold">{productos.length}</span>
           </div>
         </header>
 
         {/* Sección 1: Crear Producto Nuevo */}
-        <section className="border border-[#CCCCCC] p-6 sm:p-8 bg-white/40 backdrop-blur-sm relative shadow-sm">
+        <section className="border border-[#CCCCCC] rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm relative shadow-sm overflow-hidden">
           <div className="absolute top-0 right-0 w-2 h-2 bg-[#C89211]" />
-          <div className="flex items-center gap-2 mb-6 font-mono">
+          <div className="flex items-center gap-2 mb-6 font-sans">
             <span className="w-1.5 h-1.5 bg-[#C89211]" />
             <h2 className="text-xs uppercase tracking-widest text-[#111111] font-semibold">
               01 / Nuevo Artículo
@@ -369,9 +369,9 @@ function Dashboard({ isLogIn }) {
         </section>
 
         {/* Sección 2: Selector Textual Minimalista & Panel de Edición */}
-        <section className="border border-[#CCCCCC] p-6 sm:p-8 bg-white/40 backdrop-blur-sm flex flex-col gap-6 relative shadow-sm">
-          <div className="absolute top-0 right-0 w-2 h-2 bg-[#C89211]" />
-          <div className="flex items-center gap-2 font-mono">
+        <section className="border border-[#CCCCCC] rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm flex flex-col gap-6 relative shadow-sm">
+          <div className="absolute top-0 right-0 w-2 h-2 bg-[#C89211] rounded-tr" />
+          <div className="flex items-center gap-2 font-sans">
             <span className="w-1.5 h-1.5 bg-[#C89211]" />
             <h2 className="text-xs uppercase tracking-widest text-[#111111] font-semibold">
               02 / Modificar o Eliminar Artículo
@@ -382,9 +382,9 @@ function Dashboard({ isLogIn }) {
             
             {/* Dropdown Custom Textual Premium */}
             <div className="flex-1 relative">
-              <div 
+              <div
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="bg-transparent border border-[#CCCCCC] hover:border-[#111111] text-[#111111] text-xs px-4 py-3.5 flex items-center justify-between cursor-pointer transition-colors font-mono uppercase select-none bg-white"
+                className="bg-transparent border border-[#CCCCCC] hover:border-[#111111] text-[#111111] text-xs px-4 py-3.5 flex items-center justify-between cursor-pointer transition-colors font-sans uppercase select-none bg-white rounded"
               >
                 <span className="truncate font-medium text-[#111111]">
                   {productoActualObj 
@@ -404,10 +404,10 @@ function Dashboard({ isLogIn }) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute left-0 right-0 top-full mt-1 bg-[#F4F4F2] border border-[#CCCCCC] z-50 max-h-60 overflow-y-auto shadow-2xl"
+                    className="absolute left-0 right-0 top-full mt-1 bg-[#F4F4F2] border border-[#CCCCCC] rounded z-50 max-h-60 overflow-y-auto shadow-2xl"
                   >
                     {productos.length === 0 ? (
-                      <div className="p-4 text-xs font-mono text-[#666666] uppercase text-center">
+                      <div className="p-4 text-xs font-sans text-[#666666] uppercase text-center">
                         No hay productos disponibles
                       </div>
                     ) : (
@@ -423,8 +423,8 @@ function Dashboard({ isLogIn }) {
                               isSelected ? "bg-[#E2E2DF] font-semibold" : ""
                             }`}
                           >
-                            <span className="font-mono text-xs text-[#111111] uppercase">{item.nombre}</span>
-                            <span className="font-mono text-[10px] text-[#666666] mt-0.5">
+                            <span className="font-sans text-xs text-[#111111] uppercase">{item.nombre}</span>
+                            <span className="font-sans text-[10px] text-[#666666] mt-0.5">
                               Precio: ${item.precio} — Stock: {item.stock} unidades
                             </span>
                           </div>

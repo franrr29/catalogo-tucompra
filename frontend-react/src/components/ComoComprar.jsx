@@ -19,7 +19,7 @@ function ComoComprar() {
         <div className="flex flex-col gap-16 max-w-3xl">
 
           <section className="flex flex-col gap-6">
-            <h2 className="text-xs font-mono text-[#777777] uppercase tracking-wider mb-2">
+            <h2 className="text-xs font-sans text-[#777777] uppercase tracking-wider mb-2">
               Pasos para comprar
             </h2>
             {[
@@ -58,7 +58,7 @@ function ComoComprar() {
                 <div className="mt-0.5">{paso.icon}</div>
                 <div>
                   <div className="flex items-center gap-3 mb-1">
-                    <span className="font-mono text-xs text-[#C89211] font-semibold">{paso.num}</span>
+                    <span className="font-sans text-xs text-[#C89211] font-semibold">{paso.num}</span>
                     <h3 className="text-sm font-medium uppercase tracking-wide text-[#111111]">{paso.titulo}</h3>
                   </div>
                   <p className="text-xs text-[#666666] leading-relaxed">{paso.desc}</p>
@@ -68,7 +68,7 @@ function ComoComprar() {
           </section>
 
           <section className="flex flex-col gap-4">
-            <h2 className="text-xs font-mono text-[#777777] uppercase tracking-wider mb-2">
+            <h2 className="text-xs font-sans text-[#777777] uppercase tracking-wider mb-2">
               Métodos de pago
             </h2>
             {[
@@ -114,13 +114,13 @@ function ComoComprar() {
                   {item.icon}
                   <span className="text-xs uppercase tracking-wide text-[#111111] font-medium">{item.metodo}</span>
                 </div>
-                <span className="text-xs text-[#666666] text-right max-w-[50%] font-mono">{item.detalle}</span>
+                <span className="text-xs text-[#666666] text-right max-w-[50%] font-sans">{item.detalle}</span>
               </div>
             ))}
           </section>
 
           <section className="flex flex-col gap-4">
-            <h2 className="text-xs font-mono text-[#777777] uppercase tracking-wider mb-2">
+            <h2 className="text-xs font-sans text-[#777777] uppercase tracking-wider mb-2">
               Envíos
             </h2>
             {[
@@ -149,7 +149,7 @@ function ComoComprar() {
                   {item.icon}
                   <span className="text-xs uppercase tracking-wide text-[#111111] font-medium">{item.zona}</span>
                 </div>
-                <span className="text-xs text-[#666666] font-mono">{item.detalle}</span>
+                <span className="text-xs text-[#666666] font-sans">{item.detalle}</span>
               </div>
             ))}
           </section>

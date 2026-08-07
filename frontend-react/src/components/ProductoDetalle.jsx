@@ -23,7 +23,7 @@ function ProductoDetalle({ addCart }) {
 
   if (!producto) {
     return (
-      <div className="min-h-screen bg-[#F7F7F6] flex items-center justify-center font-mono">
+      <div className="min-h-screen bg-[#F7F7F6] flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-3">
           <div className="w-4 h-4 bg-[#C89211] animate-ping" />
           <p className="text-[#666666] text-xs tracking-widest uppercase">Cargando...</p>
@@ -36,7 +36,7 @@ function ProductoDetalle({ addCart }) {
   const imagenes = producto.imagenes || [];
 
   return (
-    <div className="min-h-screen bg-[#F7F7F6] text-[#1A1A1A] font-mono pt-28 pb-16 px-6 sm:px-12">
+    <div className="min-h-screen bg-[#F7F7F6] text-[#1A1A1A] font-sans pt-28 pb-16 px-6 sm:px-12">
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
 

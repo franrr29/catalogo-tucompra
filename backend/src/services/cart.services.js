@@ -18,7 +18,7 @@ async function actualizarDatosFront(productId) {
   return rows [0];
 
   } catch (error){
-    throw error // si no relanzamos el error, el controller no lo recibe
+    throw error 
   }
 
 };

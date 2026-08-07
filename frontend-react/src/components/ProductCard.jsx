@@ -12,11 +12,11 @@ function Card({ producto, addCart, isLogIn }) {
   const tieneStock = Number(producto.stock) > 0;
 
   return (
-    <div className="flex flex-col gap-2 font-mono group">
+    <div className="flex flex-col gap-2 font-sans group">
       {/* tarjeta de producto */}
       <Wrapper {...wrapperProps} className="block no-underline text-inherit">
-        <div className="relative flex flex-col bg-[#E5E5E5] border-[0.5px] border-[#1A1A1A]/20 rounded-none overflow-hidden">
-          
+        <div className="relative flex flex-col bg-[#E5E5E5] border-[0.5px] border-[#1A1A1A]/20 rounded-none overflow-hidden transition-transform duration-150 active:scale-[0.98]">
+
           {/* contenedor de imagen */}
           <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#DEDEDE] border-b-[0.5px] border-[#1A1A1A]/20">
             {producto.imagen_url ? (
@@ -37,7 +37,7 @@ function Card({ producto, addCart, isLogIn }) {
 
           {/* info del producto */}
           <div className="p-3.5 flex flex-col bg-[#E5E5E5] gap-2.5">
-            
+
             {/* cabecera sutil */}
             <div className="flex items-center justify-between border-b border-[#1A1A1A]/15 pb-1.5">
               <span className="text-[9px] font-bold tracking-[0.18em] uppercase text-[#666666]">

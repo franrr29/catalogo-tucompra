@@ -8,6 +8,9 @@ const imagenesRoutes = require("./routes/imagenes.routes");
 const app = express();
 const PORT= process.env.PORT || 4000;
 
+app.get("/ping", (req, res) => {
+  res.send("pong");
+});
 
 app.use(cors());
 app.use(express.json());

@@ -75,7 +75,7 @@ function Admin({ handleLogIn }) {
       >
 
         <div className="space-y-3 border-b border-[#CCCCCC] pb-6">
-          <div className="flex items-center gap-2 font-mono">
+          <div className="flex items-center gap-2 font-sans">
             <span className="w-1.5 h-1.5 bg-[#C89211]" />
             <span className="text-[11px] text-[#666666] uppercase tracking-widest">
               ACCESO RESTRINGIDO
@@ -88,7 +88,7 @@ function Admin({ handleLogIn }) {
 
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2 group">
-            <label className="text-xs font-mono text-[#777777] uppercase tracking-wider">
+            <label className="text-xs font-sans text-[#777777] uppercase tracking-wider">
               Correo
             </label>
             <input
@@ -101,7 +101,7 @@ function Admin({ handleLogIn }) {
           </div>
 
           <div className="flex flex-col gap-2 group">
-            <label className="text-xs font-mono text-[#777777] uppercase tracking-wider">
+            <label className="text-xs font-sans text-[#777777] uppercase tracking-wider">
               Clave de seguridad
             </label>
             <input
@@ -124,7 +124,7 @@ function Admin({ handleLogIn }) {
         </div>
 
         <div className="flex flex-col items-center gap-4 mt-2 border-t border-[#CCCCCC] pt-6">
-          <p className="text-xs font-mono text-[#777777] text-center tracking-widest uppercase">
+          <p className="text-xs font-sans text-[#777777] text-center tracking-widest uppercase">
             Tu Compra © 2026
           </p>
         </div>

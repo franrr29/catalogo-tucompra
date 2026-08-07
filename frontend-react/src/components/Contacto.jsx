@@ -10,7 +10,7 @@ function Contacto() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <div className="flex items-center gap-2 mb-3 font-mono">
+            <div className="flex items-center gap-2 mb-3 font-sans">
               <span className="w-1.5 h-1.5 bg-[#C89211]" />
               <span className="text-[11px] text-[#666666]">CANALES DIRECTOS</span>
             </div>
@@ -31,14 +31,14 @@ function Contacto() {
             className="flex items-center justify-between border border-[#CCCCCC] p-6 hover:border-[#111111] transition-colors group"
           >
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-mono text-[#C89211] font-semibold uppercase tracking-wide">
+              <span className="text-xs font-sans text-[#C89211] font-semibold uppercase tracking-wide">
                 WhatsApp
               </span>
               <span className="text-lg font-medium tracking-tight text-[#111111]">
                 +598 91 637 161
               </span>
             </div>
-            <span className="text-xs font-mono text-[#111111] group-hover:text-[#C89211] transition-colors uppercase tracking-wider">
+            <span className="text-xs font-sans text-[#111111] group-hover:text-[#C89211] transition-colors uppercase tracking-wider">
               Enviar mensaje →
             </span>
           </motion.a>
@@ -53,14 +53,14 @@ function Contacto() {
             className="flex items-center justify-between border border-[#CCCCCC] p-6 hover:border-[#111111] transition-colors group"
           >
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-mono text-[#C89211] font-semibold uppercase tracking-wide">
+              <span className="text-xs font-sans text-[#C89211] font-semibold uppercase tracking-wide">
                 Instagram
               </span>
               <span className="text-lg font-medium tracking-tight text-[#111111]">
                 @CMPRALO
               </span>
             </div>
-            <span className="text-xs font-mono text-[#111111] group-hover:text-[#C89211] transition-colors uppercase tracking-wider">
+            <span className="text-xs font-sans text-[#111111] group-hover:text-[#C89211] transition-colors uppercase tracking-wider">
               Ver perfil →
             </span>
           </motion.a>
