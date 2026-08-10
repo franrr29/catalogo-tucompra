@@ -31,13 +31,6 @@ function ListaProductos({ addCart }) {
         irAlTopeDelCatalogo();
     }
 
-    function verTodos() {
-        setPrecioMax(Infinity);
-        setPrecioInput("");
-        setPaginaActual(1);
-        irAlTopeDelCatalogo();
-    }
-
     useEffect(() => {
         async function obtenerProducts() {
             try {
@@ -189,28 +182,6 @@ function ListaProductos({ addCart }) {
                     totalPaginas={totalPaginas}
                     onCambiarPagina={cambiarPagina}
                 />
-
-                {/* ver todos los productos */}
-                {!loading && productos.length > 0 && (
-                    <div className="max-w-7xl mx-auto flex justify-center mt-14">
-                        <button
-                            onClick={verTodos}
-                            className="group inline-flex items-center gap-3 border border-[#111111] px-8 py-4 font-sans text-[12px] uppercase tracking-widest text-[#111111] hover:bg-[#111111] hover:text-white transition-colors"
-                        >
-                            Ver todos los productos
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.8}
-                                stroke="currentColor"
-                                className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75 6.75 17.25M17.25 6.75H9m8.25 0V15" />
-                            </svg>
-                        </button>
-                    </div>
-                )}
 
             </div>
 
