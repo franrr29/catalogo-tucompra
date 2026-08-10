@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import Card from "./ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
-import { API_URL } from "../config";
+import { API_URL } from "../../config";
 
 function ListaProductos({ addCart, isLogIn }) {
     const [productos, setProductos] = useState([]);
@@ -39,7 +39,7 @@ function ListaProductos({ addCart, isLogIn }) {
 
             <div className="px-6 sm:px-12 lg:px-16 pt-32 sm:pt-36 pb-12">
 
-                {/* Control de inventario / Filtro */}
+                {/* control de inventario y filtro */}
                 <motion.div
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -48,7 +48,7 @@ function ListaProductos({ addCart, isLogIn }) {
                 >
                     <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
 
-                        {/* Izquierda: Métrica de colección */}
+                        {/* izquierda: metrica de coleccion */}
                         <div>
                             <p className="text-[11px] font-sans text-[#777777] mb-2 uppercase tracking-wide">
                                 COLECCIÓN
@@ -61,7 +61,7 @@ function ListaProductos({ addCart, isLogIn }) {
                             </h2>
                         </div>
 
-                        {/* Derecha: Filtro de presupuesto */}
+                        {/* derecha: filtro de presupuesto */}
                         <div className="text-right">
                             <p className="text-[11px] font-sans text-[#777777] mb-2 uppercase tracking-wide">
                                 HASTA
@@ -94,7 +94,7 @@ function ListaProductos({ addCart, isLogIn }) {
                     </div>
                 </motion.div>
 
-                {/* Catálogo de Productos */}
+                {/* catalogo de productos */}
                 <main ref={gridRef} className="max-w-7xl mx-auto scroll-mt-24">
                     {loading ? (
                         <div className="flex flex-col justify-center items-center py-32 gap-3 font-sans">
@@ -163,7 +163,7 @@ function ListaProductos({ addCart, isLogIn }) {
                     )}
                 </main>
 
-                {/* Ver todos los productos */}
+                {/* ver todos los productos */}
                 {!loading && productos.length > 0 && (
                     <div className="max-w-7xl mx-auto flex justify-center mt-14">
                         <button

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { API_URL } from "../config";
+import { API_URL } from "../../config";
 
 function ProductoDetalle({ addCart }) {
   const [producto, setProducto] = useState(null);
@@ -40,7 +40,7 @@ function ProductoDetalle({ addCart }) {
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
 
-          {/* galeria: imagen un 30% mas grande (col-span-7) */}
+          {/* galeria de imagenes un poco mas grande */}
           <div className="md:col-span-7 flex flex-col gap-3">
             {/* visor principal */}
             <div className="relative aspect-square w-full overflow-hidden bg-[#E5E5E5] border-[0.5px] border-[#1A1A1A]/20">
@@ -83,7 +83,7 @@ function ProductoDetalle({ addCart }) {
             )}
           </div>
 
-          {/* columna de informacion estilizada (listado tecnico) */}
+          {/* columna de informacion estilizada */}
           <div className="md:col-span-5 flex flex-col gap-6">
 
             {/* cabecera del producto */}
@@ -104,7 +104,7 @@ function ProductoDetalle({ addCart }) {
               </h1>
             </div>
 
-            {/* desglose de datos en formato tabla/lista lineal */}
+            {/* desglose de datos en formato de lista */}
             <div className="border-t-2 border-b-2 border-[#1A1A1A] divide-y divide-[#D1D1D1]">
               <div className="py-3 flex items-center justify-between">
                 <span className="text-[10px] font-bold text-[#777777] uppercase tracking-widest">PRECIO UNITARIO</span>

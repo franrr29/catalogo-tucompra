@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { API_URL } from "../config";
+import { API_URL } from "../../config";
 
 function Cart({ fullCart, setCarrito }) {
 
@@ -65,7 +65,7 @@ function Cart({ fullCart, setCarrito }) {
   return (
     <div className="min-h-screen bg-[#F4F4F2] text-[#111111] font-sans antialiased px-6 sm:px-12 lg:px-16 pt-32 pb-24 selection:bg-[#E2E2DF]">
       <div className="max-w-4xl mx-auto">
-        
+
         <header className="mb-16 border-b border-[#CCCCCC] pb-8">
           <motion.div
             initial={{ opacity: 0, y: 6 }}
@@ -83,9 +83,9 @@ function Cart({ fullCart, setCarrito }) {
         </header>
 
         {fullCart.length === 0 ? (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className="border border-[#CCCCCC] p-16 text-center bg-transparent"
           >
             <div className="flex items-center justify-center gap-2 mb-4 font-sans">
@@ -99,11 +99,11 @@ function Cart({ fullCart, setCarrito }) {
           </motion.div>
         ) : (
           <div className="flex flex-col gap-12">
-            
+
             <div className="flex flex-col gap-4">
               <AnimatePresence>
                 {fullCart.map((producto) => (
-                  <motion.div 
+                  <motion.div
                     key={producto.id}
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -122,10 +122,10 @@ function Cart({ fullCart, setCarrito }) {
                     </div>
 
                     <div className="flex items-center justify-between sm:justify-end gap-6 sm:gap-8">
-                      {/* Controles de cantidad */}
+                      {/* controles de cantidad */}
                       <div className="flex items-center border border-[#CCCCCC] bg-transparent h-10">
-                        <button 
-                          onClick={() => disminuir(producto.id)} 
+                        <button
+                          onClick={() => disminuir(producto.id)}
                           className="w-10 h-full flex items-center justify-center bg-red-600 text-[#111111] hover:bg-red-700 transition-colors font-sans text-base font-bold"
                           aria-label="Disminuir cantidad"
                         >
@@ -134,8 +134,8 @@ function Cart({ fullCart, setCarrito }) {
                         <span className="text-sm w-10 text-center font-sans font-bold text-[#111111]">
                           {producto.cantidad}
                         </span>
-                        <button 
-                          onClick={() => aumentar(producto.id)} 
+                        <button
+                          onClick={() => aumentar(producto.id)}
                           className="w-10 h-full flex items-center justify-center bg-green-600 text-[#111111] hover:bg-green-700 transition-colors font-sans text-base font-bold"
                           aria-label="Aumentar cantidad"
                         >
@@ -143,7 +143,7 @@ function Cart({ fullCart, setCarrito }) {
                         </button>
                       </div>
 
-                      <button 
+                      <button
                         onClick={() => eliminar(producto.id)}
                         className="flex items-center gap-2 text-red-600 hover:text-red-700 transition-colors text-sm font-sans uppercase tracking-wider font-semibold"
                         aria-label="Eliminar producto"
@@ -159,8 +159,8 @@ function Cart({ fullCart, setCarrito }) {
               </AnimatePresence>
             </div>
 
-            {/* Resumen de compra */}
-            <motion.footer 
+            {/* resumen de compra */}
+            <motion.footer
               layout
               className="border border-[#CCCCCC] p-8 sm:p-12 bg-transparent flex flex-col items-end gap-8"
             >
@@ -177,7 +177,7 @@ function Cart({ fullCart, setCarrito }) {
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={() => whatsapp()}
                 className="w-full sm:w-auto text-sm text-white bg-[#25D366] hover:bg-[#20ba59] px-8 py-4 transition-colors uppercase tracking-widest font-sans font-semibold flex items-center justify-center gap-3 shadow-sm"
               >

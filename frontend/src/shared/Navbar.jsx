@@ -16,7 +16,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
     <nav className="fixed top-0 left-0 w-full z-50 bg-black border-b border-[#222222] py-4">
       <div className="max-w-7xl mx-auto px-6 sm:px-12 flex items-center justify-between">
 
-        {/* Hamburguesa Mobile */}
+        {/* boton hamburguesa mobile */}
         <button
           className="md:hidden text-white focus:outline-none z-50 p-1"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -41,7 +41,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
           </div>
         </button>
 
-        {/* Marca / Logo */}
+        {/* marca y logo */}
         <Link
           to="/"
           className="font-sans leading-[0.85] uppercase flex flex-col"
@@ -50,7 +50,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
           <span className="font-bold text-[#C89211] text-lg tracking-tight">COMPRA</span>
         </Link>
 
-        {/* Links del menú */}
+        {/* links del menu */}
         <div
           className={`
             fixed md:static top-0 left-0 w-full h-screen md:h-auto
@@ -98,7 +98,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
             </NavLink>
           )}
 
-          {/* Acción móvil */}
+          {/* accion mobile */}
           <div className="md:hidden mt-6">
             {isLogIn ? (
               <button
@@ -122,7 +122,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
           </div>
         </div>
 
-        {/* Acciones derechas */}
+        {/* acciones derechas */}
         <div className="flex items-center gap-6">
           {!isLogIn && (
             <Link
@@ -155,7 +155,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
             </Link>
           )}
 
-          {/* Estado de sesión / Ingresar Desktop */}
+          {/* estado de sesion o ingresar en desktop */}
           <div className="hidden md:block">
             {isLogIn ? (
               <button

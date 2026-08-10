@@ -1,15 +1,15 @@
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import ListaProductos from "./components/productsList";
-import Cart from "./components/Cart";
-import Admin from "./components/styles/pages/Admin.jsx";
-import Dashboard from "./components/styles/pages/Dashboard.jsx";
-import RutaProtegida from "./components/styles/pages/RutaProtegida.jsx";
-import NotFound from "./components/NotFound.jsx";
-import ProductoDetalle from "./components/ProductoDetalle.jsx";
-import ComoComprar from "./components/ComoComprar.jsx";
-import Contacto from "./components/Contacto.jsx";
-import "./components/styles/Navbar.css";
+import Navbar from "./shared/Navbar";
+import Footer from "./shared/Footer";
+import ListaProductos from "./modules/products/productsList";
+import Cart from "./modules/cart/Cart";
+import Admin from "./modules/admin/Admin.jsx";
+import Dashboard from "./modules/admin/Dashboard.jsx";
+import RutaProtegida from "./modules/admin/RutaProtegida.jsx";
+import NotFound from "./shared/NotFound.jsx";
+import ProductoDetalle from "./modules/products/ProductoDetalle.jsx";
+import ComoComprar from "./shared/ComoComprar.jsx";
+import Contacto from "./shared/Contacto.jsx";
+import "./shared/styles/Navbar.css";
 import toast, { Toaster } from 'react-hot-toast';
 import { API_URL } from "./config.js";
 
@@ -119,11 +119,11 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId })
       });
-      
+
       if (!sendRequest.ok) {
         throw new Error("Error al mandar el producto al Back-end");
       }
-      
+
       const data = await sendRequest.json();
 
       const findProdCart = carrito.find(item => item.id === data.producto.id);
@@ -139,7 +139,7 @@ function App() {
           )
         );
       }
-      
+
       toast.success("Producto agregado", {
         style: {
           background: '#F4F4F2',

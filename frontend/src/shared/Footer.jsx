@@ -18,7 +18,7 @@ function Footer() {
     <footer className="bg-black border-t-2 border-[#C89211] px-6 sm:px-12 lg:px-16 py-14 font-sans">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-start justify-between gap-12 pb-10 border-b border-[#222222]">
 
-        {/* Marca */}
+        {/* marca */}
         <div>
           <span className="font-sans leading-[0.85] uppercase flex flex-col mb-3">
             <span className="font-light text-white text-lg tracking-tight">TU</span>
@@ -29,7 +29,7 @@ function Footer() {
           </p>
         </div>
 
-        {/* Navegación */}
+        {/* navegacion */}
         <div>
           <p className="text-[11px] font-sans text-[#777777] uppercase tracking-wide mb-4">
             Navegación
@@ -47,7 +47,7 @@ function Footer() {
           </div>
         </div>
 
-        {/* Redes */}
+        {/* redes */}
         <div>
           <p className="text-[11px] font-sans text-[#777777] uppercase tracking-wide mb-4">
             Seguinos

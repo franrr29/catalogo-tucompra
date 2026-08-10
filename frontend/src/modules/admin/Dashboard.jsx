@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import CrearNuevoProdct from "./AdminCreateProduct";
 import EditarProductoAdmin from "./EditarProducto";
-import { API_URL } from "../../../config";
+import { API_URL } from "../../config";
 import { toast } from "react-hot-toast";
 
 function Dashboard({ isLogIn }) {
@@ -114,7 +114,7 @@ function Dashboard({ isLogIn }) {
       setImagenesEditor([]);
       setIdProductoEditado(numericId);
       setDropdownOpen(false);
-      
+
       const productoSeleccionado = productos.find(p => p.id === numericId);
       if (productoSeleccionado) {
         setActualizarDatos({
@@ -166,7 +166,7 @@ function Dashboard({ isLogIn }) {
 
       const resp = await fetch(API_URL + "/api/productos", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer " + localStorage.getItem("token")
         },
@@ -217,7 +217,7 @@ function Dashboard({ isLogIn }) {
     if (!numericId) return;
     if (!window.confirm("¿Estás seguro de eliminar este producto?")) return;
     try {
-      const resp = await fetch(`${API_URL}/api/productos/${numericId}`, { 
+      const resp = await fetch(`${API_URL}/api/productos/${numericId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -250,7 +250,7 @@ function Dashboard({ isLogIn }) {
       );
       const resp = await fetch(`${API_URL}/api/productos/${id}`, {
         method: "PATCH",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer " + localStorage.getItem("token")
         },
@@ -334,7 +334,7 @@ function Dashboard({ isLogIn }) {
     <div className="min-h-screen bg-[#F4F4F2] text-[#111111] font-sans antialiased px-4 sm:px-12 lg:px-16 pt-28 sm:pt-32 pb-24 selection:bg-[#E2E2DF]">
       <div className="max-w-3xl mx-auto flex flex-col gap-10">
 
-        {/* Header Dashboard Premium Minimal */}
+        {/* encabezado del dashboard */}
         <header className="border-b border-[#CCCCCC] pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1.5 font-sans">
@@ -350,7 +350,7 @@ function Dashboard({ isLogIn }) {
           </div>
         </header>
 
-        {/* Sección 1: Crear Producto Nuevo */}
+        {/* seccion para crear un producto nuevo */}
         <section className="border border-[#CCCCCC] rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm relative shadow-sm overflow-hidden">
           <div className="absolute top-0 right-0 w-2 h-2 bg-[#C89211]" />
           <div className="flex items-center gap-2 mb-6 font-sans">
@@ -368,7 +368,7 @@ function Dashboard({ isLogIn }) {
           />
         </section>
 
-        {/* Sección 2: Selector Textual Minimalista & Panel de Edición */}
+        {/* seccion para modificar o eliminar un producto */}
         <section className="border border-[#CCCCCC] rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm flex flex-col gap-6 relative shadow-sm">
           <div className="absolute top-0 right-0 w-2 h-2 bg-[#C89211] rounded-tr" />
           <div className="flex items-center gap-2 font-sans">
@@ -379,7 +379,7 @@ function Dashboard({ isLogIn }) {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 items-stretch relative" ref={dropdownRef}>
-            
+
             {/* Dropdown Custom Textual Premium */}
             <div className="flex-1 relative">
               <div
@@ -387,8 +387,8 @@ function Dashboard({ isLogIn }) {
                 className="bg-transparent border border-[#CCCCCC] hover:border-[#111111] text-[#111111] text-xs px-4 py-3.5 flex items-center justify-between cursor-pointer transition-colors font-sans uppercase select-none bg-white rounded"
               >
                 <span className="truncate font-medium text-[#111111]">
-                  {productoActualObj 
-                    ? `${productoActualObj.nombre} — $${productoActualObj.precio} (Stock: ${productoActualObj.stock})` 
+                  {productoActualObj
+                    ? `${productoActualObj.nombre} — $${productoActualObj.precio} (Stock: ${productoActualObj.stock})`
                     : "-- Seleccionar producto para editar --"}
                 </span>
                 <span className={`transform transition-transform duration-200 text-[#C89211] font-bold ml-2 ${dropdownOpen ? "rotate-180" : ""}`}>

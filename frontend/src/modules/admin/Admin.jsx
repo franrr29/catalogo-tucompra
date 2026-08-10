@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { API_URL } from "../../../config";
+import { API_URL } from "../../config";
 import { toast } from "react-hot-toast";
 
 function Admin({ handleLogIn }) {
@@ -66,8 +66,8 @@ function Admin({ handleLogIn }) {
 
   return (
     <div className="min-h-screen bg-[#F4F4F2] text-[#111111] font-sans antialiased flex items-center justify-center px-6 selection:bg-[#E2E2DF] relative overflow-hidden">
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}

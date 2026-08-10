@@ -70,7 +70,7 @@ function Card({ producto, addCart, isLogIn }) {
               </h2>
             </div>
 
-            {/* precio limpio con separacion / */}
+            {/* precio limpio con separacion */}
             <div className="pt-1 flex items-center justify-between">
               <span className="text-[10px] font-black uppercase text-[#666666] tracking-widest">
                 PRECIO
