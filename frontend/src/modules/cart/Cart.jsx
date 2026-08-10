@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { API_URL } from "../../config";
+import { verificarCarrito } from "./cart.service";
 
 function Cart({ fullCart, setCarrito }) {
 
@@ -17,13 +17,7 @@ function Cart({ fullCart, setCarrito }) {
       if (fullCart.length === 0) return;
       try {
         const productosIds = fullCart.map((p) => p.id);
-        const res = await fetch(API_URL + "/api/cart/verificar", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productosIds })
-        });
-        if (!res.ok) throw new Error();
-        const data = await res.json();
+        const data = await verificarCarrito(productosIds);
         setCarrito(data.carrito.map((item) => {
           const found = fullCart.find((p) => p.id === item.id);
           return { ...item, cantidad: found ? found.cantidad : 1 };

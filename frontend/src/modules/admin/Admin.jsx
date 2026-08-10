@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { API_URL } from "../../config";
+import { login } from "./admin.service";
 import { toast } from "react-hot-toast";
 
 function Admin({ handleLogIn }) {
@@ -11,18 +11,8 @@ function Admin({ handleLogIn }) {
 
   async function sendUserData() {
     try {
-      const sendUserPassw = await fetch(API_URL + "/api/login/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user: usuario, password: contra })
-      });
-
-      if (!sendUserPassw.ok) {
-        throw new Error("Error al mandar usuario y contraseña");
-      }
-
-      const data = await sendUserPassw.json();
-      localStorage.setItem("token", data.token);
+      const token = await login(usuario, contra);
+      localStorage.setItem("token", token);
       handleLogIn();
       navigate("/admin/dashboard");
 

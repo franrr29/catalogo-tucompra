@@ -12,6 +12,7 @@ import Contacto from "./shared/Contacto.jsx";
 import "./shared/styles/Navbar.css";
 import toast, { Toaster } from 'react-hot-toast';
 import { API_URL } from "./config.js";
+import { agregarAlCarrito } from "./modules/cart/cart.service";
 
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation, useNavigationType } from "react-router-dom";
@@ -114,17 +115,7 @@ function App() {
 
   async function addCart(productId) {
     try {
-      const sendRequest = await fetch(API_URL + "/api/cart/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId })
-      });
-
-      if (!sendRequest.ok) {
-        throw new Error("Error al mandar el producto al Back-end");
-      }
-
-      const data = await sendRequest.json();
+      const data = await agregarAlCarrito(productId);
 
       const findProdCart = carrito.find(item => item.id === data.producto.id);
 
