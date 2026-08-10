@@ -77,7 +77,6 @@ function EditarProductoAdmin ({
               <div className="grid grid-cols-1 gap-2.5 mt-1">
                 {imagenesEditor.map((imagen) => (
                   <motion.div
-                    layout
                     key={imagen.id}
                     className="flex items-center justify-between gap-3 border border-[#CCCCCC] rounded p-3 bg-white group"
                   >
@@ -118,7 +117,6 @@ function EditarProductoAdmin ({
 
                 {previewsPendientes.map((url, i) => (
                   <motion.div
-                    layout
                     key={`pending-${i}`}
                     className="flex items-center justify-between gap-3 border border-[#C89211] rounded p-3 bg-white group"
                   >
