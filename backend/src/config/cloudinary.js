@@ -1,4 +1,4 @@
-// ===CONFIGURACION DE CLOUDINARY E IMPORTAR MULTER Y .ENV===//
+// configuracion de cloudinary y carga de multer y env
 
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
@@ -11,7 +11,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// CONFIGURACION DEL STORAGE: donde se guardan y en que formato
+// configuracion del storage: donde se guardan las imagenes y en que formato
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {

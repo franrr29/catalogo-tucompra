@@ -1,4 +1,4 @@
-const { actualizarDatosFront, verificarProdcBD } = require("../services/cart.services");
+const { actualizarDatosFront, verificarProdcBD } = require("./cart.service");
 
 
 async function addToCart(req, res) {
@@ -30,17 +30,18 @@ async function verificar(req, res) {
   try {
     const { productosIds } = req.body;
 
-    if (!productosIds){
-      return res.status (400).json ({mensaje: "Faltan el/los IDs de los productos"})
+    if (!productosIds) {
+      return res.status(400).json({ mensaje: "Faltan el/los IDs de los productos" })
     }
-    const carrito= await verificarProdcBD (productosIds)
-      res.json ({mensaje: "Productos verificados",
-        carrito
-      })
-    
-  } catch (error){
-    res.status (500).json({mensaje: error.message})
+    const carrito = await verificarProdcBD(productosIds)
+    res.json({
+      mensaje: "Productos verificados",
+      carrito
+    })
+
+  } catch (error) {
+    res.status(500).json({ mensaje: error.message })
   }
-  
+
 }
 module.exports = { addToCart, verificar };

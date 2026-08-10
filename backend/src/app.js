@@ -1,9 +1,9 @@
 const express = require("express");
 const cors = require("cors");
-const rutaProductos = require("./routes/products.routes");
-const cartRoutes= require ("./routes/cart.routes")
-const adminRoute= require ("./routes/admin.routes")
-const imagenesRoutes = require("./routes/imagenes.routes");
+const rutaProductos = require("./modules/products/products.routes");
+const cartRoutes= require ("./modules/cart/cart.routes")
+const adminRoute= require ("./modules/auth/auth.routes")
+const imagenesRoutes = require("./modules/imagenes/imagenes.routes");
 
 const app = express();
 const PORT= process.env.PORT || 4000;
