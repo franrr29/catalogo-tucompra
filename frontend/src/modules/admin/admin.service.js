@@ -1,9 +1,18 @@
 import api from "../../shared/axiosClient";
 
-// inicia sesion de administrador y devuelve el token
+// inicia sesion de administrador, el backend guarda el token en una cookie httpOnly
 export async function login(user, password) {
-  const { data } = await api.post("/api/login/login", { user, password });
-  return data.token;
+  await api.post("/api/login/login", { user, password });
+}
+
+// cierra la sesion, el backend borra la cookie
+export async function logout() {
+  await api.post("/api/login/logout");
+}
+
+// pregunta al backend si la cookie del token sigue siendo valida
+export async function verificarSesion() {
+  await api.get("/api/login/me");
 }
 
 // trae todos los productos del catalogo
