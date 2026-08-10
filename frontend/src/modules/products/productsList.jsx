@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import Card from "./ProductCard";
+import Pagination from "./Pagination";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_URL } from "../../config";
 import { useAuth } from "../admin/AuthContext";
+
+const PRODUCTOS_POR_PAGINA = 4;
 
 function ListaProductos({ addCart }) {
     const { isLogIn } = useAuth();
@@ -10,14 +13,29 @@ function ListaProductos({ addCart }) {
     const [precioMax, setPrecioMax] = useState(Infinity);
     const [precioInput, setPrecioInput] = useState("");
     const [loading, setLoading] = useState(true);
+    const [paginaActual, setPaginaActual] = useState(1);
     const gridRef = useRef(null);
 
     const productosFiltrados = productos.filter((p) => p.precio <= precioMax);
 
+    const totalPaginas = Math.ceil(productosFiltrados.length / PRODUCTOS_POR_PAGINA);
+    const inicio = (paginaActual - 1) * PRODUCTOS_POR_PAGINA;
+    const productosPaginados = productosFiltrados.slice(inicio, inicio + PRODUCTOS_POR_PAGINA);
+
+    function irAlTopeDelCatalogo() {
+        gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function cambiarPagina(nuevaPagina) {
+        setPaginaActual(nuevaPagina);
+        irAlTopeDelCatalogo();
+    }
+
     function verTodos() {
         setPrecioMax(Infinity);
         setPrecioInput("");
-        gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        setPaginaActual(1);
+        irAlTopeDelCatalogo();
     }
 
     useEffect(() => {
@@ -78,6 +96,7 @@ function ListaProductos({ addCart }) {
                                     onChange={(e) => {
                                         setPrecioInput(e.target.value);
                                         setPrecioMax(Number(e.target.value) || Infinity);
+                                        setPaginaActual(1);
                                     }}
                                     className="
                                         w-32 sm:w-36
@@ -121,7 +140,7 @@ function ListaProductos({ addCart }) {
                                     }}
                                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
                                 >
-                                    {productosFiltrados.map((prod) => (
+                                    {productosPaginados.map((prod) => (
                                         <motion.div
                                             key={prod.id}
                                             variants={{
@@ -164,6 +183,12 @@ function ListaProductos({ addCart }) {
                         </AnimatePresence>
                     )}
                 </main>
+
+                <Pagination
+                    paginaActual={paginaActual}
+                    totalPaginas={totalPaginas}
+                    onCambiarPagina={cambiarPagina}
+                />
 
                 {/* ver todos los productos */}
                 {!loading && productos.length > 0 && (
