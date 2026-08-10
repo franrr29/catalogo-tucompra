@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
+import { useAuth } from "../modules/admin/AuthContext";
 
-function Navbar({ cartCounter, isLogIn, handleLogOut }) {
+function Navbar({ cartCounter }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { isLogIn, cerrarSesion } = useAuth();
 
   const navLinks = [
     { name: "Inicio", path: "/" },
@@ -103,7 +105,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
             {isLogIn ? (
               <button
                 onClick={() => {
-                  handleLogOut();
+                  cerrarSesion();
                   setMenuOpen(false);
                 }}
                 className="text-white font-sans text-xs uppercase tracking-wider underline underline-offset-4"
@@ -160,7 +162,7 @@ function Navbar({ cartCounter, isLogIn, handleLogOut }) {
             {isLogIn ? (
               <button
                 onClick={() => {
-                  handleLogOut();
+                  cerrarSesion();
                   navigate("/admin/login");
                 }}
                 className="flex items-center gap-2 text-xs font-sans text-white font-medium hover:text-[#C89211] tracking-wider uppercase transition-colors"

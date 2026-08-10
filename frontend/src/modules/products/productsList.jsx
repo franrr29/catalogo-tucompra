@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import Card from "./ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_URL } from "../../config";
+import { useAuth } from "../admin/AuthContext";
 
-function ListaProductos({ addCart, isLogIn }) {
+function ListaProductos({ addCart }) {
+    const { isLogIn } = useAuth();
     const [productos, setProductos] = useState([]);
     const [precioMax, setPrecioMax] = useState(Infinity);
     const [precioInput, setPrecioInput] = useState("");

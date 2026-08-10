@@ -2,18 +2,19 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { login } from "./admin.service";
+import { useAuth } from "./AuthContext";
 import { toast } from "react-hot-toast";
 
-function Admin({ handleLogIn }) {
+function Admin() {
   const [usuario, setUsuario] = useState("");
   const [contra, setContra] = useState("");
   const navigate = useNavigate();
+  const { iniciarSesion } = useAuth();
 
   async function sendUserData() {
     try {
-      const token = await login(usuario, contra);
-      localStorage.setItem("token", token);
-      handleLogIn();
+      await login(usuario, contra);
+      iniciarSesion();
       navigate("/admin/dashboard");
 
       toast.success("ACCESO CONCEDIDO", {

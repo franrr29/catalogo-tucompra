@@ -13,6 +13,7 @@ import "./shared/styles/Navbar.css";
 import toast, { Toaster } from 'react-hot-toast';
 import { API_URL } from "./config.js";
 import { agregarAlCarrito } from "./modules/cart/cart.service";
+import { AuthProvider } from "./modules/admin/AuthContext";
 
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation, useNavigationType } from "react-router-dom";
@@ -165,18 +166,20 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <ScrollToTop />
-      <AppBody
-        carrito={carrito}
-        setCarrito={setCarrito}
-        isLogIn={isLogIn}
-        loading={loading}
-        handleLogOut={handleLogOut}
-        handleLogIn={handleLogIn}
-        addCart={addCart}
-      />
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <ScrollToTop />
+        <AppBody
+          carrito={carrito}
+          setCarrito={setCarrito}
+          isLogIn={isLogIn}
+          loading={loading}
+          handleLogOut={handleLogOut}
+          handleLogIn={handleLogIn}
+          addCart={addCart}
+        />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

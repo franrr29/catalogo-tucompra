@@ -1,26 +1,23 @@
 import { useEffect, useRef, useCallback } from "react";
+import { useAuth } from "../AuthContext";
 
 const TIEMPO_INACTIVIDAD_MS = 15 * 60 * 1000;
 
-// exige token para entrar al dashboard y cierra la sesion por inactividad
+// cierra la sesion del admin por inactividad dentro del dashboard
+// que haya token valido para entrar ya lo controla RutaProtegida con el AuthContext
 export function useAdminSession(navigate) {
   const timerRef = useRef(null);
+  const { cerrarSesion } = useAuth();
 
-  const cerrarSesion = useCallback(() => {
-    localStorage.removeItem("token");
+  const cerrarYRedirigir = useCallback(async () => {
+    await cerrarSesion();
     navigate("/admin/login");
-  }, [navigate]);
+  }, [cerrarSesion, navigate]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/admin/login");
-      return;
-    }
-
     function reiniciarTimer() {
       clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(cerrarSesion, TIEMPO_INACTIVIDAD_MS);
+      timerRef.current = setTimeout(cerrarYRedirigir, TIEMPO_INACTIVIDAD_MS);
     }
 
     const eventos = ["click", "keydown", "mousemove"];
@@ -31,7 +28,7 @@ export function useAdminSession(navigate) {
       eventos.forEach((evento) => window.removeEventListener(evento, reiniciarTimer));
       clearTimeout(timerRef.current);
     };
-  }, [navigate, cerrarSesion]);
+  }, [cerrarYRedirigir]);
 
-  return { cerrarSesion };
+  return { cerrarSesion: cerrarYRedirigir };
 }
