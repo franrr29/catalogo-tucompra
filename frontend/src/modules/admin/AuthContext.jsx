@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext } from "react";
-import * as adminService from "./admin.service";
+import * as adminService from "../../services/admin.service";
 
 const AuthContext = createContext(undefined);
 
@@ -8,8 +8,6 @@ export function AuthProvider({ children }) {
   const [isLogIn, setIsLogIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // al montar la app, le pregunta al backend si la cookie sigue siendo valida
-  // hace falta preguntar porque la cookie es httpOnly: el js del navegador no puede leerla
   useEffect(() => {
     adminService.verificarSesion()
       .then(() => setIsLogIn(true))

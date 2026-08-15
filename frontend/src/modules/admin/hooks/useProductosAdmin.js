@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import * as adminService from "../admin.service";
+import * as adminService from "../../../services/admin.service";
+import { obtenerProductos } from "../../../services/productos.service";
 
 // maneja la lista de productos del panel y sus acciones de alta, baja y modificacion
 export function useProductosAdmin(onUnauthorized) {
@@ -7,7 +8,7 @@ export function useProductosAdmin(onUnauthorized) {
 
   const cargarProductos = useCallback(async () => {
     try {
-      const data = await adminService.obtenerProductos();
+      const data = await obtenerProductos();
       setProductos(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("error al traer productos");

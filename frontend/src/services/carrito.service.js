@@ -1,4 +1,4 @@
-import api from "../../shared/axiosClient";
+import api from "../shared/axiosClient";
 
 // agrega un producto al carrito y devuelve el producto actualizado
 export async function agregarAlCarrito(productId) {

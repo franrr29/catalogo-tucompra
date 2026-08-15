@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
-import * as adminService from "../admin.service";
+import * as adminService from "../../../services/admin.service";
+import { obtenerProducto } from "../../../services/productos.service";
 
 const FORM_VACIO = { nombre: "", precio: "", stock: "", imagen: "" };
 
@@ -32,7 +33,7 @@ export function useEdicionProducto(onUnauthorized) {
         });
       }
 
-      const data = await adminService.obtenerProducto(numericId);
+      const data = await obtenerProducto(numericId);
       setImagenesEditor(data.imagenes || []);
     } catch (error) {
       if (error.response?.status === 401) {
