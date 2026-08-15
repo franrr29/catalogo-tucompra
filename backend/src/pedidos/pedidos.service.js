@@ -9,6 +9,13 @@ function crearError(mensaje, status) {
 }
 
 async function crearPedidoService(nombre, email, telefono, items) {
+  // valido que las cantidades sean numeros enteros positivos antes de usarlas
+  for (const item of items) {
+    if (!Number.isInteger(item.cantidad) || item.cantidad <= 0) {
+      throw crearError("La cantidad debe ser un numero entero mayor a 0", 400);
+    }
+  }
+
   // saco los ids de los items para consultar solo esos productos
   const itemIds = items.map((item) => item.productoId);
   const placeholders = itemIds.map(() => "?").join(", ");
@@ -62,12 +69,16 @@ async function crearPedidoService(nombre, email, telefono, items) {
       ]
     );
 
-    // descuento stock de cada producto
+    // descuento stock de cada producto, la condicion stock >= ? evita que quede negativo si dos compras se cruzan
     for (const item of items) {
-      await conexion.query(
-        "UPDATE productos SET stock = stock - ? WHERE id = ?",
-        [item.cantidad, item.productoId]
+      const [actualizacion] = await conexion.query(
+        "UPDATE productos SET stock = stock - ? WHERE id = ? AND stock >= ?",
+        [item.cantidad, item.productoId, item.cantidad]
       );
+
+      if (actualizacion.affectedRows === 0) {
+        throw crearError("Stock insuficiente", 400);
+      }
     }
 
     // creo la preferencia antes del commit para poder hacer rollback si falla
