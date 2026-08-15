@@ -10,7 +10,7 @@ const {
 
 const router = Router();
 
-router.post("/:productoId", subirMiddleware, subirImagenesProducto);
+router.post("/:productoId", middleVerificador, subirMiddleware, subirImagenesProducto);
 
 router.get("/:productoId", listarImagenesProducto);
 
