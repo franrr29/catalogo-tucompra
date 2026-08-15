@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom"
 import { useAuth } from "./AuthContext"
 
-//ruta protegida para que solo los usuarios logueados puedan acceder a ciertas rutas
+// solo deja pasar si hay un usuario logueado
 function RutaProtegida ({ children }){
     const { isLogIn, loading } = useAuth();
 
