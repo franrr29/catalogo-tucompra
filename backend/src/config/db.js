@@ -4,6 +4,7 @@ const mysql = require("mysql2/promise");
 
 const baseDatos = mysql.createPool({
   uri: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
