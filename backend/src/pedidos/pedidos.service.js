@@ -1,12 +1,7 @@
 const baseDatos = require("../config/db");
 const { Preference } = require("mercadopago");
 const mp = require("../config/mercadoPago.js");
-
-function crearError(mensaje, status) {
-  const error = new Error(mensaje);
-  error.status = status;
-  return error;
-}
+const crearError = require("../utils/crearError");
 
 async function crearPedidoService(nombre, email, telefono, items) {
   // valido que las cantidades sean numeros enteros positivos antes de usarlas

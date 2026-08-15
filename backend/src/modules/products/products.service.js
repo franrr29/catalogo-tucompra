@@ -1,12 +1,6 @@
 const baseDatos = require("../../config/db");
 const { cloudinary } = require("../../config/cloudinary");
-
-// crea un error con un status http para que el controller sepa que codigo devolver
-function crearError(mensaje, status) {
-  const error = new Error(mensaje);
-  error.status = status;
-  return error;
-}
+const crearError = require("../../utils/crearError");
 
 async function obtenerProductos() {
   const query = `

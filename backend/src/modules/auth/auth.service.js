@@ -1,16 +1,10 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const crearError = require("../../utils/crearError");
 
 const usuario = process.env.ADMIN_USER;
 const contra = process.env.ADMIN_PASSWORD;
 const claveSecrt = process.env.SECRET_PASSW;
-
-// crea un error con un status http para que el controller sepa que codigo devolver
-function crearError(mensaje, status) {
-  const error = new Error(mensaje);
-  error.status = status;
-  return error;
-}
 
 async function iniciarSesion(user, password) {
   if (user !== usuario || password !== contra) {
