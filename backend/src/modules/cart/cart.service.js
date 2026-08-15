@@ -25,6 +25,7 @@ async function actualizarDatosFront(productId) {
 
 
 async function verificarProdcBD(productosIds) {
+  
   if (!productosIds || productosIds.length === 0) {
     throw new Error("No se enviaron IDs")
   }

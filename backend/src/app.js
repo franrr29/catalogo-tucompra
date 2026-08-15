@@ -6,6 +6,8 @@ const rutaProductos = require("./modules/products/products.routes");
 const cartRoutes= require ("./modules/cart/cart.routes")
 const adminRoute= require ("./modules/auth/auth.routes")
 const imagenesRoutes = require("./modules/imagenes/imagenes.routes");
+const pedidosRoutes = require("./../src/pedidos/pedidos.routes");
+const webhookRoutes = require("./webhook/webhook.routes");
 
 const app = express();
 const PORT= process.env.PORT || 4000;
@@ -33,7 +35,8 @@ app.use("/api/productos", rutaProductos);
 app.use("/api/cart", cartRoutes);
 app.use ("/api/login", adminRoute)
 app.use("/api/imagenes", imagenesRoutes);
-
+app.use("/api/pedidos", pedidosRoutes);
+app.use("/api/pedidos", webhookRoutes);
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);

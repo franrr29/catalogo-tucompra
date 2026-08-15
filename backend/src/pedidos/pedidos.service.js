@@ -1,0 +1,114 @@
+const baseDatos = require("../config/db");
+const { Preference } = require("mercadopago");
+const mp = require("../config/mercadoPago.js");
+
+function crearError(mensaje, status) {
+  const error = new Error(mensaje);
+  error.status = status;
+  return error;
+}
+
+async function crearPedidoService(nombre, email, telefono, items) {
+  // saco los ids de los items para consultar solo esos productos
+  const itemIds = items.map((item) => item.productoId);
+  const placeholders = itemIds.map(() => "?").join(", ");
+
+  const [productos] = await baseDatos.query(
+    `SELECT * FROM productos WHERE id IN (${placeholders})`,
+    itemIds
+  );
+
+  // verifico que todos los productos existan
+  if (productos.length !== items.length) {
+    throw crearError("Algunos productos no existen", 400);
+  }
+
+  // verifico stock suficiente para cada item
+  for (const item of items) {
+    const producto = productos.find((p) => p.id === item.productoId);
+    if (producto.stock < item.cantidad) {
+      throw crearError(`Stock insuficiente para ${producto.nombre}`, 400);
+    }
+  }
+
+  // calculo el total con precios reales de la BD
+  const totalPedido = items.reduce((total, item) => {
+    const producto = productos.find((p) => p.id === item.productoId);
+    return total + producto.precio * item.cantidad;
+  }, 0);
+
+  // abro una conexion individual para manejar la transaccion
+  const conexion = await baseDatos.getConnection();
+
+  try {
+    await conexion.beginTransaction();
+
+    // inserto el pedido
+    const [result] = await conexion.query(
+      "INSERT INTO pedidos (nombre, email, telefono, total) VALUES (?, ?, ?, ?)",
+      [nombre, email, telefono, totalPedido]
+    );
+
+    const pedidoId = result.insertId;
+
+    // inserto los items del pedido
+    await conexion.query(
+      "INSERT INTO pedido_items (pedido_id, producto_id, cantidad, precio_unitario) VALUES ?",
+      [
+        items.map((item) => {
+          const producto = productos.find((p) => p.id === item.productoId);
+          return [pedidoId, item.productoId, item.cantidad, producto.precio];
+        }),
+      ]
+    );
+
+    // descuento stock de cada producto
+    for (const item of items) {
+      await conexion.query(
+        "UPDATE productos SET stock = stock - ? WHERE id = ?",
+        [item.cantidad, item.productoId]
+      );
+    }
+
+    // creo la preferencia antes del commit para poder hacer rollback si falla
+    const preference = {
+      items: items.map((item) => {
+        const producto = productos.find((p) => p.id === item.productoId);
+        return {
+          title: producto.nombre,
+          quantity: item.cantidad,
+          unit_price: Number(producto.precio),
+        };
+      }),
+      external_reference: String(pedidoId),
+     back_urls: {
+     success: process.env.FRONTEND_URL + "/pago-exitoso",
+     failure: process.env.FRONTEND_URL + "/pago-fallido",
+     pending: process.env.FRONTEND_URL + "/pago-pendiente",
+    },
+    };
+
+    // auto_return solo funciona con back_urls publicas, no localhost
+    if (process.env.FRONTEND_URL?.startsWith("https://")) {
+      preference.auto_return = "approved";
+    }
+
+    // le mando la preferencia a mercadopago y me devuelve la url de pago
+    const resultado = await new Preference(mp).create({ body: preference });
+
+    await conexion.commit();
+
+    return {
+      id: pedidoId,
+      total: totalPedido,
+      init_point: resultado.init_point,
+    };
+  } catch (error) {
+    await conexion.rollback();
+    throw error;
+  } finally {
+    conexion.release();
+  }
+}
+
+module.exports = { crearPedidoService };
