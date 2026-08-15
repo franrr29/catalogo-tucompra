@@ -90,7 +90,7 @@ function EditarProductoAdmin ({
                       </div>
                       <div className="flex flex-col min-w-0">
                         <span className="text-[10px] font-sans text-[#777777] uppercase tracking-wider">
-                          {imagen.es_principal ? "Portada Actual" : "Imagen Cargada"}
+                          {imagen.orden === 0 ? "Portada Actual" : "Imagen Cargada"}
                         </span>
                         <span className="text-xs font-sans text-[#111111] truncate max-w-[160px] sm:max-w-xs">ID: {imagen.id}</span>
                       </div>
@@ -99,11 +99,11 @@ function EditarProductoAdmin ({
                       <button
                         onClick={() => marcarPrincipal(imagen.id, item.id)}
                         className={`text-xs font-sans uppercase tracking-wider transition-colors whitespace-nowrap font-medium py-1 ${
-                          imagen.es_principal ? "text-[#111111] font-bold cursor-default" : "text-[#C89211] hover:text-[#A3740A]"
+                          imagen.orden === 0 ? "text-[#111111] font-bold cursor-default" : "text-[#C89211] hover:text-[#A3740A]"
                         }`}
-                        disabled={imagen.es_principal}
+                        disabled={imagen.orden === 0}
                       >
-                        {imagen.es_principal ? "Principal" : "Hacer Principal"}
+                        {imagen.orden === 0 ? "Principal" : "Hacer Principal"}
                       </button>
                       <button
                         onClick={() => borrarUnaFoto(imagen.id)}
