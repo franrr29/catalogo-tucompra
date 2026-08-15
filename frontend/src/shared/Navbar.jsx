@@ -1,12 +1,26 @@
-import { useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useAuth } from "../modules/admin/AuthContext";
 
 function Navbar({ cartCounter }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { isLogIn, cerrarSesion } = useAuth();
+
+  const tieneHeroDetras = pathname === "/";
+  const navbarOscuro = scrolled || !tieneHeroDetras;
+
+  // escucho el scroll para que el navbar cambie de estilo al bajar
+  useEffect(() => {
+    function alScrollear() {
+      setScrolled(window.scrollY > 20);
+    }
+    window.addEventListener("scroll", alScrollear);
+    return () => window.removeEventListener("scroll", alScrollear);
+  }, []);
 
   const navLinks = [
     { name: "Inicio", path: "/" },
@@ -15,7 +29,13 @@ function Navbar({ cartCounter }) {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-black border-b border-[#222222] py-4">
+    <nav
+      className={`fixed top-0 left-0 w-full z-50 py-4 transition-all duration-500 ${
+        navbarOscuro
+          ? "bg-black/95 backdrop-blur-lg shadow-lg shadow-black/20"
+          : "bg-black/10 backdrop-blur-sm"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-6 sm:px-12 flex items-center justify-between">
 
         {/* boton hamburguesa mobile */}
@@ -49,14 +69,14 @@ function Navbar({ cartCounter }) {
           className="font-sans leading-[0.85] uppercase flex flex-col"
         >
           <span className="font-light text-white text-lg tracking-tight">TU</span>
-          <span className="font-bold text-[#C89211] text-lg tracking-tight">COMPRA</span>
+          <span className="font-bold text-brand text-lg tracking-tight">COMPRA</span>
         </Link>
 
         {/* links del menu */}
         <div
           className={`
             fixed md:static top-0 left-0 w-full h-screen md:h-auto
-            bg-black md:bg-transparent
+            bg-black/85 backdrop-blur-xl md:bg-transparent md:backdrop-blur-none
             flex flex-col md:flex-row items-center justify-center gap-8 md:gap-10
             transition-opacity duration-200 z-40
             ${
@@ -73,10 +93,10 @@ function Navbar({ cartCounter }) {
               end={link.path === "/"}
               onClick={() => setMenuOpen(false)}
               className={({ isActive }) =>
-                `font-sans font-medium text-base md:text-xs tracking-wider uppercase transition-colors pb-1 border-b-2 ${
+                `font-sans font-medium text-lg md:text-xs tracking-wider uppercase transition-colors pb-1 border-b-2 ${
                   isActive
-                    ? "text-[#C89211] border-[#C89211]"
-                    : "text-white border-transparent hover:text-[#C89211]"
+                    ? "text-brand border-brand"
+                    : "text-white border-transparent hover:text-brand"
                 }`
               }
             >
@@ -89,10 +109,10 @@ function Navbar({ cartCounter }) {
               to="/admin/dashboard"
               onClick={() => setMenuOpen(false)}
               className={({ isActive }) =>
-                `font-sans font-semibold text-base md:text-xs tracking-wider uppercase transition-colors pb-1 border-b-2 ${
+                `font-sans font-semibold text-lg md:text-xs tracking-wider uppercase transition-colors pb-1 border-b-2 ${
                   isActive
-                    ? "text-[#C89211] border-[#C89211]"
-                    : "text-white border-transparent hover:text-[#C89211]"
+                    ? "text-brand border-brand"
+                    : "text-white border-transparent hover:text-brand"
                 }`
               }
             >
@@ -116,7 +136,7 @@ function Navbar({ cartCounter }) {
               <Link
                 to="/admin/login"
                 onClick={() => setMenuOpen(false)}
-                className="text-white bg-[#C89211] font-sans text-xs font-medium uppercase tracking-wider px-8 py-3 block transition-colors"
+                className="text-white bg-brand font-sans text-xs font-medium uppercase tracking-wider px-8 py-3 block transition-colors"
               >
                 Ingresar
               </Link>
@@ -129,7 +149,7 @@ function Navbar({ cartCounter }) {
           {!isLogIn && (
             <Link
               to="/carrito"
-              className="relative text-white hover:text-[#C89211] transition-colors p-1 flex items-center gap-1.5"
+              className="relative text-white hover:text-brand transition-colors p-1 flex items-center gap-1.5"
               aria-label="Carrito de compras"
             >
               <svg
@@ -149,7 +169,7 @@ function Navbar({ cartCounter }) {
 
               <AnimatePresence>
                 {cartCounter > 0 && (
-                  <span className="font-sans text-xs font-bold text-[#C89211]">
+                  <span className="font-sans text-xs font-bold text-brand">
                     ({cartCounter})
                   </span>
                 )}
@@ -165,7 +185,7 @@ function Navbar({ cartCounter }) {
                   cerrarSesion();
                   navigate("/admin/login");
                 }}
-                className="flex items-center gap-2 text-xs font-sans text-white font-medium hover:text-[#C89211] tracking-wider uppercase transition-colors"
+                className="flex items-center gap-2 text-xs font-sans text-white font-medium hover:text-brand tracking-wider uppercase transition-colors"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -196,7 +216,7 @@ function Navbar({ cartCounter }) {
             ) : (
               <Link
                 to="/admin/login"
-                className="text-xs font-sans text-white bg-[#C89211] hover:bg-[#A3740A] px-5 py-2 transition-colors uppercase tracking-wider font-medium"
+                className="text-xs font-sans text-white bg-brand hover:bg-[#A3740A] px-5 py-2 transition-colors uppercase tracking-wider font-medium"
               >
                 Ingresar
               </Link>

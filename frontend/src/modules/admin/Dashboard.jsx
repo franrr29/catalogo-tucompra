@@ -8,28 +8,9 @@ import { useAdminSession } from "./hooks/useAdminSession";
 import { useProductosAdmin } from "./hooks/useProductosAdmin";
 import { useEdicionProducto } from "./hooks/useEdicionProducto";
 import { useFotosPendientes } from "./hooks/useFotosPendientes";
-import * as adminService from "./admin.service";
+import * as adminService from "../../services/admin.service";
 
 const FORM_NUEVO_PRODUCTO = { nombre: "", precio: "", stock: "", imagen: "" };
-
-const toastStyle = {
-  style: {
-    background: '#F4F4F2',
-    color: '#111111',
-    border: '1px solid #CCCCCC',
-    borderRadius: '0px',
-    fontSize: '11px',
-    letterSpacing: '0.05em',
-    textTransform: 'uppercase',
-    fontWeight: 'bold',
-    padding: '16px',
-    fontFamily: 'sans-serif'
-  },
-  iconTheme: {
-    primary: '#C89211',
-    secondary: '#F4F4F2',
-  },
-};
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -49,7 +30,7 @@ function Dashboard() {
   const [nuevoProducto, setNuevoProducto] = useState(FORM_NUEVO_PRODUCTO);
   const [creando, setCreando] = useState(false);
 
-  const inputClass = "bg-transparent border border-[#CCCCCC] text-[#111111] text-xs px-4 py-3.5 focus:outline-none focus:border-[#111111] transition-all placeholder-[#999999] w-full font-sans rounded";
+  const inputClass = "bg-transparent border border-border text-ink text-xs px-4 py-3.5 focus:outline-none focus:border-[#111111] transition-all placeholder-[#999999] w-full font-sans rounded";
 
   // sube las fotos pendientes para un producto puntual, si es que hay
   async function subirFotosPendientes(productoId) {
@@ -61,7 +42,7 @@ function Dashboard() {
     try {
       await adminService.subirImagenes(productoId, formData);
     } catch (error) {
-      toast.error("error al subir las imagenes", toastStyle);
+      toast.error("error al subir las imagenes");
     }
 
     fotos.limpiar();
@@ -70,7 +51,7 @@ function Dashboard() {
   async function manejarCrearProducto() {
     if (creando) return;
     if (!nuevoProducto.nombre || !nuevoProducto.precio || !nuevoProducto.stock) {
-      toast.error("debes completar nombre, precio y stock", toastStyle);
+      toast.error("debes completar nombre, precio y stock");
       return;
     }
 
@@ -85,11 +66,11 @@ function Dashboard() {
       if (producto) {
         setNuevoProducto(FORM_NUEVO_PRODUCTO);
         await subirFotosPendientes(producto.id);
-        toast.success("producto creado", toastStyle);
+        toast.success("producto creado");
       }
     } catch (error) {
       const mensaje = error.response?.data?.error || error.response?.data?.mensaje || "error al crear el producto";
-      toast.error(mensaje, toastStyle);
+      toast.error(mensaje);
     } finally {
       setCreando(false);
     }
@@ -108,9 +89,9 @@ function Dashboard() {
       await actualizarProducto(id, soloRellenos);
       await subirFotosPendientes(id);
       await edicion.abrirPanel(id, productos);
-      toast.success("producto actualizado", toastStyle);
+      toast.success("producto actualizado");
     } catch (error) {
-      toast.error("error al actualizar", toastStyle);
+      toast.error("error al actualizar");
     }
   }
 
@@ -121,54 +102,54 @@ function Dashboard() {
       if (edicion.idProductoEditado === id) {
         edicion.cerrarPanel();
       }
-      toast.success("producto eliminado", toastStyle);
+      toast.success("producto eliminado");
     } catch (error) {
-      toast.error("error al eliminar", toastStyle);
+      toast.error("error al eliminar");
     }
   }
 
   async function manejarMarcarPrincipal(imagenId) {
     await edicion.marcarPrincipal(imagenId, edicion.idProductoEditado, productos);
-    toast.success("portada establecida", toastStyle);
+    toast.success("portada establecida");
   }
 
   async function manejarBorrarFoto(imagenId) {
     try {
       await edicion.borrarFoto(imagenId);
-      toast.success("imagen eliminada", toastStyle);
+      toast.success("imagen eliminada");
     } catch (error) {
-      toast.error("error al eliminar foto", toastStyle);
+      toast.error("error al eliminar foto");
     }
   }
 
   const productoActualObj = productos.find((p) => p.id === Number(edicion.idProductoEditado));
 
   return (
-    <div className="min-h-screen bg-[#F4F4F2] text-[#111111] font-sans antialiased px-4 sm:px-12 lg:px-16 pt-28 sm:pt-32 pb-24 selection:bg-[#E2E2DF]">
+    <div className="min-h-screen bg-paper text-ink font-sans antialiased px-4 sm:px-12 lg:px-16 pt-28 sm:pt-32 pb-24 selection:bg-[#E2E2DF]">
       <div className="max-w-3xl mx-auto flex flex-col gap-10">
 
         {/* encabezado del dashboard */}
-        <header className="border-b border-[#CCCCCC] pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <header className="border-b border-border pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1.5 font-sans">
-              <span className="w-1.5 h-1.5 bg-[#C89211]" />
-              <span className="text-[10px] text-[#666666] uppercase tracking-widest">Panel de Gestión</span>
+              <span className="w-1.5 h-1.5 bg-brand" />
+              <span className="text-[10px] text-muted uppercase tracking-widest">Panel de Gestión</span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-light tracking-tight text-[#111111]">
-              CONTROL DE <span className="font-semibold text-[#C89211]">INVENTARIO</span>
+            <h1 className="text-2xl sm:text-4xl font-light tracking-tight text-ink">
+              CONTROL DE <span className="font-semibold text-brand">INVENTARIO</span>
             </h1>
           </div>
-          <div className="font-sans text-[11px] text-[#666666] uppercase self-start sm:self-auto bg-[#E2E2DF]/50 px-3 py-1.5 border border-[#CCCCCC] rounded">
-            Activos: <span className="text-[#111111] font-semibold">{productos.length}</span>
+          <div className="font-sans text-[11px] text-muted uppercase self-start sm:self-auto bg-[#E2E2DF]/50 px-3 py-1.5 border border-border rounded">
+            Activos: <span className="text-ink font-semibold">{productos.length}</span>
           </div>
         </header>
 
         {/* seccion para crear un producto nuevo */}
-        <section className="border border-[#CCCCCC] rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm relative shadow-sm overflow-hidden">
-          <div className="absolute top-0 right-0 w-2 h-2 bg-[#C89211]" />
+        <section className="border border-border rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm relative shadow-sm overflow-hidden">
+          <div className="absolute top-0 right-0 w-2 h-2 bg-brand" />
           <div className="flex items-center gap-2 mb-6 font-sans">
-            <span className="w-1.5 h-1.5 bg-[#C89211]" />
-            <h2 className="text-xs uppercase tracking-widest text-[#111111] font-semibold">
+            <span className="w-1.5 h-1.5 bg-brand" />
+            <h2 className="text-xs uppercase tracking-widest text-ink font-semibold">
               01 / Nuevo Artículo
             </h2>
           </div>
@@ -182,11 +163,11 @@ function Dashboard() {
         </section>
 
         {/* seccion para modificar o eliminar un producto */}
-        <section className="border border-[#CCCCCC] rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm flex flex-col gap-6 relative shadow-sm">
-          <div className="absolute top-0 right-0 w-2 h-2 bg-[#C89211] rounded-tr" />
+        <section className="border border-border rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm flex flex-col gap-6 relative shadow-sm">
+          <div className="absolute top-0 right-0 w-2 h-2 bg-brand rounded-tr" />
           <div className="flex items-center gap-2 font-sans">
-            <span className="w-1.5 h-1.5 bg-[#C89211]" />
-            <h2 className="text-xs uppercase tracking-widest text-[#111111] font-semibold">
+            <span className="w-1.5 h-1.5 bg-brand" />
+            <h2 className="text-xs uppercase tracking-widest text-ink font-semibold">
               02 / Modificar o Eliminar Artículo
             </h2>
           </div>

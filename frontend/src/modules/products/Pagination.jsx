@@ -3,7 +3,7 @@ function Pagination({ paginaActual, totalPaginas, onCambiarPagina }) {
   if (totalPaginas <= 1) return null;
 
   const botonClass =
-    "text-xs font-sans uppercase tracking-widest text-[#111111] border border-[#111111] px-5 py-3 hover:bg-[#111111] hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#111111] disabled:cursor-not-allowed";
+    "text-xs font-sans uppercase tracking-widest text-ink border border-[#111111] rounded-xl px-5 py-3 hover:bg-[#111111] hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink disabled:cursor-not-allowed";
 
   return (
     <div className="max-w-7xl mx-auto flex items-center justify-center gap-6 mt-14">
@@ -15,7 +15,7 @@ function Pagination({ paginaActual, totalPaginas, onCambiarPagina }) {
         Anterior
       </button>
 
-      <span className="text-xs font-sans text-[#666666] uppercase tracking-widest">
+      <span className="text-xs font-sans text-muted uppercase tracking-widest">
         Página {paginaActual} de {totalPaginas}
       </span>
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { agregarAlCarrito } from "./cart.service";
+import { agregarAlCarrito } from "../../services/carrito.service";
 
 // maneja el estado del carrito, lo guarda en el navegador y agrega productos
 export function useCarrito() {
@@ -37,36 +37,11 @@ export function useCarrito() {
         );
       }
 
-      toast.success("Producto agregado", {
-        style: {
-          background: '#F4F4F2',
-          color: '#111111',
-          border: '1px solid #CCCCCC',
-          borderRadius: '0px',
-          fontFamily: 'sans-serif',
-          fontSize: '12px',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-        },
-        iconTheme: {
-          primary: '#C89211',
-          secondary: '#F4F4F2',
-        },
-      });
+      toast.success("Producto agregado");
 
     } catch (error) {
       console.error("Error al enviar la peticion al Back-end");
-      toast("Error al agregar producto", {
-        style: {
-          background: '#F4F4F2',
-          color: '#111111',
-          border: '1px solid #CCCCCC',
-          borderRadius: '0px',
-          fontFamily: 'sans-serif',
-          fontSize: '12px',
-          textTransform: 'uppercase',
-        }
-      });
+      toast.error("Error al agregar producto");
     }
   }
 
