@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 function CrearNuevoProdct({ nuevoProducto, setNuevoProducto, setFotosSeleccionadas, crearNuevoProducto, creando }) {
 
-  const inputClass = "bg-transparent border border-[#CCCCCC] text-[#111111] text-xs px-4 py-3.5 focus:outline-none focus:border-[#111111] transition-all placeholder-[#999999] w-full font-sans rounded";
+  const inputClass = "bg-transparent border border-border text-ink text-xs px-4 py-3.5 focus:outline-none focus:border-[#111111] transition-all placeholder-[#999999] w-full font-sans rounded";
 
   return (
     <div className="w-full">
@@ -14,7 +14,7 @@ function CrearNuevoProdct({ nuevoProducto, setNuevoProducto, setFotosSeleccionad
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-sans text-[#777777] uppercase tracking-wider">Modelo</label>
+            <label className="text-xs font-sans text-muted-light uppercase tracking-wider">Modelo</label>
             <input 
               type="text" 
               placeholder="Ej: G-Shock Gold" 
@@ -25,7 +25,7 @@ function CrearNuevoProdct({ nuevoProducto, setNuevoProducto, setFotosSeleccionad
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-sans text-[#777777] uppercase tracking-wider">Precio</label>
+            <label className="text-xs font-sans text-muted-light uppercase tracking-wider">Precio</label>
             <input 
               type="number" 
               placeholder="0.00" 
@@ -36,7 +36,7 @@ function CrearNuevoProdct({ nuevoProducto, setNuevoProducto, setFotosSeleccionad
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-sans text-[#777777] uppercase tracking-wider">Stock</label>
+            <label className="text-xs font-sans text-muted-light uppercase tracking-wider">Stock</label>
             <input 
               type="number" 
               placeholder="Unidades" 
@@ -47,10 +47,10 @@ function CrearNuevoProdct({ nuevoProducto, setNuevoProducto, setFotosSeleccionad
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-sans text-[#777777] uppercase tracking-wider">Multimedia</label>
+            <label className="text-xs font-sans text-muted-light uppercase tracking-wider">Multimedia</label>
             <label className="relative cursor-pointer group block">
-              <div className="border border-[#CCCCCC] group-hover:border-[#111111] py-3.5 px-4 text-center transition-colors rounded">
-                <span className="text-xs font-sans text-[#666666] group-hover:text-[#111111] uppercase tracking-wider">
+              <div className="border border-border group-hover:border-[#111111] py-3.5 px-4 text-center transition-colors rounded">
+                <span className="text-xs font-sans text-muted group-hover:text-ink uppercase tracking-wider">
                   Seleccionar Fotos
                 </span>
               </div>
@@ -69,7 +69,7 @@ function CrearNuevoProdct({ nuevoProducto, setNuevoProducto, setFotosSeleccionad
           <button
             onClick={crearNuevoProducto}
             disabled={creando}
-            className={`text-xs text-white bg-[#C89211] hover:bg-[#A3740A] px-8 py-4 transition-colors uppercase tracking-widest font-sans font-medium rounded ${creando ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`text-xs text-white bg-brand hover:bg-[#A3740A] px-8 py-4 transition-colors uppercase tracking-widest font-sans font-medium rounded ${creando ? "opacity-60 cursor-not-allowed" : ""}`}
           >
             {creando ? "Publicando..." : "Publicar artículo"}
           </button>
