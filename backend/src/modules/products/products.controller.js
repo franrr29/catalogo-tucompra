@@ -1,4 +1,5 @@
-const {obtenerProductos,obtenerProductoPorId,crearProducto,actualizarProducto,eliminarProducto,} = require("./products.service");
+const {obtenerProductos,obtenerProductoPorId,
+  crearProducto,actualizarProducto,eliminarProducto,} = require("./products.service");
 
 async function listarProductos(req, res) {
   try {
@@ -7,7 +8,7 @@ async function listarProductos(req, res) {
     res.json(productos);
   } catch (error) {
     console.error("error al obtener productos:", error);
-    res.status(500).json({ mensaje: "error interno del servidor", detalle: error.message });
+    res.status(500).json({ mensaje: "error interno del servidor" });
   }
 }
 
