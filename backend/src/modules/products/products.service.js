@@ -46,7 +46,20 @@ async function obtenerProductoPorId(id) {
   };
 }
 
-async function crearProducto({ nombre, precio, stock }) {
+// limpia la descripcion: vacia = null (el frontend usa entonces el texto por defecto)
+function normalizarDescripcion(descripcion) {
+  if (descripcion === undefined || descripcion === null) return null;
+  if (typeof descripcion !== "string") {
+    throw crearError("descripcion no valida", 400);
+  }
+  const limpia = descripcion.trim();
+  if (limpia.length > 2000) {
+    throw crearError("la descripcion no puede superar los 2000 caracteres", 400);
+  }
+  return limpia === "" ? null : limpia;
+}
+
+async function crearProducto({ nombre, precio, stock, descripcion }) {
   const precioNum = Number(precio);
   const stockNum = Number(stock);
 
@@ -62,14 +75,15 @@ async function crearProducto({ nombre, precio, stock }) {
   }
 
   const query = `
-    INSERT INTO productos (nombre, precio, stock)
-    VALUES (?,?,?)
+    INSERT INTO productos (nombre, precio, stock, descripcion)
+    VALUES (?,?,?,?)
   `;
 
   const [resultado] = await baseDatos.query(query, [
     nombre.trim(),
     precioNum,
     stockNum,
+    normalizarDescripcion(descripcion),
   ]);
 
   return {
@@ -80,12 +94,12 @@ async function crearProducto({ nombre, precio, stock }) {
   };
 }
 
-async function actualizarProducto(id, { nombre, precio, stock, imagen }) {
+async function actualizarProducto(id, { nombre, precio, stock, imagen, descripcion }) {
   if (isNaN(id) || id < 0) {
     throw crearError("el id debe ser un numero valido", 400);
   }
 
-  if (!nombre && !precio && !stock && !imagen) {
+  if (!nombre && !precio && !stock && !imagen && descripcion === undefined) {
     return { sinCambios: true };
   }
 
@@ -121,6 +135,11 @@ async function actualizarProducto(id, { nombre, precio, stock, imagen }) {
     }
     campos.push("stock = ?");
     valores.push(stockNum);
+  }
+
+  if (descripcion !== undefined) {
+    campos.push("descripcion = ?");
+    valores.push(normalizarDescripcion(descripcion));
   }
 
   if (imagen !== undefined) {

@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import * as adminService from "../../../services/admin.service";
 import { obtenerProducto } from "../../../services/productos.service";
 
-const FORM_VACIO = { nombre: "", precio: "", stock: "", imagen: "" };
+const FORM_VACIO = { nombre: "", precio: "", stock: "", imagen: "", descripcion: "" };
 
 // maneja el producto que se esta editando: sus datos, sus imagenes y el panel
 export function useEdicionProducto(onUnauthorized) {
@@ -30,6 +30,7 @@ export function useEdicionProducto(onUnauthorized) {
           precio: productoSeleccionado.precio || "",
           stock: productoSeleccionado.stock || "",
           imagen: "",
+          descripcion: productoSeleccionado.descripcion || "",
         });
       }
 

@@ -65,6 +65,20 @@ function CrearNuevoProdct({ nuevoProducto, setNuevoProducto, setFotosSeleccionad
 
         </div>
 
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-sans text-muted-light uppercase tracking-wider">
+            Descripcion (opcional)
+          </label>
+          <textarea
+            rows={4}
+            maxLength={2000}
+            placeholder="Si lo dejas vacio se muestra el texto general de los relojes"
+            value={nuevoProducto.descripcion || ""}
+            onChange={(e) => setNuevoProducto({ ...nuevoProducto, descripcion: e.target.value })}
+            className={inputClass}
+          />
+        </div>
+
         <div className="flex justify-start pt-2">
           <button
             onClick={crearNuevoProducto}

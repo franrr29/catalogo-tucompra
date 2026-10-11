@@ -10,7 +10,7 @@ import { useEdicionProducto } from "./hooks/useEdicionProducto";
 import { useFotosPendientes } from "./hooks/useFotosPendientes";
 import * as adminService from "../../services/admin.service";
 
-const FORM_NUEVO_PRODUCTO = { nombre: "", precio: "", stock: "", imagen: "" };
+const FORM_NUEVO_PRODUCTO = { nombre: "", precio: "", stock: "", imagen: "", descripcion: "" };
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -61,6 +61,7 @@ function Dashboard() {
         nombre: nuevoProducto.nombre.trim(),
         precio: Number(nuevoProducto.precio),
         stock: Number(nuevoProducto.stock),
+        descripcion: nuevoProducto.descripcion,
       });
 
       if (producto) {
@@ -84,7 +85,7 @@ function Dashboard() {
   async function manejarActualizarProducto(id) {
     try {
       const soloRellenos = Object.fromEntries(
-        Object.entries(edicion.actualizarDatos).filter(([, valor]) => valor !== "")
+        Object.entries(edicion.actualizarDatos).filter(([clave, valor]) => clave === "descripcion" || valor !== "")
       );
       await actualizarProducto(id, soloRellenos);
       await subirFotosPendientes(id);

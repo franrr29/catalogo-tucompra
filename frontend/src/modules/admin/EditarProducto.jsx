@@ -58,6 +58,20 @@ function EditarProductoAdmin ({
               </div>
             </div>
 
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-sans text-muted-light uppercase tracking-wider">
+                Descripcion (opcional, vacio = texto general)
+              </label>
+              <textarea
+                rows={4}
+                maxLength={2000}
+                placeholder="Si lo dejas vacio se muestra el texto general de los relojes"
+                value={actualizarDatos.descripcion || ""}
+                onChange={(e) => setActualizarDatos({ ...actualizarDatos, descripcion: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+
             <div className="flex flex-col gap-4 border border-border rounded p-5 sm:p-6 bg-white/50">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <span className="text-xs font-sans text-ink uppercase tracking-wider font-semibold">

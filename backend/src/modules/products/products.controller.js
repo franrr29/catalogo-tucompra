@@ -26,8 +26,8 @@ async function obtenerProducto(req, res) {
 
 async function crearNuevoProducto(req, res) {
   try {
-    const { nombre, precio, stock } = req.body;
-    const producto = await crearProducto({ nombre, precio, stock });
+    const { nombre, precio, stock, descripcion } = req.body;
+    const producto = await crearProducto({ nombre, precio, stock, descripcion });
     res.json(producto);
   } catch (error) {
     console.error(error);
@@ -38,8 +38,8 @@ async function crearNuevoProducto(req, res) {
 async function actualizarProductoExistente(req, res) {
   try {
     const id = Number(req.params.id);
-    const { nombre, precio, stock, imagen } = req.body;
-    const resultado = await actualizarProducto(id, { nombre, precio, stock, imagen });
+    const { nombre, precio, stock, imagen, descripcion } = req.body;
+    const resultado = await actualizarProducto(id, { nombre, precio, stock, imagen, descripcion });
 
     if (resultado.sinCambios) {
       return res.status(200).json({ mensaje: "sin cambios en datos del producto" });
