@@ -1,8 +1,5 @@
 import { motion } from "framer-motion";
 
-const WHATSAPP = "59891637161";
-const MENSAJE = "Hola! Quiero consultar la promo llevando 2 relojes";
-
 // banner de promo entre el hero y el catalogo: fondo con brillo dorado animado
 function PromoBanner() {
   return (
@@ -29,14 +26,14 @@ function PromoBanner() {
           backgroundSize: "250% 100%",
         }}
         animate={{ backgroundPosition: ["120% 0%", "-20% 0%"] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
       />
 
       {/* borde interior fino dorado */}
       <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-brand/50 pointer-events-none" />
 
-      <div className="px-6 sm:px-12 py-8 sm:py-10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-        <div className="flex flex-col gap-2">
+      <div className="px-6 sm:px-12 py-8 sm:py-10 flex flex-col items-center justify-center text-center">
+        <div className="flex flex-col items-center gap-2">
           <span className="text-[11px] font-sans text-brand uppercase tracking-[0.3em]">
             🎁 Promo especial
           </span>
@@ -47,15 +44,6 @@ function PromoBanner() {
             Consultanos y te armamos el mejor precio para tu combo.
           </p>
         </div>
-
-        <a
-          href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(MENSAJE)}`}
-          target="_blank"
-          rel="noreferrer"
-          className="shrink-0 bg-brand hover:bg-[#A3740A] text-white text-xs font-sans font-medium uppercase tracking-wider px-7 py-3.5 rounded transition-colors"
-        >
-          Consultar promo
-        </a>
       </div>
     </motion.section>
   );
