@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import Card from "./ProductCard";
 import Pagination from "./Pagination";
+import PromoBanner from "./PromoBanner";
 import { motion, AnimatePresence } from "framer-motion";
 import { obtenerProductos } from "../../services/productos.service";
 import { useAuth } from "../admin/AuthContext";
@@ -114,7 +115,12 @@ function ListaProductos({ addCart }) {
                 </div>
             </motion.section>
 
-            <div className="px-6 sm:px-12 lg:px-16 pt-12 sm:pt-16 pb-12">
+            <div className="px-6 sm:px-12 lg:px-16 pt-14 sm:pt-20 pb-12">
+
+                {/* promo entre el banner y los relojes */}
+                <div className="mb-14 sm:mb-20">
+                    <PromoBanner />
+                </div>
 
                 {/* catalogo de productos */}
                 <main ref={gridRef} className="max-w-7xl mx-auto scroll-mt-24">

@@ -6,6 +6,6 @@ export const DESCRIPCION_POR_DEFECTO = [
   "⏱️ Cronómetro y temporizador",
   "💡 Luz LED incorporada",
   "💪 Resistentes, ideales para el día a día",
-  "🚚 Envíos a todo Uruguay",
-  "💬 ¡Consultanos por el tuyo!",
+  "🏍️ Envíos en el día en Montevideo o retiro en persona",
+  "🚚 Envíos a todo el país",
 ].join("\n");
