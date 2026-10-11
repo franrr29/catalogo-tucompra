@@ -154,27 +154,43 @@ async function eliminarProducto(id) {
     [id]
   );
 
-  if (rows.length > 0) {
-    // borra en cloudinary las imagenes asociadas antes de borrar el producto
-    const eliminarCloudinary = rows.map((imagen) => {
+  // primero se borra el producto en la base de datos: si falla (por ejemplo porque
+  // tiene pedidos) no se debe haber tocado nada en cloudinary
+  let resultado;
+  try {
+    [resultado] = await baseDatos.query("DELETE FROM productos WHERE id = ?", [id]);
+  } catch (error) {
+    if (error.code === "ER_ROW_IS_REFERENCED_2" || error.errno === 1451) {
+      throw crearError(
+        "no se puede eliminar: el producto tiene pedidos asociados",
+        409
+      );
+    }
+    throw error;
+  }
+
+  if (resultado.affectedRows === 0) {
+    throw crearError("producto no encontrado", 404);
+  }
+
+  // los registros de producto_imagenes se borraron solos (ON DELETE CASCADE);
+  // ahora se limpian las fotos en cloudinary. si alguna falla no se revierte
+  // el borrado, solo queda registrado
+  const resultados = await Promise.allSettled(
+    rows.map((imagen) => {
       const posicion = imagen.imagen_url.indexOf("upload/") + 7;
       const resto = imagen.imagen_url.slice(posicion);
       const partes = resto.split("/");
       partes.shift();
       const publicId = partes.join("/").split(".")[0];
       return cloudinary.uploader.destroy(publicId);
-    });
-    await Promise.all(eliminarCloudinary);
-  }
-
-  const [resultado] = await baseDatos.query(
-    "DELETE FROM productos WHERE id = ?",
-    [id]
+    })
   );
-
-  if (resultado.affectedRows === 0) {
-    throw crearError("producto no encontrado", 404);
-  }
+  resultados.forEach((r) => {
+    if (r.status === "rejected") {
+      console.error("no se pudo borrar una imagen en cloudinary:", r.reason);
+    }
+  });
 }
 
 module.exports = {

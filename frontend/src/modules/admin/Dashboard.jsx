@@ -104,7 +104,7 @@ function Dashboard() {
       }
       toast.success("producto eliminado");
     } catch (error) {
-      toast.error("error al eliminar");
+      toast.error(error.response?.data?.error || "error al eliminar");
     }
   }
 
