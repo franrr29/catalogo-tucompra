@@ -22,7 +22,7 @@ async function subirImagenes(productoId, archivos) {
 
   // verifica si el producto existe
   const [producto] = await baseDatos.query(
-    "SELECT * FROM productos WHERE id = ?",
+    "SELECT * FROM productos WHERE id = ? AND activo = 1",
     [productoId]
   );
 

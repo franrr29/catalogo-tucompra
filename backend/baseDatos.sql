@@ -5,6 +5,7 @@ CREATE TABLE productos (
     precio DECIMAL(10,2) NOT NULL,
     stock INT NOT NULL,
     categoria VARCHAR(100),
+    activo TINYINT(1) NOT NULL DEFAULT 1,
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

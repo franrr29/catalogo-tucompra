@@ -38,6 +38,16 @@ app.use("/api/imagenes", imagenesRoutes);
 app.use("/api/pedidos", pedidosRoutes);
 app.use("/api/pedidos", webhookRoutes);
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor escuchando en el puerto ${PORT}`);
-});
+// el esquema debe estar listo antes de atender requests; si falla, el deploy se cancela
+// y Render conserva la version anterior en linea
+require("./config/db")
+  .asegurarEsquema()
+  .then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Servidor escuchando en el puerto ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("no se pudo preparar la base de datos:", error);
+    process.exit(1);
+  });

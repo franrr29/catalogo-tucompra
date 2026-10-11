@@ -11,6 +11,7 @@ async function obtenerProductos() {
       FROM producto_imagenes
       WHERE orden = 0
     ) i ON p.id = i.producto_id
+    WHERE p.activo = 1
   `;
 
   const [productos] = await baseDatos.query(query);
@@ -26,7 +27,7 @@ async function obtenerProductoPorId(id) {
     `SELECT p.*, pi.id AS foto_id, pi.imagen_url AS foto_url, pi.orden AS foto_orden
      FROM productos p
      LEFT JOIN producto_imagenes pi ON pi.producto_id = p.id
-     WHERE p.id = ?
+     WHERE p.id = ? AND p.activo = 1
      ORDER BY pi.orden ASC`,
     [id]
   );
@@ -149,33 +150,39 @@ async function eliminarProducto(id) {
     throw crearError("el id debe ser un numero valido", 400);
   }
 
+  const [existe] = await baseDatos.query(
+    "SELECT id FROM productos WHERE id = ? AND activo = 1",
+    [id]
+  );
+  if (existe.length === 0) {
+    throw crearError("producto no encontrado", 404);
+  }
+
+  // si el producto ya fue vendido, se oculta (borrado logico) para no romper el
+  // historial de pedidos; las fotos se conservan porque los pedidos pueden usarlas
+  const [pedidos] = await baseDatos.query(
+    "SELECT 1 FROM pedido_items WHERE producto_id = ? LIMIT 1",
+    [id]
+  );
+  if (pedidos.length > 0) {
+    await baseDatos.query("UPDATE productos SET activo = 0 WHERE id = ?", [id]);
+    return;
+  }
+
+  // sin pedidos: borrado real. primero la base de datos y despues cloudinary,
+  // asi un fallo en la base no deja al producto sin fotos
   const [rows] = await baseDatos.query(
     "SELECT * FROM producto_imagenes WHERE producto_id = ?",
     [id]
   );
 
-  // primero se borra el producto en la base de datos: si falla (por ejemplo porque
-  // tiene pedidos) no se debe haber tocado nada en cloudinary
-  let resultado;
-  try {
-    [resultado] = await baseDatos.query("DELETE FROM productos WHERE id = ?", [id]);
-  } catch (error) {
-    if (error.code === "ER_ROW_IS_REFERENCED_2" || error.errno === 1451) {
-      throw crearError(
-        "no se puede eliminar: el producto tiene pedidos asociados",
-        409
-      );
-    }
-    throw error;
-  }
-
+  const [resultado] = await baseDatos.query("DELETE FROM productos WHERE id = ?", [id]);
   if (resultado.affectedRows === 0) {
     throw crearError("producto no encontrado", 404);
   }
 
-  // los registros de producto_imagenes se borraron solos (ON DELETE CASCADE);
-  // ahora se limpian las fotos en cloudinary. si alguna falla no se revierte
-  // el borrado, solo queda registrado
+  // producto_imagenes se borro sola (ON DELETE CASCADE); ahora se limpia cloudinary.
+  // si alguna foto falla no se revierte el borrado, solo queda registrado
   const resultados = await Promise.allSettled(
     rows.map((imagen) => {
       const posicion = imagen.imagen_url.indexOf("upload/") + 7;

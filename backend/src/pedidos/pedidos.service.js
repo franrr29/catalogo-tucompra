@@ -16,7 +16,7 @@ async function crearPedidoService(nombre, email, telefono, items) {
   const placeholders = itemIds.map(() => "?").join(", ");
 
   const [productos] = await baseDatos.query(
-    `SELECT * FROM productos WHERE id IN (${placeholders})`,
+    `SELECT * FROM productos WHERE activo = 1 AND id IN (${placeholders})`,
     itemIds
   );
 
