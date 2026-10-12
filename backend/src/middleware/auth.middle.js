@@ -1,6 +1,7 @@
 const jwt= require ("jsonwebtoken");
 require ("dotenv").config ();
 const clave=process.env.SECRET_PASSW;
+const { opcionesCookie } = require ("../modules/auth/auth.controller");
 
 async function verificarToken (req, res, next){
     const token = req.cookies.token;
@@ -10,7 +11,11 @@ async function verificarToken (req, res, next){
     }
 
     try{
-        jwt.verify (token, clave)
+        const datos = jwt.verify (token, clave)
+
+        // renueva la sesion en cada request: vence tras 1h sin actividad, no 1h despues del login
+        const nuevoToken = jwt.sign ({ user: datos.user }, clave, { expiresIn: "1h" })
+        res.cookie ("token", nuevoToken, { ...opcionesCookie, maxAge: 60 * 60 * 1000 })
         next ()
 
     } catch (error){

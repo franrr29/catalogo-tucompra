@@ -33,4 +33,4 @@ async function logout(req, res) {
   res.json({ mensaje: "sesion cerrada" });
 }
 
-module.exports = { login, logout };
+module.exports = { login, logout, opcionesCookie };
