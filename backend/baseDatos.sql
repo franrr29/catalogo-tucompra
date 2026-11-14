@@ -27,7 +27,14 @@ CREATE TABLE pedidos (
     total DECIMAL(10,2) NOT NULL,
     mercadopago_id VARCHAR(100),
     estado ENUM('pendiente', 'pagado', 'cancelado') DEFAULT 'pendiente',
-    fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    tipo_entrega ENUM('domicilio', 'agencia') NULL,
+    cedula VARCHAR(10) NULL,
+    departamento VARCHAR(20) NULL,
+    ciudad VARCHAR(100) NULL,
+    direccion VARCHAR(200) NULL,
+    agencia VARCHAR(150) NULL,
+    comentario VARCHAR(300) NULL
 );
 
 CREATE TABLE pedido_items (

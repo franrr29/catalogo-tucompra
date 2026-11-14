@@ -25,7 +25,19 @@ async function testConexion() {
   }
 }
 
-// agrega la columna "activo" si la base todavia no la tiene (borrado logico de productos)
+// columnas de envio de pedidos: todas aceptan null para que los pedidos viejos sigan siendo validos
+const COLUMNAS_ENVIO = [
+  ["tipo_entrega", "ENUM('domicilio','agencia') NULL"],
+  ["cedula", "VARCHAR(10) NULL"],
+  ["departamento", "VARCHAR(20) NULL"],
+  ["ciudad", "VARCHAR(100) NULL"],
+  ["direccion", "VARCHAR(200) NULL"],
+  ["agencia", "VARCHAR(150) NULL"],
+  ["comentario", "VARCHAR(300) NULL"],
+];
+
+// agrega lo que le falte a la base: la columna "activo" (borrado logico de productos) y las columnas
+// de envio de pedidos. es idempotente: si ya existen no hace nada
 async function asegurarEsquema() {
   const [cols] = await baseDatos.query(
     `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
@@ -36,6 +48,19 @@ async function asegurarEsquema() {
       "ALTER TABLE productos ADD COLUMN activo TINYINT(1) NOT NULL DEFAULT 1"
     );
     console.log("columna productos.activo creada");
+  }
+
+  const [colsPedidos] = await baseDatos.query(
+    `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'pedidos'`
+  );
+  const existentes = new Set(colsPedidos.map((col) => col.COLUMN_NAME));
+  const faltantes = COLUMNAS_ENVIO.filter(([nombre]) => !existentes.has(nombre));
+
+  if (faltantes.length > 0) {
+    const agregados = faltantes.map(([nombre, definicion]) => `ADD COLUMN ${nombre} ${definicion}`).join(", ");
+    await baseDatos.query(`ALTER TABLE pedidos ${agregados}`);
+    console.log("columnas de envio creadas en pedidos:", faltantes.map(([nombre]) => nombre).join(", "));
   }
 }
 

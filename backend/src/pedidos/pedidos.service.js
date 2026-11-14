@@ -3,7 +3,8 @@ const { Preference } = require("mercadopago");
 const mp = require("../config/mercadoPago.js");
 const crearError = require("../utils/crearError");
 
-async function crearPedidoService(nombre, email, telefono, items) {
+// envio ya viene validado y normalizado por pedidos.validacion; sin envio (pedidos viejos) las columnas quedan en null
+async function crearPedidoService(nombre, email, telefono, items, envio = {}) {
   // valido que las cantidades sean numeros enteros positivos antes de usarlas
   for (const item of items) {
     if (!Number.isInteger(item.cantidad) || item.cantidad <= 0) {
@@ -45,10 +46,24 @@ async function crearPedidoService(nombre, email, telefono, items) {
   try {
     await conexion.beginTransaction();
 
-    // inserto el pedido
+    // inserto el pedido junto con los datos de envio, en la misma transaccion
     const [result] = await conexion.query(
-      "INSERT INTO pedidos (nombre, email, telefono, total) VALUES (?, ?, ?, ?)",
-      [nombre, email, telefono, totalPedido]
+      `INSERT INTO pedidos
+        (nombre, email, telefono, total, tipo_entrega, cedula, departamento, ciudad, direccion, agencia, comentario)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        nombre,
+        email,
+        telefono,
+        totalPedido,
+        envio.tipoEntrega ?? null,
+        envio.cedula ?? null,
+        envio.departamento ?? null,
+        envio.ciudad ?? null,
+        envio.direccion ?? null,
+        envio.agencia ?? null,
+        envio.comentario ?? null,
+      ]
     );
 
     const pedidoId = result.insertId;
