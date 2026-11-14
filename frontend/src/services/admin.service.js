@@ -51,14 +51,21 @@ export async function borrarImagen(imagenId) {
   return data;
 }
 
-// lista los pedidos del panel de ventas: paginado y con filtro opcional por estado (pendiente, pagado, cancelado o todos)
-export async function listarPedidos({ estado, pagina, limite } = {}) {
-  const { data } = await api.get("/api/admin/pedidos", { params: { estado, pagina, limite } });
+// lista los pedidos del panel: paginado y con filtro opcional por estado (pendiente, pagado, cancelado o todos)
+// o por estado de envio (por_despachar, enviado o entregado), que no se combinan
+export async function listarPedidos({ estado, estadoEnvio, pagina, limite } = {}) {
+  const { data } = await api.get("/api/admin/pedidos", { params: { estado, estadoEnvio, pagina, limite } });
   return data;
 }
 
 // trae el detalle de un pedido: contacto, datos de envio, items y el id de mercado pago
 export async function obtenerPedido(id) {
   const { data } = await api.get(`/api/admin/pedidos/${id}`);
+  return data;
+}
+
+// cambia el estado de envio de un pedido pagado (un paso a la vez) y, si se manda, su numero de seguimiento
+export async function actualizarEnvio(id, { estadoEnvio, nroSeguimiento }) {
+  const { data } = await api.patch(`/api/admin/pedidos/${id}/envio`, { estadoEnvio, nroSeguimiento });
   return data;
 }

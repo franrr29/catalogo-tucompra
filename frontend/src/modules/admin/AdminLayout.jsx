@@ -7,6 +7,7 @@ import { useAdminSession } from "./hooks/useAdminSession";
 const SECCIONES = [
   { to: "/admin/productos", texto: "Productos" },
   { to: "/admin/ventas", texto: "Ventas" },
+  { to: "/admin/envios", texto: "Envíos" },
 ];
 
 // el navbar publico es fijo y mide ~4.5rem; el header del panel mide 3.5rem
