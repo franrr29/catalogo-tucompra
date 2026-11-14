@@ -1,22 +1,24 @@
 import { useState, useRef, useEffect } from "react";
-import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAdminSession } from "./hooks/useAdminSession";
 import { useNuevasVentas } from "./hooks/useNuevasVentas";
 import CampanitaVentas from "./CampanitaVentas";
+import { IconoMenu, IconoSalir, IconoCaja, IconoVentas, IconoCamion, IconoTienda } from "./ui/iconos";
+import { boton } from "./ui/estilos";
 
 // secciones del panel, en el orden del menu lateral
 const SECCIONES = [
-  { to: "/admin/productos", texto: "Productos" },
-  { to: "/admin/ventas", texto: "Ventas" },
-  { to: "/admin/envios", texto: "Envíos" },
+  { to: "/admin/productos", texto: "Productos", Icono: IconoCaja },
+  { to: "/admin/ventas", texto: "Ventas", Icono: IconoVentas },
+  { to: "/admin/envios", texto: "Envíos", Icono: IconoCamion },
 ];
 
-// el navbar publico es fijo y mide ~4.5rem; el header del panel mide 3.5rem
-const ALTO_NAVBAR = "4.5rem";
-const TOP_MENU = "8rem";
+// clases de los items del menu: pildora oscura para la pagina activa y fondo suave al pasar el mouse
+const CLASE_ITEM =
+  "group flex items-center gap-3 rounded-control px-3.5 py-2.5 text-sm font-semibold transition-colors duration-150 motion-reduce:transition-none focus:outline-none focus-visible:ring-2 focus-visible:ring-oro-acento focus-visible:ring-offset-2 focus-visible:ring-offset-superficie";
 
-// estructura comun del panel de administracion: header con cerrar sesion, menu lateral y la pagina activa
+// estructura comun del panel de administracion: menu lateral, barra superior con la campanita y cerrar sesion, y la pagina activa
 // la sesion (cierre por inactividad) se maneja aca una sola vez para que cubra todas las paginas del panel
 function AdminLayout() {
   const navigate = useNavigate();
@@ -54,78 +56,96 @@ function AdminLayout() {
   }, [menuAbierto]);
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-sans" style={{ paddingTop: ALTO_NAVBAR }}>
-      <header
-        className="sticky z-30 h-14 border-b border-border bg-paper/95 backdrop-blur px-4 sm:px-8 flex items-center justify-between gap-4"
-        style={{ top: ALTO_NAVBAR }}
+    <div className="min-h-screen bg-paper text-ink font-sans md:flex">
+      {menuAbierto && (
+        <div
+          data-testid="fondo-menu"
+          aria-hidden="true"
+          onClick={() => setMenuAbierto(false)}
+          className="md:hidden fixed inset-0 z-30 bg-ink/40"
+        />
+      )}
+
+      <nav
+        id="menu-admin"
+        aria-label="Secciones del panel"
+        className={`${
+          menuAbierto ? "flex animate-deslizar motion-reduce:animate-none" : "hidden"
+        } md:flex flex-col w-64 shrink-0 h-screen overflow-y-auto bg-superficie border-r border-linea shadow-elevada md:shadow-none fixed top-0 left-0 z-40 md:sticky md:self-start`}
       >
-        <div className="flex items-center gap-3">
-          <button
-            ref={botonMenuRef}
-            type="button"
-            onClick={() => setMenuAbierto((abierto) => !abierto)}
-            aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
-            aria-expanded={menuAbierto}
-            aria-controls="menu-admin"
-            className="md:hidden p-2 -ml-2 rounded border border-transparent hover:border-border focus:outline-none focus-visible:border-[#111111]"
-          >
-            <span className="block w-5 space-y-1.5" aria-hidden="true">
-              <span className="block h-[2px] bg-[#111111]" />
-              <span className="block h-[2px] bg-[#111111]" />
-              <span className="block h-[2px] bg-[#111111]" />
-            </span>
-          </button>
-          <span className="text-[10px] text-muted uppercase tracking-widest">Panel de gestión</span>
+        <div className="flex flex-col gap-1 px-6 pt-7 pb-6">
+          <span className="font-semibold text-xl leading-none tracking-tight text-ink">TU</span>
+          <span className="font-bold text-xl leading-none tracking-tight text-oro-titulo">COMPRA</span>
         </div>
 
-        <div className="flex items-center gap-4">
-          <CampanitaVentas cantidad={cantidad} ultimos={ultimos} onMarcarVistas={marcarComoVistas} />
-          <button
-            type="button"
-            onClick={cerrarSesion}
-            className="text-xs font-sans uppercase tracking-wider text-red-600 hover:text-red-500 border border-border rounded px-4 py-2 transition-colors"
-          >
-            Cerrar sesión
-          </button>
-        </div>
-      </header>
+        <p className="px-6 pb-2 text-xs font-semibold uppercase tracking-[0.06em] text-muted">Gestión</p>
 
-      <div className="flex">
-        {menuAbierto && (
-          <div
-            data-testid="fondo-menu"
-            aria-hidden="true"
-            onClick={() => setMenuAbierto(false)}
-            className="md:hidden fixed inset-0 z-20 bg-black/30"
-          />
-        )}
-
-        <nav
-          id="menu-admin"
-          aria-label="Secciones del panel"
-          style={{ top: TOP_MENU, height: `calc(100vh - ${TOP_MENU})` }}
-          className={`${menuAbierto ? "flex" : "hidden"} md:flex flex-col gap-1 w-56 shrink-0 border-r border-border bg-paper p-4 fixed md:sticky left-0 z-30 md:z-10 self-start overflow-y-auto`}
-        >
-          {SECCIONES.map(({ to, texto }) => (
+        <div className="flex flex-col gap-1 px-3">
+          {SECCIONES.map(({ to, texto, Icono }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex items-center justify-between rounded px-3 py-2.5 text-xs font-sans uppercase tracking-wider transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] ${
-                  isActive ? "bg-[#111111] text-paper" : "text-ink hover:bg-[#E2E2DF]/60"
-                }`
+                `${CLASE_ITEM} ${isActive ? "bg-ink text-paper shadow-tarjeta" : "text-ink hover:bg-paper"}`
               }
             >
-              {texto}
+              <Icono className="w-5 h-5 shrink-0 text-muted group-aria-[current=page]:text-oro-acento" />
+              <span className="truncate">{texto}</span>
               {to === "/admin/envios" && porDespachar > 0 && (
-                <span className="ml-2 min-w-[1.25rem] px-1.5 py-0.5 rounded-full bg-brand text-white text-[10px] font-bold leading-none text-center">
+                <span className="ml-auto min-w-[1.5rem] rounded-full bg-oro-acento px-2 py-1 text-center text-xs font-bold leading-none text-ink">
                   {porDespachar}
                   <span className="sr-only"> por despachar</span>
                 </span>
               )}
             </NavLink>
           ))}
-        </nav>
+        </div>
+
+        <div className="mt-auto border-t border-linea p-3">
+          <Link to="/" className={`${CLASE_ITEM} text-muted hover:bg-paper hover:text-ink`}>
+            <IconoTienda className="w-5 h-5 shrink-0" />
+            <span>Ver tienda</span>
+          </Link>
+        </div>
+      </nav>
+
+      <div className="flex-1 min-w-0 flex flex-col">
+        <header className="sticky top-0 z-20 h-16 shrink-0 flex items-center justify-between gap-3 border-b border-linea bg-paper/90 backdrop-blur px-4 sm:px-8">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              ref={botonMenuRef}
+              type="button"
+              onClick={() => setMenuAbierto((abierto) => !abierto)}
+              aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
+              aria-expanded={menuAbierto}
+              aria-controls="menu-admin"
+              className="md:hidden -ml-2 rounded-control p-2 text-ink transition-colors duration-150 motion-reduce:transition-none hover:bg-linea/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-oro-acento"
+            >
+              <IconoMenu className="w-6 h-6" />
+            </button>
+            <span className="md:hidden flex flex-col leading-none text-sm tracking-tight" aria-hidden="true">
+              <span className="font-semibold text-ink">TU</span>
+              <span className="font-bold text-oro-titulo">COMPRA</span>
+            </span>
+            <p className="hidden md:flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.06em] text-muted">
+              <span className="w-2 h-2 rounded-full bg-oro-acento" aria-hidden="true" />
+              Panel de gestión
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            <CampanitaVentas cantidad={cantidad} ultimos={ultimos} onMarcarVistas={marcarComoVistas} />
+            <button
+              type="button"
+              onClick={cerrarSesion}
+              aria-label="Cerrar sesión"
+              className={`${boton.secundario} !px-3 sm:!px-4`}
+            >
+              <IconoSalir className="w-4 h-4" />
+              <span className="hidden sm:inline" aria-hidden="true">Cerrar sesión</span>
+            </button>
+          </div>
+        </header>
 
         <main className="flex-1 min-w-0">
           <Outlet context={{ manejarSesionExpirada }} />

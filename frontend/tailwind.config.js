@@ -38,9 +38,14 @@ module.exports = {
           from: { opacity: "0", transform: "translateY(-4px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        deslizar: {
+          from: { opacity: "0", transform: "translateX(-1rem)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
       },
       animation: {
         aparecer: "aparecer 200ms ease-out",
+        deslizar: "deslizar 200ms ease-out",
       },
     },
   },

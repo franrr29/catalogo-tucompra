@@ -13,7 +13,7 @@ import ProductoDetalle from "./modules/products/ProductoDetalle.jsx";
 import ComoComprar from "./shared/ComoComprar.jsx";
 import Contacto from "./shared/Contacto.jsx";
 import { Toaster } from "react-hot-toast";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Checkout from "./modules/pagos/Checkout.jsx";
 import Exito from "./modules/pagos/Exito.jsx";
 import CompraFallida from "./modules/pagos/Fallido.jsx";
@@ -22,6 +22,11 @@ import PagoPendiente from "./modules/pagos/Pendiente.jsx";
 // arma el layout general de la app navbar, contenido, footer y define las rutas
 // la sesion del admin no se pasa por props cada pantalla la lee del authcontext con useauth()
 function AppRoutes({ carrito, setCarrito, addCart }) {
+  const { pathname } = useLocation();
+  // el panel de administracion tiene su propio menu y su barra superior: no lleva el navbar ni el footer de la tienda
+  // (el login si, porque todavia es una pantalla publica)
+  const enPanel = (pathname === "/admin" || pathname.startsWith("/admin/")) && pathname !== "/admin/login";
+
   return (
     <div className="min-h-screen bg-paper text-ink flex flex-col font-sans selection:bg-[#E2E2DF]">
       <Toaster
@@ -53,7 +58,7 @@ function AppRoutes({ carrito, setCarrito, addCart }) {
         }}
       />
 
-      <Navbar cartCounter={carrito.length} />
+      {!enPanel && <Navbar cartCounter={carrito.length} />}
 
       <main className="flex-grow">
         <Routes>
@@ -79,7 +84,7 @@ function AppRoutes({ carrito, setCarrito, addCart }) {
         </Routes>
       </main>
 
-      <Footer />
+      {!enPanel && <Footer />}
     </div>
   );
 }
