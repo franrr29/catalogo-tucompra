@@ -69,3 +69,10 @@ export async function actualizarEnvio(id, { estadoEnvio, nroSeguimiento }) {
   const { data } = await api.patch(`/api/admin/pedidos/${id}/envio`, { estadoEnvio, nroSeguimiento });
   return data;
 }
+
+// ventas pagadas con envio posteriores al id dado, mas cuantos envios faltan despachar (para la campanita)
+// sin desde solo devuelve ultimoId; signal permite cancelar la consulta
+export async function pedidosNuevos({ desde } = {}, signal) {
+  const { data } = await api.get("/api/admin/pedidos/nuevos", { params: { desde }, signal });
+  return data;
+}

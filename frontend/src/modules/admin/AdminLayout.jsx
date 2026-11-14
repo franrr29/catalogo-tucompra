@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAdminSession } from "./hooks/useAdminSession";
+import { useNuevasVentas } from "./hooks/useNuevasVentas";
+import CampanitaVentas from "./CampanitaVentas";
 
 // secciones del panel, en el orden del menu lateral
 const SECCIONES = [
@@ -29,6 +31,9 @@ function AdminLayout() {
     toast.error("tu sesion expiro o no se pudo validar, inicia sesion de nuevo");
     return cerrarSesion();
   }
+
+  // ventas nuevas para la campanita y envios por despachar para la insignia del menu
+  const { cantidad, ultimos, porDespachar, marcarComoVistas } = useNuevasVentas(manejarSesionExpirada);
 
   // al cambiar de pagina el menu movil se cierra
   useEffect(() => {
@@ -74,6 +79,7 @@ function AdminLayout() {
         </div>
 
         <div className="flex items-center gap-4">
+          <CampanitaVentas cantidad={cantidad} ultimos={ultimos} onMarcarVistas={marcarComoVistas} />
           <button
             type="button"
             onClick={cerrarSesion}
@@ -111,6 +117,12 @@ function AdminLayout() {
               }
             >
               {texto}
+              {to === "/admin/envios" && porDespachar > 0 && (
+                <span className="ml-2 min-w-[1.25rem] px-1.5 py-0.5 rounded-full bg-brand text-white text-[10px] font-bold leading-none text-center">
+                  {porDespachar}
+                  <span className="sr-only"> por despachar</span>
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>

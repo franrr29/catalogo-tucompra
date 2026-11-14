@@ -10,6 +10,7 @@ let mockRuta = "/admin/productos";
 jest.mock(
   "react-router-dom",
   () => ({
+    Link: ({ to, children, ...props }) => <a href={to} {...props}>{children}</a>,
     NavLink: ({ to, className, children }) => {
       const activo = mockRuta === to;
       return (
@@ -28,6 +29,15 @@ jest.mock(
   { virtual: true }
 );
 
+let mockNuevas = { cantidad: 0, ultimos: [], porDespachar: 0, marcarComoVistas: jest.fn() };
+let mockOnUnauthorizedNuevas;
+jest.mock("./hooks/useNuevasVentas", () => ({
+  useNuevasVentas: (onUnauthorized) => {
+    mockOnUnauthorizedNuevas = onUnauthorized;
+    return mockNuevas;
+  },
+}));
+
 const mockCerrarSesion = jest.fn();
 jest.mock("./AuthContext", () => ({
   useAuth: () => ({ cerrarSesion: mockCerrarSesion }),
@@ -42,6 +52,7 @@ beforeEach(() => {
   toast.error.mockReset();
   mockRuta = "/admin/productos";
   mockContexto = undefined;
+  mockNuevas = { cantidad: 0, ultimos: [], porDespachar: 0, marcarComoVistas: jest.fn() };
 });
 
 describe("menu lateral", () => {
@@ -187,5 +198,45 @@ describe("cierre por inactividad", () => {
     });
 
     expect(mockCerrarSesion).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("campanita e insignia", () => {
+  test("la campanita recibe las ventas nuevas del hook", () => {
+    mockNuevas = {
+      cantidad: 2,
+      ultimos: [{ id: 15, fecha: "2026-11-13T09:00:00.000Z", nombre: "Ana Gomez", total: 300, ciudad: "Salto" }],
+      porDespachar: 0,
+      marcarComoVistas: jest.fn(),
+    };
+    render(<AdminLayout />);
+
+    expect(screen.getByRole("button", { name: "Ventas nuevas: 2" })).toBeInTheDocument();
+  });
+
+  test("el item Envios muestra cuantos hay por despachar", () => {
+    mockNuevas = { ...mockNuevas, porDespachar: 3 };
+    render(<AdminLayout />);
+
+    const envios = document.querySelector('#menu-admin a[href="/admin/envios"]');
+    expect(envios).toHaveTextContent("3 por despachar");
+  });
+
+  test("sin envios por despachar no hay insignia", () => {
+    render(<AdminLayout />);
+
+    expect(document.querySelector('#menu-admin a[href="/admin/envios"]')).not.toHaveTextContent("por despachar");
+  });
+
+  test("un 401 de la campanita usa el mismo cierre de sesion que las paginas", async () => {
+    render(<AdminLayout />);
+
+    await act(async () => {
+      await mockOnUnauthorizedNuevas();
+    });
+
+    expect(toast.error).toHaveBeenCalledWith(expect.stringMatching(/sesion expiro/));
+    expect(mockCerrarSesion).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith("/admin/login");
   });
 });
