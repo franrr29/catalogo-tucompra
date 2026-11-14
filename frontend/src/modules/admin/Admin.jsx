@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { login } from "../../services/admin.service";
+import { login, verificarSesion } from "../../services/admin.service";
 import { useAuth } from "./AuthContext";
 import { toast } from "react-hot-toast";
 
@@ -14,15 +14,34 @@ function Admin() {
   async function sendUserData() {
     try {
       await login(usuario, contra);
-      iniciarSesion();
-      navigate("/admin/dashboard");
-
-      toast.success("ACCESO CONCEDIDO");
-
     } catch (error) {
       console.error("Error en el acceso");
-      toast.error("CREDENCIALES INVÁLIDAS");
+      // solo un 401 significa credenciales malas; lo demas es un problema de conexion o del servidor
+      if (error.response?.status === 401) {
+        toast.error("CREDENCIALES INVÁLIDAS");
+      } else {
+        toast.error("NO SE PUDO CONECTAR CON EL SERVIDOR, INTENTA DE NUEVO");
+      }
+      return;
     }
+
+    // el login pudo salir bien pero el navegador no guardar la cookie (por ejemplo si bloquea
+    // cookies de terceros): se comprueba antes de entrar para no dejar pasar con una sesion inexistente
+    try {
+      await verificarSesion();
+    } catch (error) {
+      console.error("La sesion no quedo activa despues del login");
+      if (error.response?.status === 401) {
+        toast.error("TU NAVEGADOR ESTÁ BLOQUEANDO LA COOKIE DE SESIÓN. PROBÁ SIN MODO INCÓGNITO O PERMITÍ COOKIES DE TERCEROS PARA ESTE SITIO", { duration: 8000 });
+      } else {
+        toast.error("NO SE PUDO VERIFICAR LA SESIÓN, INTENTA DE NUEVO");
+      }
+      return;
+    }
+
+    iniciarSesion();
+    navigate("/admin/dashboard");
+    toast.success("ACCESO CONCEDIDO");
   }
 
   return (
