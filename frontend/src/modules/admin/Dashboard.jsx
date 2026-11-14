@@ -102,7 +102,7 @@ function Dashboard() {
       // false = el backend respondio 401 y ya se cerro la sesion: no se sigue ni se avisa de exito
       if (!actualizado) return;
       await subirFotosPendientes(id);
-      await edicion.abrirPanel(id, productos);
+      await edicion.abrirPanel(id, productos, { rehidratarFormulario: true });
       toast.success("producto actualizado");
     } catch (error) {
       toast.error(mensajeDeError(error, "error al actualizar"));
@@ -125,7 +125,7 @@ function Dashboard() {
 
   async function manejarMarcarPrincipal(imagenId) {
     try {
-      const marcada = await edicion.marcarPrincipal(imagenId, edicion.idProductoEditado, productos);
+      const marcada = await edicion.marcarPrincipal(imagenId, edicion.idProductoEditado);
       if (!marcada) return;
       toast.success("portada establecida");
     } catch (error) {
