@@ -8,7 +8,6 @@ import { useAdminSession } from "./hooks/useAdminSession";
 import { useProductosAdmin } from "./hooks/useProductosAdmin";
 import { useEdicionProducto } from "./hooks/useEdicionProducto";
 import { useFotosPendientes } from "./hooks/useFotosPendientes";
-import * as adminService from "../../services/admin.service";
 
 const FORM_NUEVO_PRODUCTO = { nombre: "", precio: "", stock: "", imagen: "", descripcion: "" };
 
@@ -36,27 +35,26 @@ function Dashboard() {
   const edicion = useEdicionProducto(manejarSesionExpirada);
 
   // fotos elegidas y sus previsualizaciones, para crear o editar
-  const fotos = useFotosPendientes(edicion.idProductoEditado);
+  const fotos = useFotosPendientes(edicion.idProductoEditado, manejarSesionExpirada);
 
   const [nuevoProducto, setNuevoProducto] = useState(FORM_NUEVO_PRODUCTO);
   const [creando, setCreando] = useState(false);
 
   const inputClass = "bg-transparent border border-border text-ink text-xs px-4 py-3.5 focus:outline-none focus:border-[#111111] transition-all placeholder-[#999999] w-full font-sans rounded";
 
-  // sube las fotos pendientes para un producto puntual, si es que hay
+  // sube las fotos pendientes de un producto. devuelve true si salio bien (o no habia fotos) y false si
+  // algo fallo: en ese caso ya se aviso al usuario y no hay que mostrar el mensaje de exito
   async function subirFotosPendientes(productoId) {
-    if (!fotos.fotosSeleccionadas) return;
-
-    const formData = new FormData();
-    Array.from(fotos.fotosSeleccionadas).forEach((archivo) => formData.append("imagenes", archivo));
+    const cantidad = fotos.fotosSeleccionadas ? fotos.fotosSeleccionadas.length : 0;
 
     try {
-      await adminService.subirImagenes(productoId, formData);
+      // false = el backend respondio 401: la sesion ya se cerro y se aviso
+      return await fotos.subir(productoId);
     } catch (error) {
-      toast.error("error al subir las imagenes");
+      const motivo = mensajeDeError(error, "error al subir las imagenes");
+      toast.error(`los datos se guardaron, pero fallo la subida de ${cantidad} foto${cantidad === 1 ? "" : "s"}: ${motivo}`);
+      return false;
     }
-
-    fotos.limpiar();
   }
 
   async function manejarCrearProducto() {
@@ -77,8 +75,8 @@ function Dashboard() {
 
       if (producto) {
         setNuevoProducto(FORM_NUEVO_PRODUCTO);
-        await subirFotosPendientes(producto.id);
-        toast.success("producto creado");
+        const fotosSubidas = await subirFotosPendientes(producto.id);
+        if (fotosSubidas) toast.success("producto creado");
       }
     } catch (error) {
       const mensaje = error.response?.data?.error || error.response?.data?.mensaje || "error al crear el producto";
@@ -101,9 +99,9 @@ function Dashboard() {
       const actualizado = await actualizarProducto(id, soloRellenos);
       // false = el backend respondio 401 y ya se cerro la sesion: no se sigue ni se avisa de exito
       if (!actualizado) return;
-      await subirFotosPendientes(id);
+      const fotosSubidas = await subirFotosPendientes(id);
       await edicion.abrirPanel(id, productos, { rehidratarFormulario: true });
-      toast.success("producto actualizado");
+      if (fotosSubidas) toast.success("producto actualizado");
     } catch (error) {
       toast.error(mensajeDeError(error, "error al actualizar"));
     }
