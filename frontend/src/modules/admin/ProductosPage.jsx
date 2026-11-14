@@ -1,28 +1,19 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import CrearNuevoProdct from "./AdminCreateProduct";
 import EditarProductoAdmin from "./EditarProducto";
 import ProductSelector from "./ProductSelector";
-import Ventas from "./Ventas";
-import { useAdminSession } from "./hooks/useAdminSession";
 import { useProductosAdmin } from "./hooks/useProductosAdmin";
 import { useEdicionProducto } from "./hooks/useEdicionProducto";
 import { useFotosPendientes } from "./hooks/useFotosPendientes";
 
 const FORM_NUEVO_PRODUCTO = { nombre: "", precio: "", stock: "", imagen: "", descripcion: "" };
 
-function Dashboard() {
-  const navigate = useNavigate();
-
-  // sesion del admin: token y cierre por inactividad
-  const { cerrarSesion } = useAdminSession(navigate);
-
-  // un 401 en una escritura cierra la sesion; el aviso queda visible despues de la redireccion
-  function manejarSesionExpirada() {
-    toast.error("tu sesion expiro o no se pudo validar, inicia sesion de nuevo");
-    return cerrarSesion();
-  }
+function ProductosPage() {
+  // la sesion (token y cierre por inactividad) la maneja AdminLayout, que comparte como cerrar la sesion
+  // cuando el backend responde 401 en una escritura; el aviso queda visible despues de la redireccion
+  const { manejarSesionExpirada } = useOutletContext();
 
   // el mensaje que mando el backend, o uno generico si no hay
   function mensajeDeError(error, mensajePorDefecto) {
@@ -145,10 +136,10 @@ function Dashboard() {
   const productoActualObj = productos.find((p) => p.id === Number(edicion.idProductoEditado));
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-sans antialiased px-4 sm:px-12 lg:px-16 pt-28 sm:pt-32 pb-24 selection:bg-[#E2E2DF]">
+    <div className="text-ink font-sans antialiased px-4 sm:px-8 lg:px-12 py-8 pb-24 selection:bg-[#E2E2DF]">
       <div className="max-w-3xl mx-auto flex flex-col gap-10">
 
-        {/* encabezado del dashboard */}
+        {/* encabezado de la pagina */}
         <header className="border-b border-border pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1.5 font-sans">
@@ -217,22 +208,9 @@ function Dashboard() {
           )}
         </section>
 
-        {/* seccion con las ventas y los datos de envio de cada pedido */}
-        <section className="border border-border rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm flex flex-col gap-6 relative shadow-sm">
-          <div className="absolute top-0 right-0 w-2 h-2 bg-brand rounded-tr" />
-          <div className="flex items-center gap-2 font-sans">
-            <span className="w-1.5 h-1.5 bg-brand" />
-            <h2 className="text-xs uppercase tracking-widest text-ink font-semibold">
-              03 / Ventas
-            </h2>
-          </div>
-
-          <Ventas onUnauthorized={manejarSesionExpirada} />
-        </section>
-
       </div>
     </div>
   );
 }
 
-export default Dashboard;
+export default ProductosPage;

@@ -106,7 +106,7 @@ function Navbar({ cartCounter }) {
 
           {isLogIn && (
             <NavLink
-              to="/admin/dashboard"
+              to="/admin/productos"
               onClick={() => setMenuOpen(false)}
               className={({ isActive }) =>
                 `font-sans font-semibold text-lg md:text-xs tracking-wider uppercase transition-colors pb-1 border-b-2 ${
@@ -116,7 +116,7 @@ function Navbar({ cartCounter }) {
                 }`
               }
             >
-              Dashboard
+              Panel
             </NavLink>
           )}
 

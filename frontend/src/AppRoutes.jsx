@@ -3,14 +3,16 @@ import Footer from "./shared/Footer";
 import ListaProductos from "./modules/products/ListaProductos";
 import Cart from "./modules/cart/Cart";
 import Admin from "./modules/admin/Admin.jsx";
-import Dashboard from "./modules/admin/Dashboard.jsx";
+import AdminLayout from "./modules/admin/AdminLayout.jsx";
+import ProductosPage from "./modules/admin/ProductosPage.jsx";
+import VentasPage from "./modules/admin/VentasPage.jsx";
 import RutaProtegida from "./modules/admin/RutaProtegida.jsx";
 import NotFound from "./shared/NotFound.jsx";
 import ProductoDetalle from "./modules/products/ProductoDetalle.jsx";
 import ComoComprar from "./shared/ComoComprar.jsx";
 import Contacto from "./shared/Contacto.jsx";
 import { Toaster } from "react-hot-toast";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Checkout from "./modules/pagos/Checkout.jsx";
 import Exito from "./modules/pagos/Exito.jsx";
 import CompraFallida from "./modules/pagos/Fallido.jsx";
@@ -57,7 +59,13 @@ function AppRoutes({ carrito, setCarrito, addCart }) {
           <Route path="/" element={<ListaProductos addCart={addCart} />} />
           <Route path="/carrito" element={<Cart fullCart={carrito} setCarrito={setCarrito} />} />
           <Route path="/admin/login" element={<Admin />} />
-          <Route path="/admin/dashboard" element={<RutaProtegida><Dashboard /></RutaProtegida>} />
+          <Route path="/admin" element={<RutaProtegida><AdminLayout /></RutaProtegida>}>
+            <Route index element={<Navigate to="productos" replace />} />
+            <Route path="productos" element={<ProductosPage />} />
+            <Route path="ventas" element={<VentasPage />} />
+          </Route>
+          {/* la ruta vieja sigue funcionando para no romper favoritos */}
+          <Route path="/admin/dashboard" element={<Navigate to="/admin/productos" replace />} />
           <Route path="/como-comprar" element={<ComoComprar />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/producto/:id" element={<ProductoDetalle addCart={addCart} />} />
