@@ -1,10 +1,16 @@
 const {obtenerProductos,obtenerProductoPorId,
   crearProducto,actualizarProducto,eliminarProducto,} = require("./products.service");
 
+// el publico cachea 60s; el panel de admin pide ?fresh=1 para ver sus cambios al instante
+// (no es un riesgo: el servidor no cachea nada, siempre consulta la base)
+function cabeceraDeCache(req, res) {
+  res.set("Cache-Control", req.query.fresh ? "no-store" : "public, max-age=60");
+}
+
 async function listarProductos(req, res) {
   try {
     const productos = await obtenerProductos();
-    res.set("Cache-Control", "public, max-age=60");
+    cabeceraDeCache(req, res);
     res.json(productos);
   } catch (error) {
     console.error("error al obtener productos:", error);
@@ -16,7 +22,7 @@ async function obtenerProducto(req, res) {
   try {
     const id = Number(req.params.id);
     const producto = await obtenerProductoPorId(id);
-    res.set("Cache-Control", "public, max-age=60");
+    cabeceraDeCache(req, res);
     res.json(producto);
   } catch (error) {
     console.error("error al obtener producto completo:", error);

@@ -10,7 +10,7 @@ export function useProductosAdmin(onUnauthorized) {
 
   const cargarProductos = useCallback(async () => {
     try {
-      const data = await obtenerProductos();
+      const data = await obtenerProductos({ fresco: true });
       setProductos(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("error al traer productos");

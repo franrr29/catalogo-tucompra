@@ -34,7 +34,7 @@ export function useEdicionProducto(onUnauthorized) {
         });
       }
 
-      const data = await obtenerProducto(numericId);
+      const data = await obtenerProducto(numericId, { fresco: true });
       setImagenesEditor(data.imagenes || []);
     } catch (error) {
       if (error.response?.status === 401) {
