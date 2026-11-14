@@ -117,4 +117,24 @@ async function crearPedidoService(nombre, email, telefono, items) {
   }
 }
 
-module.exports = { crearPedidoService };
+// devuelve solo el estado de un pedido; es publico, asi que no se expone ningun otro dato
+async function obtenerEstadoPedidoService(id) {
+  // el id llega como texto de la url: solo se aceptan enteros positivos
+  const idNumerico = Number(id);
+  if (!/^\d+$/.test(String(id)) || !Number.isSafeInteger(idNumerico) || idNumerico <= 0) {
+    throw crearError("id de pedido invalido", 400);
+  }
+
+  const [pedidos] = await baseDatos.query(
+    "SELECT estado FROM pedidos WHERE id = ?",
+    [idNumerico]
+  );
+
+  if (pedidos.length === 0) {
+    throw crearError("pedido no encontrado", 404);
+  }
+
+  return { estado: pedidos[0].estado };
+}
+
+module.exports = { crearPedidoService, obtenerEstadoPedidoService };
