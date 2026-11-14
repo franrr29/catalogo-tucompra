@@ -75,12 +75,38 @@ async function eliminarImagen(imagenId) {
     throw crearError("imagen no encontrada", 404);
   }
 
-  const publicId = obtenerPublicId(rows[0].imagen_url);
+  const { producto_id: productoId, imagen_url: imagenUrl } = rows[0];
 
-  // elimina de cloudinary y despues de mysql
-  await cloudinary.uploader.destroy(publicId);
+  // primero la base de datos: si cloudinary falla despues, la foto igual deja de aparecer en el panel
+  const [resultado] = await baseDatos.query(
+    "DELETE FROM producto_imagenes WHERE id = ?",
+    [imagenId]
+  );
 
-  await baseDatos.query("DELETE FROM producto_imagenes WHERE id = ?", [imagenId]);
+  if (resultado.affectedRows === 0) {
+    throw crearError("imagen no encontrada", 404);
+  }
+
+  // si el producto se quedo sin portada (orden 0), la imagen de menor orden pasa a ser la principal
+  const [portada] = await baseDatos.query(
+    "SELECT id FROM producto_imagenes WHERE producto_id = ? AND orden = 0 LIMIT 1",
+    [productoId]
+  );
+
+  if (portada.length === 0) {
+    await baseDatos.query(
+      "UPDATE producto_imagenes SET orden = 0 WHERE producto_id = ? ORDER BY orden ASC, id ASC LIMIT 1",
+      [productoId]
+    );
+  }
+
+  // despues se limpia cloudinary; invalidate saca la imagen del cache del CDN, y si falla
+  // no se revierte el borrado, solo queda registrado
+  try {
+    await cloudinary.uploader.destroy(obtenerPublicId(imagenUrl), { invalidate: true });
+  } catch (error) {
+    console.error("no se pudo borrar la imagen en cloudinary:", error);
+  }
 }
 
 async function marcarImagenPrincipal(imagenId) {

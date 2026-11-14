@@ -135,7 +135,7 @@ function Dashboard() {
 
   async function manejarBorrarFoto(imagenId) {
     try {
-      const borrada = await edicion.borrarFoto(imagenId);
+      const borrada = await edicion.borrarFoto(imagenId, edicion.idProductoEditado);
       if (!borrada) return;
       toast.success("imagen eliminada");
     } catch (error) {

@@ -64,10 +64,18 @@ export function useEdicionProducto(onUnauthorized) {
     }
   }, [abrirPanel, onUnauthorized]);
 
-  const borrarFoto = useCallback(async (imagenId) => {
+  const borrarFoto = useCallback(async (imagenId, productoId) => {
     try {
       await adminService.borrarImagen(imagenId);
-      setImagenesEditor((actuales) => actuales.filter((imagen) => imagen.id !== imagenId));
+
+      // se vuelven a pedir las imagenes al servidor (asi se ve la nueva portada si se borro la principal)
+      // sin tocar lo que se este escribiendo en el formulario; si el pedido falla se quita solo la foto borrada
+      try {
+        const data = await obtenerProducto(productoId, { fresco: true });
+        setImagenesEditor(data.imagenes || []);
+      } catch (errorRecarga) {
+        setImagenesEditor((actuales) => actuales.filter((imagen) => imagen.id !== imagenId));
+      }
       return true;
     } catch (error) {
       if (error.response?.status === 401) {
