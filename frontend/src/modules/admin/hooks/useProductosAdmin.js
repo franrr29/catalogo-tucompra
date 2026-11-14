@@ -3,6 +3,8 @@ import * as adminService from "../../../services/admin.service";
 import { obtenerProductos } from "../../../services/productos.service";
 
 // maneja la lista de productos del panel y sus acciones de alta, baja y modificacion
+// contrato de las acciones: si salen bien devuelven algo verdadero (el producto creado o true);
+// si el backend responde 401 se cierra la sesion y devuelven null/false; cualquier otro error se lanza
 export function useProductosAdmin(onUnauthorized) {
   const [productos, setProductos] = useState([]);
 
@@ -37,10 +39,11 @@ export function useProductosAdmin(onUnauthorized) {
     try {
       await adminService.actualizarProducto(id, datosProducto);
       await cargarProductos();
+      return true;
     } catch (error) {
       if (error.response?.status === 401) {
         onUnauthorized();
-        return;
+        return false;
       }
       throw error;
     }
@@ -50,10 +53,11 @@ export function useProductosAdmin(onUnauthorized) {
     try {
       await adminService.borrarProducto(id);
       setProductos((actuales) => actuales.filter((item) => item.id !== id));
+      return true;
     } catch (error) {
       if (error.response?.status === 401) {
         onUnauthorized();
-        return;
+        return false;
       }
       throw error;
     }

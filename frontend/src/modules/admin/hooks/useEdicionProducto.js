@@ -54,12 +54,13 @@ export function useEdicionProducto(onUnauthorized) {
     try {
       await adminService.marcarImagenPrincipal(imagenId);
       await abrirPanel(productoId, productos);
+      return true;
     } catch (error) {
       if (error.response?.status === 401) {
         onUnauthorized();
-        return;
+        return false;
       }
-      console.error("error al marcar portada", error);
+      throw error;
     }
   }, [abrirPanel, onUnauthorized]);
 
@@ -67,10 +68,11 @@ export function useEdicionProducto(onUnauthorized) {
     try {
       await adminService.borrarImagen(imagenId);
       setImagenesEditor((actuales) => actuales.filter((imagen) => imagen.id !== imagenId));
+      return true;
     } catch (error) {
       if (error.response?.status === 401) {
         onUnauthorized();
-        return;
+        return false;
       }
       throw error;
     }

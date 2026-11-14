@@ -18,11 +18,22 @@ function Dashboard() {
   // sesion del admin: token y cierre por inactividad
   const { cerrarSesion } = useAdminSession(navigate);
 
+  // un 401 en una escritura cierra la sesion; el aviso queda visible despues de la redireccion
+  function manejarSesionExpirada() {
+    toast.error("tu sesion expiro o no se pudo validar, inicia sesion de nuevo");
+    return cerrarSesion();
+  }
+
+  // el mensaje que mando el backend, o uno generico si no hay
+  function mensajeDeError(error, mensajePorDefecto) {
+    return error.response?.data?.mensaje || error.response?.data?.error || mensajePorDefecto;
+  }
+
   // lista de productos y sus acciones de alta, baja y modificacion
-  const { productos, crearProducto, actualizarProducto, borrarProducto } = useProductosAdmin(cerrarSesion);
+  const { productos, crearProducto, actualizarProducto, borrarProducto } = useProductosAdmin(manejarSesionExpirada);
 
   // producto que se esta editando en el panel de abajo
-  const edicion = useEdicionProducto(cerrarSesion);
+  const edicion = useEdicionProducto(manejarSesionExpirada);
 
   // fotos elegidas y sus previsualizaciones, para crear o editar
   const fotos = useFotosPendientes(edicion.idProductoEditado);
@@ -87,39 +98,48 @@ function Dashboard() {
       const soloRellenos = Object.fromEntries(
         Object.entries(edicion.actualizarDatos).filter(([clave, valor]) => clave === "descripcion" || valor !== "")
       );
-      await actualizarProducto(id, soloRellenos);
+      const actualizado = await actualizarProducto(id, soloRellenos);
+      // false = el backend respondio 401 y ya se cerro la sesion: no se sigue ni se avisa de exito
+      if (!actualizado) return;
       await subirFotosPendientes(id);
       await edicion.abrirPanel(id, productos);
       toast.success("producto actualizado");
     } catch (error) {
-      toast.error("error al actualizar");
+      toast.error(mensajeDeError(error, "error al actualizar"));
     }
   }
 
   async function manejarBorrarProducto(id) {
     if (!window.confirm("estas seguro de eliminar este producto?")) return;
     try {
-      await borrarProducto(id);
+      const borrado = await borrarProducto(id);
+      if (!borrado) return;
       if (edicion.idProductoEditado === id) {
         edicion.cerrarPanel();
       }
       toast.success("producto eliminado");
     } catch (error) {
-      toast.error(error.response?.data?.error || "error al eliminar");
+      toast.error(mensajeDeError(error, "error al eliminar"));
     }
   }
 
   async function manejarMarcarPrincipal(imagenId) {
-    await edicion.marcarPrincipal(imagenId, edicion.idProductoEditado, productos);
-    toast.success("portada establecida");
+    try {
+      const marcada = await edicion.marcarPrincipal(imagenId, edicion.idProductoEditado, productos);
+      if (!marcada) return;
+      toast.success("portada establecida");
+    } catch (error) {
+      toast.error(mensajeDeError(error, "error al establecer la portada"));
+    }
   }
 
   async function manejarBorrarFoto(imagenId) {
     try {
-      await edicion.borrarFoto(imagenId);
+      const borrada = await edicion.borrarFoto(imagenId);
+      if (!borrada) return;
       toast.success("imagen eliminada");
     } catch (error) {
-      toast.error("error al eliminar foto");
+      toast.error(mensajeDeError(error, "error al eliminar foto"));
     }
   }
 
