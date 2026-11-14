@@ -50,3 +50,15 @@ export async function borrarImagen(imagenId) {
   const { data } = await api.delete(`/api/imagenes/${imagenId}`);
   return data;
 }
+
+// lista los pedidos del panel de ventas: paginado y con filtro opcional por estado (pendiente, pagado, cancelado o todos)
+export async function listarPedidos({ estado, pagina, limite } = {}) {
+  const { data } = await api.get("/api/admin/pedidos", { params: { estado, pagina, limite } });
+  return data;
+}
+
+// trae el detalle de un pedido: contacto, datos de envio, items y el id de mercado pago
+export async function obtenerPedido(id) {
+  const { data } = await api.get(`/api/admin/pedidos/${id}`);
+  return data;
+}

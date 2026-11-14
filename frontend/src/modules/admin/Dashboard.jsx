@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import CrearNuevoProdct from "./AdminCreateProduct";
 import EditarProductoAdmin from "./EditarProducto";
 import ProductSelector from "./ProductSelector";
+import Ventas from "./Ventas";
 import { useAdminSession } from "./hooks/useAdminSession";
 import { useProductosAdmin } from "./hooks/useProductosAdmin";
 import { useEdicionProducto } from "./hooks/useEdicionProducto";
@@ -214,6 +215,19 @@ function Dashboard() {
               previewsPendientes={fotos.previewsPendientes}
             />
           )}
+        </section>
+
+        {/* seccion con las ventas y los datos de envio de cada pedido */}
+        <section className="border border-border rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm flex flex-col gap-6 relative shadow-sm">
+          <div className="absolute top-0 right-0 w-2 h-2 bg-brand rounded-tr" />
+          <div className="flex items-center gap-2 font-sans">
+            <span className="w-1.5 h-1.5 bg-brand" />
+            <h2 className="text-xs uppercase tracking-widest text-ink font-semibold">
+              03 / Ventas
+            </h2>
+          </div>
+
+          <Ventas onUnauthorized={manejarSesionExpirada} />
         </section>
 
       </div>
