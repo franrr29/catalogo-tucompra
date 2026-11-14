@@ -1,4 +1,4 @@
-const {obtenerProductos,obtenerProductoPorId,
+const {obtenerProductos,obtenerProductosAdmin,obtenerProductoPorId,
   crearProducto,actualizarProducto,eliminarProducto,} = require("./products.service");
 
 // el publico cachea 60s; el panel de admin pide ?fresh=1 para ver sus cambios al instante
@@ -18,6 +18,17 @@ async function listarProductos(req, res) {
   }
 }
 
+// GET /api/admin/productos: los mismos productos que el listado publico, mas el costo (la ruta va con verificarToken)
+async function listarProductosAdmin(req, res) {
+  try {
+    const productos = await obtenerProductosAdmin();
+    res.json(productos);
+  } catch (error) {
+    console.error("error al obtener productos del panel:", error.code || error.name);
+    res.status(500).json({ mensaje: "error interno del servidor" });
+  }
+}
+
 async function obtenerProducto(req, res) {
   try {
     const id = Number(req.params.id);
@@ -32,8 +43,8 @@ async function obtenerProducto(req, res) {
 
 async function crearNuevoProducto(req, res) {
   try {
-    const { nombre, precio, stock, descripcion } = req.body;
-    const producto = await crearProducto({ nombre, precio, stock, descripcion });
+    const { nombre, precio, stock, descripcion, costo } = req.body;
+    const producto = await crearProducto({ nombre, precio, stock, descripcion, costo });
     res.json(producto);
   } catch (error) {
     console.error(error);
@@ -44,8 +55,8 @@ async function crearNuevoProducto(req, res) {
 async function actualizarProductoExistente(req, res) {
   try {
     const id = Number(req.params.id);
-    const { nombre, precio, stock, imagen, descripcion } = req.body;
-    const resultado = await actualizarProducto(id, { nombre, precio, stock, imagen, descripcion });
+    const { nombre, precio, stock, imagen, descripcion, costo } = req.body;
+    const resultado = await actualizarProducto(id, { nombre, precio, stock, imagen, descripcion, costo });
 
     if (resultado.sinCambios) {
       return res.status(200).json({ mensaje: "sin cambios en datos del producto" });
@@ -71,6 +82,7 @@ async function eliminarProductoExistente(req, res) {
 
 module.exports = {
   listarProductos,
+  listarProductosAdmin,
   obtenerProducto,
   crearNuevoProducto,
   actualizarProductoExistente,

@@ -9,6 +9,8 @@ const imagenesRoutes = require("./modules/imagenes/imagenes.routes");
 const pedidosRoutes = require("./../src/pedidos/pedidos.routes");
 const pedidosAdminRoutes = require("./pedidos/pedidos.admin.routes");
 const webhookRoutes = require("./webhook/webhook.routes");
+const productosAdminRoutes = require("./modules/products/products.admin.routes");
+const reportesRoutes = require("./reportes/reportes.routes");
 
 const app = express();
 const PORT= process.env.PORT || 4000;
@@ -40,6 +42,9 @@ app.use("/api/pedidos", pedidosRoutes);
 app.use("/api/pedidos", webhookRoutes);
 // ventas del panel de admin, protegidas con verificarToken
 app.use("/api/admin/pedidos", pedidosAdminRoutes);
+// productos con costo y reportes de rentabilidad: solo admin
+app.use("/api/admin/productos", productosAdminRoutes);
+app.use("/api/admin/reportes", reportesRoutes);
 
 // el esquema debe estar listo antes de atender requests; si falla, el deploy se cancela
 // y Render conserva la version anterior en linea

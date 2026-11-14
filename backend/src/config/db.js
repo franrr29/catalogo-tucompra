@@ -44,8 +44,29 @@ const COLUMNAS_SEGUIMIENTO = [
   ["enviado_en", "DATETIME NULL"],
 ];
 
-// agrega lo que le falte a la base: la columna "activo" (borrado logico de productos) y las columnas
-// de envio y de seguimiento de pedidos. es idempotente: si ya existen no hace nada
+// costos para calcular margenes: null significa "costo desconocido", nunca se asume 0.
+// pedido_items.costo_unitario es una foto del costo al momento de la venta, asi el margen historico
+// no cambia si despues se edita productos.costo
+const COLUMNAS_COSTO = [
+  ["productos", "costo", "DECIMAL(10,2) NULL"],
+  ["pedido_items", "costo_unitario", "DECIMAL(10,2) NULL"],
+];
+
+// agrega la columna si no existe (los nombres vienen de la constante de arriba, nunca de un usuario)
+async function agregarColumnaSiFalta(tabla, columna, definicion) {
+  const [existe] = await baseDatos.query(
+    `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+    [tabla, columna]
+  );
+  if (existe.length === 0) {
+    await baseDatos.query(`ALTER TABLE ${tabla} ADD COLUMN ${columna} ${definicion}`);
+    console.log(`columna ${tabla}.${columna} creada`);
+  }
+}
+
+// agrega lo que le falte a la base: la columna "activo" (borrado logico de productos), las columnas
+// de envio y de seguimiento de pedidos y las de costo. es idempotente: si ya existen no hace nada
 async function asegurarEsquema() {
   const [cols] = await baseDatos.query(
     `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
@@ -69,6 +90,10 @@ async function asegurarEsquema() {
     const agregados = faltantes.map(([nombre, definicion]) => `ADD COLUMN ${nombre} ${definicion}`).join(", ");
     await baseDatos.query(`ALTER TABLE pedidos ${agregados}`);
     console.log("columnas nuevas creadas en pedidos:", faltantes.map(([nombre]) => nombre).join(", "));
+  }
+
+  for (const [tabla, columna, definicion] of COLUMNAS_COSTO) {
+    await agregarColumnaSiFalta(tabla, columna, definicion);
   }
 }
 

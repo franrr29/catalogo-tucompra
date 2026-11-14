@@ -2,20 +2,55 @@ const baseDatos = require("../../config/db");
 const { cloudinary } = require("../../config/cloudinary");
 const crearError = require("../../utils/crearError");
 
-async function obtenerProductos() {
-  const query = `
-    SELECT p.*, i.imagen_url
-    FROM productos p
+// columnas que ve el publico: se listan una por una (nunca p.*) para que productos.costo no salga por la tienda
+const COLUMNAS_PUBLICAS = "p.id, p.nombre, p.descripcion, p.precio, p.stock, p.categoria, p.activo, p.creado_en";
+
+const UNION_IMAGEN_PRINCIPAL = `
     LEFT JOIN (
       SELECT producto_id, imagen_url
       FROM producto_imagenes
       WHERE orden = 0
-    ) i ON p.id = i.producto_id
+    ) i ON p.id = i.producto_id`;
+
+async function obtenerProductos() {
+  const query = `
+    SELECT ${COLUMNAS_PUBLICAS}, i.imagen_url
+    FROM productos p ${UNION_IMAGEN_PRINCIPAL}
     WHERE p.activo = 1
   `;
 
   const [productos] = await baseDatos.query(query);
   return productos;
+}
+
+// lo mismo que el listado publico (mismos productos, mismas columnas) mas el costo; solo para el panel
+async function obtenerProductosAdmin() {
+  const query = `
+    SELECT ${COLUMNAS_PUBLICAS}, p.costo, i.imagen_url
+    FROM productos p ${UNION_IMAGEN_PRINCIPAL}
+    WHERE p.activo = 1
+  `;
+
+  const [productos] = await baseDatos.query(query);
+  return productos;
+}
+
+// costo de un producto con tres estados distintos:
+//   undefined (no enviado) -> se devuelve undefined: no se toca la columna
+//   null o texto vacio     -> null: costo desconocido (NULL en la base)
+//   0 o mayor              -> el numero: 0 es un costo valido
+const COSTO_MAXIMO = 99999999.99; // lo que entra en DECIMAL(10,2)
+function leerCosto(costo) {
+  if (costo === undefined) return undefined;
+  if (costo === null || (typeof costo === "string" && costo.trim() === "")) return null;
+  if (typeof costo !== "number" && typeof costo !== "string") {
+    throw crearError("el costo debe ser un numero mayor o igual a 0", 400);
+  }
+  const numero = Number(costo);
+  if (!Number.isFinite(numero) || numero < 0 || numero > COSTO_MAXIMO) {
+    throw crearError("el costo debe ser un numero mayor o igual a 0", 400);
+  }
+  return numero;
 }
 
 async function obtenerProductoPorId(id) {
@@ -24,7 +59,7 @@ async function obtenerProductoPorId(id) {
   }
 
   const [rows] = await baseDatos.query(
-    `SELECT p.*, pi.id AS foto_id, pi.imagen_url AS foto_url, pi.orden AS foto_orden
+    `SELECT ${COLUMNAS_PUBLICAS}, pi.id AS foto_id, pi.imagen_url AS foto_url, pi.orden AS foto_orden
      FROM productos p
      LEFT JOIN producto_imagenes pi ON pi.producto_id = p.id
      WHERE p.id = ? AND p.activo = 1
@@ -59,9 +94,11 @@ function normalizarDescripcion(descripcion) {
   return limpia === "" ? null : limpia;
 }
 
-async function crearProducto({ nombre, precio, stock, descripcion }) {
+async function crearProducto({ nombre, precio, stock, descripcion, costo }) {
   const precioNum = Number(precio);
   const stockNum = Number(stock);
+  // sin costo enviado queda null (desconocido)
+  const costoNum = leerCosto(costo) ?? null;
 
   if (
     !nombre ||
@@ -75,8 +112,8 @@ async function crearProducto({ nombre, precio, stock, descripcion }) {
   }
 
   const query = `
-    INSERT INTO productos (nombre, precio, stock, descripcion)
-    VALUES (?,?,?,?)
+    INSERT INTO productos (nombre, precio, stock, descripcion, costo)
+    VALUES (?,?,?,?,?)
   `;
 
   const [resultado] = await baseDatos.query(query, [
@@ -84,6 +121,7 @@ async function crearProducto({ nombre, precio, stock, descripcion }) {
     precioNum,
     stockNum,
     normalizarDescripcion(descripcion),
+    costoNum,
   ]);
 
   return {
@@ -94,12 +132,12 @@ async function crearProducto({ nombre, precio, stock, descripcion }) {
   };
 }
 
-async function actualizarProducto(id, { nombre, precio, stock, imagen, descripcion }) {
+async function actualizarProducto(id, { nombre, precio, stock, imagen, descripcion, costo }) {
   if (isNaN(id) || id < 0) {
     throw crearError("el id debe ser un numero valido", 400);
   }
 
-  if (!nombre && !precio && !stock && !imagen && descripcion === undefined) {
+  if (!nombre && !precio && !stock && !imagen && descripcion === undefined && costo === undefined) {
     return { sinCambios: true };
   }
 
@@ -140,6 +178,12 @@ async function actualizarProducto(id, { nombre, precio, stock, imagen, descripci
   if (descripcion !== undefined) {
     campos.push("descripcion = ?");
     valores.push(normalizarDescripcion(descripcion));
+  }
+
+  // costo no enviado no se toca; vacio guarda NULL; 0 es valido
+  if (costo !== undefined) {
+    campos.push("costo = ?");
+    valores.push(leerCosto(costo));
   }
 
   if (imagen !== undefined) {
@@ -221,6 +265,7 @@ async function eliminarProducto(id) {
 
 module.exports = {
   obtenerProductos,
+  obtenerProductosAdmin,
   obtenerProductoPorId,
   crearProducto,
   actualizarProducto,

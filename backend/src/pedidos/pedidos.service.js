@@ -68,13 +68,14 @@ async function crearPedidoService(nombre, email, telefono, items, envio = {}) {
 
     const pedidoId = result.insertId;
 
-    // inserto los items del pedido
+    // inserto los items del pedido; costo_unitario es una foto del costo de hoy (null si no esta cargado),
+    // asi el margen de esta venta no cambia si despues se edita el costo del producto
     await conexion.query(
-      "INSERT INTO pedido_items (pedido_id, producto_id, cantidad, precio_unitario) VALUES ?",
+      "INSERT INTO pedido_items (pedido_id, producto_id, cantidad, precio_unitario, costo_unitario) VALUES ?",
       [
         items.map((item) => {
           const producto = productos.find((p) => p.id === item.productoId);
-          return [pedidoId, item.productoId, item.cantidad, producto.precio];
+          return [pedidoId, item.productoId, item.cantidad, producto.precio, producto.costo ?? null];
         }),
       ]
     );

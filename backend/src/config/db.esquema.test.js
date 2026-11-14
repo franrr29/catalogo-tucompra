@@ -38,11 +38,19 @@ afterEach(() => {
 
 const filas = (...nombres) => [nombres.map((COLUMN_NAME) => ({ COLUMN_NAME }))];
 
-// la primera consulta pregunta por productos.activo, la segunda por las columnas de pedidos
-function simularBase({ activo = true, columnasPedidos }) {
-  mockPool.query
-    .mockResolvedValueOnce(activo ? filas("activo") : [[]])
-    .mockResolvedValueOnce(filas(...columnasPedidos));
+// responde segun lo que se pregunta (no por orden de llamada, porque los ALTER tambien consumen respuestas):
+// productos.activo, las columnas de pedidos, productos.costo y pedido_items.costo_unitario
+function simularBase({ activo = true, columnasPedidos, costo = true, costoUnitario = true }) {
+  mockPool.query.mockImplementation(async (sql, params = []) => {
+    if (/^ALTER TABLE/.test(sql)) return [{}];
+    if (/TABLE_NAME = 'productos' AND COLUMN_NAME = 'activo'/.test(sql)) return activo ? filas("activo") : [[]];
+    if (/TABLE_NAME = 'pedidos'/.test(sql)) return filas(...columnasPedidos);
+    if (params[0] === "productos" && params[1] === "costo") return costo ? filas("costo") : [[]];
+    if (params[0] === "pedido_items" && params[1] === "costo_unitario") {
+      return costoUnitario ? filas("costo_unitario") : [[]];
+    }
+    throw new Error(`consulta inesperada: ${sql}`);
+  });
 }
 
 const sentenciasAlter = () =>
@@ -98,4 +106,47 @@ test("las columnas nuevas aceptan null, asi los pedidos viejos siguen siendo val
   const columnas = alter.replace("ALTER TABLE pedidos ", "").split(", ");
   expect(columnas).toHaveLength(10);
   columnas.forEach((columna) => expect(columna).toMatch(/ NULL$/));
+});
+
+describe("columnas de costo", () => {
+  const TODAS_DE_PEDIDOS = ["id", ...COLUMNAS_ENVIO, ...COLUMNAS_SEGUIMIENTO];
+
+  test("base sin costos: agrega productos.costo y pedido_items.costo_unitario, ambas NULL", async () => {
+    simularBase({ columnasPedidos: TODAS_DE_PEDIDOS, costo: false, costoUnitario: false });
+
+    await baseDatos.asegurarEsquema();
+
+    expect(sentenciasAlter()).toEqual([
+      "ALTER TABLE productos ADD COLUMN costo DECIMAL(10,2) NULL",
+      "ALTER TABLE pedido_items ADD COLUMN costo_unitario DECIMAL(10,2) NULL",
+    ]);
+  });
+
+  test("es idempotente: si ya existen no ejecuta ningun ALTER", async () => {
+    simularBase({ columnasPedidos: TODAS_DE_PEDIDOS });
+
+    await baseDatos.asegurarEsquema();
+
+    expect(sentenciasAlter()).toEqual([]);
+  });
+
+  test("si falta solo una, agrega unicamente esa", async () => {
+    simularBase({ columnasPedidos: TODAS_DE_PEDIDOS, costo: true, costoUnitario: false });
+
+    await baseDatos.asegurarEsquema();
+
+    expect(sentenciasAlter()).toEqual(["ALTER TABLE pedido_items ADD COLUMN costo_unitario DECIMAL(10,2) NULL"]);
+  });
+
+  test("la consulta de existencia es parametrizada", async () => {
+    simularBase({ columnasPedidos: TODAS_DE_PEDIDOS });
+
+    await baseDatos.asegurarEsquema();
+
+    const parametros = mockPool.query.mock.calls.map(([, params]) => params).filter(Boolean);
+    expect(parametros).toEqual([
+      ["productos", "costo"],
+      ["pedido_items", "costo_unitario"],
+    ]);
+  });
 });

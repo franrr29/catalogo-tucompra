@@ -6,6 +6,7 @@ CREATE TABLE productos (
     stock INT NOT NULL,
     categoria VARCHAR(100),
     activo TINYINT(1) NOT NULL DEFAULT 1,
+    costo DECIMAL(10,2) NULL,
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -46,6 +47,7 @@ CREATE TABLE pedido_items (
     producto_id INT NOT NULL,
     cantidad INT NOT NULL,
     precio_unitario DECIMAL(10,2) NOT NULL,
+    costo_unitario DECIMAL(10,2) NULL,
     FOREIGN KEY (pedido_id)
         REFERENCES pedidos(id)
         ON DELETE CASCADE,
