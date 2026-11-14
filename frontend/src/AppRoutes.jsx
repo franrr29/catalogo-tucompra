@@ -62,7 +62,7 @@ function AppRoutes({ carrito, setCarrito, addCart }) {
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/producto/:id" element={<ProductoDetalle addCart={addCart} />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/pago-exitoso" element={<Exito />} />
+          <Route path="/pago-exitoso" element={<Exito setCarrito={setCarrito} />} />
           <Route path="/pago-fallido" element={<CompraFallida />} />
           <Route path="/pago-pendiente" element={<PagoPendiente />} />
           <Route path="*" element={<NotFound />} />

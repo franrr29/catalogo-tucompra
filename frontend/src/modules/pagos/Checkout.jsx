@@ -44,6 +44,8 @@ function Checkout() {
 
     try {
       const respuesta = await crearPago({ ...form, items: itemFormateado });
+      // respaldo por si mercado pago no devuelve external_reference en la url de retorno
+      localStorage.setItem("pedidoId", String(respuesta.pedido.id));
       window.location.href = respuesta.pedido.init_point;
     } catch (err) {
       console.error("Error al crear el pago:", err);
