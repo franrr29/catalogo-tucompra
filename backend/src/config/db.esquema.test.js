@@ -11,6 +11,21 @@ jest.mock("mysql2/promise", () => ({
 const baseDatos = require("./db");
 
 const COLUMNAS_ENVIO = ["tipo_entrega", "cedula", "departamento", "ciudad", "direccion", "agencia", "comentario"];
+const COLUMNAS_SEGUIMIENTO = ["estado_envio", "nro_seguimiento", "enviado_en"];
+
+const ALTER_ENVIO =
+  "ADD COLUMN tipo_entrega ENUM('domicilio','agencia') NULL, " +
+  "ADD COLUMN cedula VARCHAR(10) NULL, " +
+  "ADD COLUMN departamento VARCHAR(20) NULL, " +
+  "ADD COLUMN ciudad VARCHAR(100) NULL, " +
+  "ADD COLUMN direccion VARCHAR(200) NULL, " +
+  "ADD COLUMN agencia VARCHAR(150) NULL, " +
+  "ADD COLUMN comentario VARCHAR(300) NULL";
+
+const ALTER_SEGUIMIENTO =
+  "ADD COLUMN estado_envio ENUM('por_despachar','enviado','entregado') NULL, " +
+  "ADD COLUMN nro_seguimiento VARCHAR(60) NULL, " +
+  "ADD COLUMN enviado_en DATETIME NULL";
 
 beforeEach(() => {
   mockPool.query.mockReset();
@@ -33,25 +48,24 @@ function simularBase({ activo = true, columnasPedidos }) {
 const sentenciasAlter = () =>
   mockPool.query.mock.calls.map(([sql]) => sql).filter((sql) => /ALTER TABLE/.test(sql));
 
-test("base sin las columnas de envio: las agrega todas en un unico ALTER", async () => {
+test("base sin las columnas nuevas: las agrega todas en un unico ALTER", async () => {
   simularBase({ columnasPedidos: ["id", "nombre", "email", "telefono", "total", "estado"] });
 
   await baseDatos.asegurarEsquema();
 
-  expect(sentenciasAlter()).toEqual([
-    "ALTER TABLE pedidos " +
-      "ADD COLUMN tipo_entrega ENUM('domicilio','agencia') NULL, " +
-      "ADD COLUMN cedula VARCHAR(10) NULL, " +
-      "ADD COLUMN departamento VARCHAR(20) NULL, " +
-      "ADD COLUMN ciudad VARCHAR(100) NULL, " +
-      "ADD COLUMN direccion VARCHAR(200) NULL, " +
-      "ADD COLUMN agencia VARCHAR(150) NULL, " +
-      "ADD COLUMN comentario VARCHAR(300) NULL",
-  ]);
+  expect(sentenciasAlter()).toEqual([`ALTER TABLE pedidos ${ALTER_ENVIO}, ${ALTER_SEGUIMIENTO}`]);
 });
 
-test("es idempotente: si las columnas ya existen no ejecuta ningun ALTER", async () => {
+test("base que ya tiene las de envio: agrega solo las de seguimiento", async () => {
   simularBase({ columnasPedidos: ["id", "nombre", ...COLUMNAS_ENVIO] });
+
+  await baseDatos.asegurarEsquema();
+
+  expect(sentenciasAlter()).toEqual([`ALTER TABLE pedidos ${ALTER_SEGUIMIENTO}`]);
+});
+
+test("es idempotente: si todas las columnas ya existen no ejecuta ningun ALTER", async () => {
+  simularBase({ columnasPedidos: ["id", "nombre", ...COLUMNAS_ENVIO, ...COLUMNAS_SEGUIMIENTO] });
 
   await baseDatos.asegurarEsquema();
 
@@ -59,7 +73,9 @@ test("es idempotente: si las columnas ya existen no ejecuta ningun ALTER", async
 });
 
 test("si falta solo alguna, agrega unicamente las que faltan", async () => {
-  simularBase({ columnasPedidos: ["id", "nombre", "tipo_entrega", "cedula", "departamento", "ciudad"] });
+  simularBase({
+    columnasPedidos: ["id", "nombre", "tipo_entrega", "cedula", "departamento", "ciudad", "estado_envio"],
+  });
 
   await baseDatos.asegurarEsquema();
 
@@ -67,7 +83,9 @@ test("si falta solo alguna, agrega unicamente las que faltan", async () => {
     "ALTER TABLE pedidos " +
       "ADD COLUMN direccion VARCHAR(200) NULL, " +
       "ADD COLUMN agencia VARCHAR(150) NULL, " +
-      "ADD COLUMN comentario VARCHAR(300) NULL",
+      "ADD COLUMN comentario VARCHAR(300) NULL, " +
+      "ADD COLUMN nro_seguimiento VARCHAR(60) NULL, " +
+      "ADD COLUMN enviado_en DATETIME NULL",
   ]);
 });
 
@@ -78,6 +96,6 @@ test("las columnas nuevas aceptan null, asi los pedidos viejos siguen siendo val
 
   const alter = sentenciasAlter()[0];
   const columnas = alter.replace("ALTER TABLE pedidos ", "").split(", ");
-  expect(columnas).toHaveLength(7);
+  expect(columnas).toHaveLength(10);
   columnas.forEach((columna) => expect(columna).toMatch(/ NULL$/));
 });

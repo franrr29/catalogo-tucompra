@@ -1,4 +1,9 @@
-const { listarPedidosService, obtenerPedidoAdminService } = require("./pedidos.admin.service");
+const {
+  listarPedidosService,
+  obtenerPedidoAdminService,
+  actualizarEnvioService,
+  pedidosNuevosService,
+} = require("./pedidos.admin.service");
 
 // responde un error de las validaciones con su status, o un 500 generico sin datos internos ni personales
 function responderError(res, error, contexto) {
@@ -10,11 +15,11 @@ function responderError(res, error, contexto) {
   res.status(500).json({ mensaje: "error interno del servidor" });
 }
 
-// GET /api/admin/pedidos?estado=&pagina=&limite=
+// GET /api/admin/pedidos?estado=&estadoEnvio=&pagina=&limite=
 async function listarPedidos(req, res) {
   try {
-    const { estado, pagina, limite } = req.query;
-    const resultado = await listarPedidosService({ estado, pagina, limite });
+    const { estado, estadoEnvio, pagina, limite } = req.query;
+    const resultado = await listarPedidosService({ estado, estadoEnvio, pagina, limite });
     res.json(resultado);
   } catch (error) {
     responderError(res, error, "listar los pedidos");
@@ -31,4 +36,28 @@ async function obtenerPedido(req, res) {
   }
 }
 
-module.exports = { listarPedidos, obtenerPedido };
+// PATCH /api/admin/pedidos/:id/envio { estadoEnvio, nroSeguimiento? }
+async function actualizarEnvio(req, res) {
+  try {
+    const body = req.body ?? {};
+    const resultado = await actualizarEnvioService(req.params.id, {
+      estadoEnvio: body.estadoEnvio,
+      nroSeguimiento: body.nroSeguimiento,
+    });
+    res.json(resultado);
+  } catch (error) {
+    responderError(res, error, "actualizar el envio del pedido");
+  }
+}
+
+// GET /api/admin/pedidos/nuevos?desde=<id>
+async function pedidosNuevos(req, res) {
+  try {
+    const resultado = await pedidosNuevosService({ desde: req.query.desde });
+    res.json(resultado);
+  } catch (error) {
+    responderError(res, error, "buscar pedidos nuevos");
+  }
+}
+
+module.exports = { listarPedidos, obtenerPedido, actualizarEnvio, pedidosNuevos };

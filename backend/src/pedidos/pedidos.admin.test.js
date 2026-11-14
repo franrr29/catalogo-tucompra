@@ -30,6 +30,10 @@ const FILA_LISTADO = {
   total: "250.50",
   estado: "pagado",
   tipo_entrega: "domicilio",
+  departamento: null,
+  ciudad: null,
+  estado_envio: null,
+  nro_seguimiento: null,
 };
 
 const FILA_DETALLE = {
@@ -48,6 +52,9 @@ const FILA_DETALLE = {
   direccion: "Calle Falsa 123 apto 4",
   agencia: null,
   comentario: "casa con rejas",
+  estado_envio: null,
+  nro_seguimiento: null,
+  enviado_en: null,
 };
 
 const DATOS_SENSIBLES = ["12345678", "Calle Falsa", "casa con rejas", "juan@mail.com", "099123456"];
@@ -114,6 +121,10 @@ describe("listado", () => {
         total: 250.5,
         estado: "pagado",
         tipoEntrega: "domicilio",
+        departamento: null,
+        ciudad: null,
+        estadoEnvio: "por_despachar",
+        nroSeguimiento: null,
       },
     ]);
     expect(respuesta.body).toMatchObject({ pagina: 1, limite: 20, total: 45, totalPaginas: 3 });
@@ -209,6 +220,9 @@ describe("detalle", () => {
         direccion: "Calle Falsa 123 apto 4",
         agencia: null,
         comentario: "casa con rejas",
+        estadoEnvio: "por_despachar",
+        nroSeguimiento: null,
+        enviadoEn: null,
       },
       items: [
         { productoId: 1, nombre: "G-Shock", cantidad: 2, precioUnitario: 100.25, subtotal: 200.5 },

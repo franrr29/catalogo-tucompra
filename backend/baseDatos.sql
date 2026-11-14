@@ -34,7 +34,10 @@ CREATE TABLE pedidos (
     ciudad VARCHAR(100) NULL,
     direccion VARCHAR(200) NULL,
     agencia VARCHAR(150) NULL,
-    comentario VARCHAR(300) NULL
+    comentario VARCHAR(300) NULL,
+    estado_envio ENUM('por_despachar', 'enviado', 'entregado') NULL,
+    nro_seguimiento VARCHAR(60) NULL,
+    enviado_en DATETIME NULL
 );
 
 CREATE TABLE pedido_items (

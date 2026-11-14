@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const verificarToken = require("../middleware/auth.middle");
-const { listarPedidos, obtenerPedido } = require("./pedidos.admin.controller");
+const { listarPedidos, obtenerPedido, actualizarEnvio, pedidosNuevos } = require("./pedidos.admin.controller");
 
 const router = Router();
 
@@ -16,6 +16,11 @@ router.use((req, res, next) => {
 
 router.get("/", listarPedidos);
 
+// "nuevos" va antes de "/:id": si no, se leeria como un id de pedido
+router.get("/nuevos", pedidosNuevos);
+
 router.get("/:id", obtenerPedido);
+
+router.patch("/:id/envio", actualizarEnvio);
 
 module.exports = router;
