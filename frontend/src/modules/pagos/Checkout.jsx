@@ -1,14 +1,20 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { crearPago } from "../../services/pedidos.service";
+import FormularioEnvio from "./FormularioEnvio";
+import { FORM_INICIAL, validarFormulario, armarPedido, idCampo } from "./validacionEnvio";
 
-// formulario de checkout para realizar el pago
+const MENSAJE_ERROR_GENERICO = "No pudimos iniciar el pago. Intenta nuevamente.";
+
+// formulario de checkout: datos de contacto y de envio, y despues el pago
 function Checkout() {
-  const [form, setForm] = useState({
-    nombre: "",
-    email: "",
-    telefono: "",
-  });
+  const [form, setForm] = useState(FORM_INICIAL);
+  // campos que el usuario ya toco: solo a esos se les muestra el error mientras escribe
+  const [tocados, setTocados] = useState({});
+  // despues del primer intento de enviar se muestran todos los errores
+  const [intentoEnvio, setIntentoEnvio] = useState(false);
+  // error de un campo puntual que devolvio el backend; se limpia cuando el usuario lo edita
+  const [errorServidor, setErrorServidor] = useState(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState(null);
 
@@ -37,22 +43,60 @@ function Checkout() {
     0
   );
 
+  const erroresDelFormulario = validarFormulario(form);
+
+  // errores que se muestran ahora: los del formulario ya tocados (o todos tras intentar enviar) y el del servidor
+  const erroresVisibles = {};
+  Object.keys(erroresDelFormulario).forEach((campo) => {
+    if (intentoEnvio || tocados[campo]) erroresVisibles[campo] = erroresDelFormulario[campo];
+  });
+  if (errorServidor) erroresVisibles[errorServidor.campo] = errorServidor.mensaje;
+
+  function cambiarCampo(campo, valor) {
+    setForm((actual) => ({ ...actual, [campo]: valor }));
+    if (errorServidor?.campo === campo) setErrorServidor(null);
+  }
+
+  function marcarTocado(campo) {
+    setTocados((actual) => ({ ...actual, [campo]: true }));
+  }
+
+  function enfocar(campo) {
+    document.getElementById(idCampo(campo))?.focus();
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setErrorServidor(null);
+    setIntentoEnvio(true);
+
+    // el primer campo con error recibe el foco y no se envia nada al backend
+    const primerError = Object.keys(validarFormulario(form))[0];
+    if (primerError) {
+      enfocar(primerError);
+      return;
+    }
+
     setEnviando(true);
 
     try {
-      const respuesta = await crearPago({ ...form, items: itemFormateado });
+      const respuesta = await crearPago(armarPedido(form, itemFormateado));
       // respaldo por si mercado pago no devuelve external_reference en la url de retorno
       localStorage.setItem("pedidoId", String(respuesta.pedido.id));
       window.location.href = respuesta.pedido.init_point;
     } catch (err) {
-      console.error("Error al crear el pago:", err);
-      setError(
-        err?.response?.data?.mensaje ||
-          "No pudimos iniciar el pago. Intenta nuevamente."
-      );
+      console.error("Error al crear el pago");
+      const datos = err?.response?.data;
+      const status = err?.response?.status;
+
+      if (datos?.campo && datos.campo in FORM_INICIAL) {
+        // el backend senalo un campo: el mensaje se muestra ahi
+        setErrorServidor({ campo: datos.campo, mensaje: datos.mensaje });
+        enfocar(datos.campo);
+      } else {
+        setError(status >= 500 ? MENSAJE_ERROR_GENERICO : datos?.mensaje || MENSAJE_ERROR_GENERICO);
+      }
       setEnviando(false);
     }
   };
@@ -90,7 +134,7 @@ function Checkout() {
         <header className="mb-16 border-b border-border pb-8">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-1.5 h-1.5 bg-brand" />
-            <span className="text-xs font-semibold">DATOS DE PAGO</span>
+            <span className="text-xs font-semibold">DATOS DE ENVÍO Y PAGO</span>
           </div>
           <h1 className="text-4xl sm:text-6xl font-light tracking-tight">
             FINALIZAR <span className="font-semibold text-brand">COMPRA</span>
@@ -99,51 +143,20 @@ function Checkout() {
 
         <div className="flex flex-col gap-12">
           {/* formulario */}
-          <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-6">
-            <div className="flex flex-col gap-2">
-              <label className="text-[11px] font-semibold uppercase tracking-wide text-muted-light">
-                Nombre completo
-              </label>
-              <input
-                type="text"
-                required
-                value={form.nombre}
-                onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                placeholder="Juan Pérez"
-                className="w-full bg-white/50 rounded-lg border border-[#1A1A1A]/15 focus:border-brand outline-none px-4 py-3 text-sm"
-              />
-            </div>
+          <form onSubmit={handleSubmit} noValidate className="flex-1 flex flex-col gap-6">
+            <FormularioEnvio
+              form={form}
+              errores={erroresVisibles}
+              onCambio={cambiarCampo}
+              onBlur={marcarTocado}
+            />
 
-            <div className="flex flex-col gap-2">
-              <label className="text-[11px] font-semibold uppercase tracking-wide text-muted-light">
-                Email
-              </label>
-              <input
-                type="email"
-                required
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder="juan@email.com"
-                className="w-full bg-white/50 rounded-lg border border-[#1A1A1A]/15 focus:border-brand outline-none px-4 py-3 text-sm"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-[11px] font-semibold uppercase tracking-wide text-muted-light">
-                Teléfono
-              </label>
-              <input
-                type="tel"
-                required
-                value={form.telefono}
-                onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                placeholder="099123456"
-                className="w-full bg-white/50 rounded-lg border border-[#1A1A1A]/15 focus:border-brand outline-none px-4 py-3 text-sm"
-              />
-            </div>
+            <p className="text-xs text-[#888888]">
+              Usamos tus datos solo para gestionar el envío.
+            </p>
 
             {error && (
-              <p className="text-sm text-red-600 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+              <p role="alert" className="text-sm text-red-600 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
                 {error}
               </p>
             )}

@@ -1,0 +1,22 @@
+// los 19 departamentos de uruguay; el backend valida contra la misma lista (pedidos.validacion.js)
+export const DEPARTAMENTOS = [
+  "Artigas",
+  "Canelones",
+  "Cerro Largo",
+  "Colonia",
+  "Durazno",
+  "Flores",
+  "Florida",
+  "Lavalleja",
+  "Maldonado",
+  "Montevideo",
+  "Paysandú",
+  "Río Negro",
+  "Rivera",
+  "Rocha",
+  "Salto",
+  "San José",
+  "Soriano",
+  "Tacuarembó",
+  "Treinta y Tres",
+];
