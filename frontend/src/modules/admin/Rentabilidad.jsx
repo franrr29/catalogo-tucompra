@@ -2,7 +2,7 @@ import { Card, CardTitle } from "./ui/Card";
 import Badge from "./ui/Badge";
 import EmptyState from "./ui/EmptyState";
 import { boton } from "./ui/estilos";
-import { formatearMonto } from "./formato";
+import { formatearMonto, formatearPorcentaje } from "./formato";
 import { aNumero, calcularMargen } from "./costos";
 
 // celda de margen: ganancia por unidad y porcentaje; "Sin dato" si falta el costo (no se asume 0).
@@ -14,7 +14,7 @@ function Margen({ margen }) {
   return (
     <span className={`font-semibold ${perdida ? "text-red-700" : "text-green-800"}`}>
       {formatearMonto(margen.ganancia)}
-      {margen.porcentaje !== null && <span className="font-normal"> · {margen.porcentaje}%</span>}
+      {margen.porcentaje !== null && <span className="font-normal"> · {formatearPorcentaje(margen.porcentaje)}</span>}
       {perdida && <span className="font-normal"> (pérdida)</span>}
     </span>
   );

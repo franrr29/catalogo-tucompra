@@ -65,6 +65,7 @@ describe("menu lateral", () => {
     expect(productos).toHaveTextContent("Productos");
     expect(ventas).toHaveTextContent("Ventas");
     expect(menu.querySelector('a[href="/admin/envios"]')).toHaveTextContent("Envíos");
+    expect(menu.querySelector('a[href="/admin/reportes"]')).toHaveTextContent("Reportes");
     expect(productos).toHaveAttribute("aria-current", "page");
     expect(ventas).not.toHaveAttribute("aria-current");
   });

@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 import { useAdminSession } from "./hooks/useAdminSession";
 import { useNuevasVentas } from "./hooks/useNuevasVentas";
 import CampanitaVentas from "./CampanitaVentas";
-import { IconoMenu, IconoSalir, IconoCaja, IconoVentas, IconoCamion, IconoTienda } from "./ui/iconos";
+import { IconoMenu, IconoSalir, IconoCaja, IconoVentas, IconoCamion, IconoReportes, IconoTienda } from "./ui/iconos";
 import { boton } from "./ui/estilos";
 
 // secciones del panel, en el orden del menu lateral
@@ -12,6 +12,7 @@ const SECCIONES = [
   { to: "/admin/productos", texto: "Productos", Icono: IconoCaja },
   { to: "/admin/ventas", texto: "Ventas", Icono: IconoVentas },
   { to: "/admin/envios", texto: "Envíos", Icono: IconoCamion },
+  { to: "/admin/reportes", texto: "Reportes", Icono: IconoReportes },
 ];
 
 // clases de los items del menu: pildora oscura para la pagina activa y fondo suave al pasar el mouse

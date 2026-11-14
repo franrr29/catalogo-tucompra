@@ -15,3 +15,8 @@ export function formatearFecha(fecha) {
 export function formatearMonto(valor) {
   return `$${Number(valor).toLocaleString("es-UY", { maximumFractionDigits: 2 })}`;
 }
+
+// porcentaje con hasta 1 decimal y coma decimal (es-UY)
+export function formatearPorcentaje(valor) {
+  return `${Number(valor).toLocaleString("es-UY", { maximumFractionDigits: 1 })}%`;
+}

@@ -7,6 +7,7 @@ import AdminLayout from "./modules/admin/AdminLayout.jsx";
 import ProductosPage from "./modules/admin/ProductosPage.jsx";
 import VentasPage from "./modules/admin/VentasPage.jsx";
 import EnviosPage from "./modules/admin/EnviosPage.jsx";
+import ReportesPage from "./modules/admin/ReportesPage.jsx";
 import RutaProtegida from "./modules/admin/RutaProtegida.jsx";
 import NotFound from "./shared/NotFound.jsx";
 import ProductoDetalle from "./modules/products/ProductoDetalle.jsx";
@@ -70,6 +71,7 @@ function AppRoutes({ carrito, setCarrito, addCart }) {
             <Route path="productos" element={<ProductosPage />} />
             <Route path="ventas" element={<VentasPage />} />
             <Route path="envios" element={<EnviosPage />} />
+            <Route path="reportes" element={<ReportesPage />} />
           </Route>
           {/* la ruta vieja sigue funcionando para no romper favoritos */}
           <Route path="/admin/dashboard" element={<Navigate to="/admin/productos" replace />} />

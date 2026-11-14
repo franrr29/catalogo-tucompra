@@ -82,3 +82,22 @@ export async function obtenerProductosAdmin() {
   const { data } = await api.get("/api/admin/productos");
   return data;
 }
+
+// reportes de rentabilidad del panel: solo pedidos pagados y siempre agregados (sin datos de clientes)
+// periodo: "mes" (este mes), "30dias" o "todo"
+export async function obtenerMargen({ periodo } = {}) {
+  const { data } = await api.get("/api/admin/reportes/margen", { params: { periodo } });
+  return data;
+}
+
+// productos mas vendidos; orden: "unidades" o "ingresos"
+export async function obtenerMasVendidos({ periodo, orden, limite } = {}) {
+  const { data } = await api.get("/api/admin/reportes/mas-vendidos", { params: { periodo, orden, limite } });
+  return data;
+}
+
+// pedidos e ingresos por departamento
+export async function obtenerVentasPorDepartamento({ periodo } = {}) {
+  const { data } = await api.get("/api/admin/reportes/departamentos", { params: { periodo } });
+  return data;
+}
