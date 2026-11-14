@@ -76,3 +76,9 @@ export async function pedidosNuevos({ desde } = {}, signal) {
   const { data } = await api.get("/api/admin/pedidos/nuevos", { params: { desde }, signal });
   return data;
 }
+
+// trae los productos del panel con su costo: los mismos que la lista publica, solo para el admin
+export async function obtenerProductosAdmin() {
+  const { data } = await api.get("/api/admin/productos");
+  return data;
+}

@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import * as adminService from "../../../services/admin.service";
-import { obtenerProductos } from "../../../services/productos.service";
 
 // maneja la lista de productos del panel y sus acciones de alta, baja y modificacion
 // contrato de las acciones: si salen bien devuelven algo verdadero (el producto creado o true);
@@ -8,11 +7,21 @@ import { obtenerProductos } from "../../../services/productos.service";
 export function useProductosAdmin(onUnauthorized) {
   const [productos, setProductos] = useState([]);
 
+  // la lista sale del endpoint del panel (incluye el costo), que exige sesion: un 401 cierra la sesion.
+  // onUnauthorized cambia en cada render del layout, asi que se lee desde un ref para que cargarProductos
+  // siga siendo estable y el efecto de abajo no se repita
+  const onUnauthorizedRef = useRef(onUnauthorized);
+  onUnauthorizedRef.current = onUnauthorized;
+
   const cargarProductos = useCallback(async () => {
     try {
-      const data = await obtenerProductos({ fresco: true });
+      const data = await adminService.obtenerProductosAdmin();
       setProductos(Array.isArray(data) ? data : []);
     } catch (error) {
+      if (error.response?.status === 401) {
+        onUnauthorizedRef.current();
+        return;
+      }
       console.error("error al traer productos");
     }
   }, []);

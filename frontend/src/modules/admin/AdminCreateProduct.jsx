@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { boton, campo, etiqueta } from "./ui/estilos";
+import { costoMayorQuePrecio } from "./costos";
 
 function CrearNuevoProdct({ nuevoProducto, setNuevoProducto, setFotosSeleccionadas, crearNuevoProducto, creando }) {
 
@@ -12,7 +13,7 @@ function CrearNuevoProdct({ nuevoProducto, setNuevoProducto, setFotosSeleccionad
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col gap-6"
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           
           <div className="flex flex-col gap-2">
             <label className={etiqueta}>Modelo</label>
@@ -34,6 +35,29 @@ function CrearNuevoProdct({ nuevoProducto, setNuevoProducto, setFotosSeleccionad
               onChange={(e) => setNuevoProducto({ ...nuevoProducto, precio: e.target.value })} 
               className={inputClass} 
             />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="costo-nuevo" className={etiqueta}>Costo (opcional)</label>
+            <input
+              id="costo-nuevo"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Lo que te cuesta"
+              value={nuevoProducto.costo ?? ""}
+              onChange={(e) => setNuevoProducto({ ...nuevoProducto, costo: e.target.value })}
+              aria-describedby="ayuda-costo-nuevo"
+              className={inputClass}
+            />
+            <div id="ayuda-costo-nuevo" className="flex flex-col gap-1">
+              <p className="text-xs text-muted">Sin costo, no se calcula el margen.</p>
+              {costoMayorQuePrecio(nuevoProducto.costo, nuevoProducto.precio) && (
+                <p role="status" className="text-xs font-semibold text-amber-800">
+                  El costo es mayor que el precio: esta venta daría pérdida.
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">

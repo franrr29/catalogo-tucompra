@@ -59,6 +59,67 @@ test("despues de guardar, el formulario se rehidrata con los datos frescos y no 
     stock: 0,
     imagen: "",
     descripcion: "",
+    costo: "",
+  });
+});
+
+describe("costo en el formulario de edicion", () => {
+  const LISTA_CON_COSTO = [
+    { id: 1, nombre: "Con costo", precio: "100.00", stock: 5, costo: "60.00" },
+    { id: 2, nombre: "Sin costo", precio: "100.00", stock: 5, costo: null },
+    { id: 3, nombre: "Costo cero", precio: "100.00", stock: 5, costo: "0.00" },
+  ];
+
+  test("al abrir, el costo sale de la lista del panel; sin costo queda vacio y 0 sigue siendo 0", async () => {
+    obtenerProducto.mockResolvedValue({ imagenes: [] });
+    const { result } = montar();
+
+    await act(async () => {
+      await result.current.abrirPanel(1, LISTA_CON_COSTO);
+    });
+    expect(result.current.actualizarDatos.costo).toBe("60");
+
+    await act(async () => {
+      await result.current.abrirPanel(2, LISTA_CON_COSTO);
+    });
+    expect(result.current.actualizarDatos.costo).toBe("");
+
+    await act(async () => {
+      await result.current.abrirPanel(3, LISTA_CON_COSTO);
+    });
+    expect(result.current.actualizarDatos.costo).toBe("0");
+  });
+
+  test("al rehidratar despues de guardar se conserva el costo del formulario (el detalle publico no lo trae)", async () => {
+    obtenerProducto.mockResolvedValue(DETALLE_FRESCO);
+    const { result } = montar();
+
+    await act(async () => {
+      await result.current.abrirPanel(1, LISTA_CON_COSTO);
+    });
+    act(() => {
+      result.current.setActualizarDatos({ ...result.current.actualizarDatos, costo: "55" });
+    });
+    await act(async () => {
+      await result.current.abrirPanel(1, LISTA_CON_COSTO, { rehidratarFormulario: true });
+    });
+
+    expect(result.current.actualizarDatos.nombre).toBe("Nuevo");
+    expect(result.current.actualizarDatos.costo).toBe("55");
+  });
+
+  test("al cerrar el panel el costo del formulario se vacia", async () => {
+    obtenerProducto.mockResolvedValue({ imagenes: [] });
+    const { result } = montar();
+
+    await act(async () => {
+      await result.current.abrirPanel(1, LISTA_CON_COSTO);
+    });
+    act(() => {
+      result.current.cerrarPanel();
+    });
+
+    expect(result.current.actualizarDatos.costo).toBe("");
   });
 });
 

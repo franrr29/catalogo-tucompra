@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { boton, etiqueta } from "./ui/estilos";
+import { costoMayorQuePrecio } from "./costos";
 
 function EditarProductoAdmin ({
   actualizarDatos,
@@ -26,7 +27,7 @@ function EditarProductoAdmin ({
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="overflow-hidden border-t border-linea pt-6 mt-2 flex flex-col gap-6"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="flex flex-col gap-2">
                 <label className={etiqueta}>Producto</label>
                 <input
@@ -46,6 +47,28 @@ function EditarProductoAdmin ({
                   onChange={(e) => setActualizarDatos({ ...actualizarDatos, precio: e.target.value })}
                   className={inputClass}
                 />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="costo-edicion" className={etiqueta}>Costo</label>
+                <input
+                  id="costo-edicion"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Sin costo cargado"
+                  value={actualizarDatos.costo ?? ""}
+                  onChange={(e) => setActualizarDatos({ ...actualizarDatos, costo: e.target.value })}
+                  aria-describedby="ayuda-costo-edicion"
+                  className={inputClass}
+                />
+                <div id="ayuda-costo-edicion" className="flex flex-col gap-1">
+                  <p className="text-xs text-muted">Vacío = costo desconocido (sin margen).</p>
+                  {costoMayorQuePrecio(actualizarDatos.costo, actualizarDatos.precio) && (
+                    <p role="status" className="text-xs font-semibold text-amber-800">
+                      El costo es mayor que el precio: esta venta daría pérdida.
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="flex flex-col gap-2">
                 <label className={etiqueta}>Stock</label>

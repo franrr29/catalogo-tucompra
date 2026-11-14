@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useOutletContext, useSearchParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import CrearNuevoProdct from "./AdminCreateProduct";
 import EditarProductoAdmin from "./EditarProducto";
@@ -11,8 +11,17 @@ import { Card, CardTitle } from "./ui/Card";
 import PageHeader from "./ui/PageHeader";
 import Badge from "./ui/Badge";
 import { campo } from "./ui/estilos";
+import Rentabilidad from "./Rentabilidad";
+import { aNumero, costoInvalido, mismoCosto, leerIdEditar } from "./costos";
 
-const FORM_NUEVO_PRODUCTO = { nombre: "", precio: "", stock: "", imagen: "", descripcion: "" };
+const FORM_NUEVO_PRODUCTO = { nombre: "", precio: "", stock: "", imagen: "", descripcion: "", costo: "" };
+const MENSAJE_COSTO_INVALIDO = "el costo debe ser un numero mayor o igual a 0";
+
+// lleva la vista al editor; con prefers-reduced-motion el desplazamiento es instantaneo
+function irAlEditor(elemento) {
+  const reducirMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  elemento?.scrollIntoView?.({ behavior: reducirMovimiento ? "auto" : "smooth", block: "start" });
+}
 
 function ProductosPage() {
   // la sesion (token y cierre por inactividad) la maneja AdminLayout, que comparte como cerrar la sesion
@@ -36,6 +45,24 @@ function ProductosPage() {
   const [nuevoProducto, setNuevoProducto] = useState(FORM_NUEVO_PRODUCTO);
   const [creando, setCreando] = useState(false);
 
+  // ?editar=<id> (lo usa el aviso de Reportes): abre ese producto en el editor. solo enteros positivos,
+  // cualquier otro valor se ignora; se abre una sola vez por id, cuando la lista ya cargo
+  const [parametros] = useSearchParams();
+  const idEditar = leerIdEditar(parametros.get("editar"));
+  const idYaAbierto = useRef(null);
+  const refEditor = useRef(null);
+  const { abrirPanel } = edicion;
+  const { setFotosSeleccionadas } = fotos;
+
+  useEffect(() => {
+    if (idEditar === null || idYaAbierto.current === idEditar) return;
+    if (!productos.some((producto) => producto.id === idEditar)) return;
+    idYaAbierto.current = idEditar;
+    setFotosSeleccionadas(null);
+    abrirPanel(idEditar, productos);
+    irAlEditor(refEditor.current);
+  }, [idEditar, productos, abrirPanel, setFotosSeleccionadas]);
+
   // sube las fotos pendientes de un producto. devuelve true si salio bien (o no habia fotos) y false si
   // algo fallo: en ese caso ya se aviso al usuario y no hay que mostrar el mensaje de exito
   async function subirFotosPendientes(productoId) {
@@ -57,14 +84,21 @@ function ProductosPage() {
       toast.error("debes completar nombre, precio y stock");
       return;
     }
+    if (costoInvalido(nuevoProducto.costo)) {
+      toast.error(MENSAJE_COSTO_INVALIDO);
+      return;
+    }
 
     setCreando(true);
     try {
+      // sin costo cargado no se manda: queda desconocido (NULL), nunca 0
+      const costo = aNumero(nuevoProducto.costo);
       const producto = await crearProducto({
         nombre: nuevoProducto.nombre.trim(),
         precio: Number(nuevoProducto.precio),
         stock: Number(nuevoProducto.stock),
         descripcion: nuevoProducto.descripcion,
+        ...(costo !== null && { costo }),
       });
 
       if (producto) {
@@ -87,9 +121,19 @@ function ProductosPage() {
 
   async function manejarActualizarProducto(id) {
     try {
+      const { costo, ...resto } = edicion.actualizarDatos;
+      if (costoInvalido(costo)) {
+        toast.error(MENSAJE_COSTO_INVALIDO);
+        return;
+      }
       const soloRellenos = Object.fromEntries(
-        Object.entries(edicion.actualizarDatos).filter(([clave, valor]) => clave === "descripcion" || valor !== "")
+        Object.entries(resto).filter(([clave, valor]) => clave === "descripcion" || valor !== "")
       );
+      // el costo se manda solo si cambio respecto del que tiene el producto: vacio lo borra (null), 0 es valido.
+      // asi un formulario que no llego a cargarse nunca borra el costo por accidente
+      if (productoActualObj && !mismoCosto(costo, productoActualObj.costo)) {
+        soloRellenos.costo = aNumero(costo);
+      }
       const actualizado = await actualizarProducto(id, soloRellenos);
       // false = el backend respondio 401 y ya se cerro la sesion: no se sigue ni se avisa de exito
       if (!actualizado) return;
@@ -137,6 +181,12 @@ function ProductosPage() {
 
   const productoActualObj = productos.find((p) => p.id === Number(edicion.idProductoEditado));
 
+  // "Cargar costo" de la tarjeta de rentabilidad: abre el producto en el editor y baja hasta el
+  function editarDesdeRentabilidad(id) {
+    manejarSeleccionarProducto(id);
+    irAlEditor(refEditor.current);
+  }
+
   return (
     <div className="text-ink font-sans antialiased px-4 sm:px-8 py-8 sm:py-10 pb-24">
       <div className="max-w-5xl mx-auto flex flex-col gap-8">
@@ -161,6 +211,7 @@ function ProductosPage() {
         </Card>
 
         {/* seccion para modificar o eliminar un producto */}
+        <div ref={refEditor} className="scroll-mt-24">
         <Card className="flex flex-col gap-6">
           <CardTitle>Modificar o eliminar artículo</CardTitle>
 
@@ -188,6 +239,10 @@ function ProductosPage() {
             />
           )}
         </Card>
+        </div>
+
+        {/* precio, costo y margen por unidad de cada producto */}
+        <Rentabilidad productos={productos} onEditar={editarDesdeRentabilidad} />
 
       </div>
     </div>

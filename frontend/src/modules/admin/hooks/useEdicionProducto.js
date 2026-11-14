@@ -1,10 +1,12 @@
 import { useState, useCallback } from "react";
 import * as adminService from "../../../services/admin.service";
 import { obtenerProducto } from "../../../services/productos.service";
+import { costoComoTexto } from "../costos";
 
-const FORM_VACIO = { nombre: "", precio: "", stock: "", imagen: "", descripcion: "" };
+const FORM_VACIO = { nombre: "", precio: "", stock: "", imagen: "", descripcion: "", costo: "" };
 
 // arma el formulario a partir de un producto (de la lista o del detalle); ?? deja pasar el stock 0
+// el costo solo viene en la lista del panel: el detalle publico no lo trae (queda "" si no esta)
 function formDesdeProducto(producto) {
   return {
     nombre: producto.nombre ?? "",
@@ -12,6 +14,7 @@ function formDesdeProducto(producto) {
     stock: producto.stock ?? "",
     imagen: "",
     descripcion: producto.descripcion ?? "",
+    costo: costoComoTexto(producto.costo),
   };
 }
 
@@ -48,13 +51,20 @@ export function useEdicionProducto(onUnauthorized) {
 
       const productoSeleccionado = productos.find((p) => p.id === numericId);
       if (productoSeleccionado) {
-        setActualizarDatos(formDesdeProducto(productoSeleccionado));
+        // al rehidratar, la lista puede ser la de antes de guardar: el costo guardado no se pisa con el de la lista
+        setActualizarDatos(
+          rehidratarFormulario
+            ? (actual) => ({ ...formDesdeProducto(productoSeleccionado), costo: actual.costo })
+            : formDesdeProducto(productoSeleccionado)
+        );
       }
 
       const data = await obtenerProducto(numericId, { fresco: true });
       setImagenesEditor(data.imagenes || []);
       if (rehidratarFormulario) {
-        setActualizarDatos(formDesdeProducto(data));
+        // el detalle publico no trae el costo: se conserva el que acaba de guardarse en el formulario,
+        // si no el costo se borraria en el siguiente guardado
+        setActualizarDatos((actual) => ({ ...formDesdeProducto(data), costo: actual.costo }));
       }
     } catch (error) {
       if (error.response?.status === 401) {
