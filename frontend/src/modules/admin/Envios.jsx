@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useEnviosAdmin } from "./hooks/useEnviosAdmin";
 import { formatearFecha } from "./formato";
+import Badge from "./ui/Badge";
+import EmptyState from "./ui/EmptyState";
+import CargandoEstado from "./ui/CargandoEstado";
+import { aviso as claseAviso, boton, campo, etiqueta, filtro, fila } from "./ui/estilos";
+
 
 const FILTROS = [
   ["por_despachar", "Por despachar"],
@@ -10,11 +15,7 @@ const FILTROS = [
 
 const ETIQUETA_ESTADO = { por_despachar: "Por despachar", enviado: "Enviado", entregado: "Entregado" };
 
-const CLASE_ESTADO = {
-  por_despachar: "bg-amber-100 text-amber-800 border-amber-200",
-  enviado: "bg-blue-100 text-blue-800 border-blue-200",
-  entregado: "bg-green-100 text-green-800 border-green-200",
-};
+const VARIANTE_ESTADO = { por_despachar: "aviso", enviado: "info", entregado: "exito" };
 
 const ENTREGA_COMPLETA = { domicilio: "Envío a domicilio", agencia: "Retiro en agencia" };
 const ENTREGA_CORTA = { domicilio: "Domicilio", agencia: "Agencia" };
@@ -29,15 +30,14 @@ function textoAccion(actual, destino) {
   return SIGUIENTE[actual] === destino ? `Marcar como ${nombre}` : `Volver a ${nombre}`;
 }
 
-const claseBoton = "text-xs font-sans uppercase tracking-wider border border-border rounded px-4 py-2 transition-colors";
-const claseBotonPrimario = "text-xs font-sans uppercase tracking-wider rounded px-4 py-2 transition-colors bg-[#111111] text-paper border border-[#111111] hover:bg-brand hover:border-brand disabled:opacity-50 disabled:cursor-not-allowed";
+const claseBoton = boton.secundario;
+const claseBotonPrimario = boton.primario;
+const claseEtiqueta = etiqueta;
 const MAX_SEGUIMIENTO = 60;
 
 function Estado({ estado }) {
   return (
-    <span className={`inline-block text-[10px] uppercase tracking-wider border rounded px-2 py-0.5 ${CLASE_ESTADO[estado] || ""}`}>
-      {ETIQUETA_ESTADO[estado] || estado}
-    </span>
+    <Badge variante={VARIANTE_ESTADO[estado]}>{ETIQUETA_ESTADO[estado] || estado}</Badge>
   );
 }
 
@@ -45,8 +45,8 @@ function Estado({ estado }) {
 function Dato({ etiqueta, children }) {
   return (
     <div className="flex flex-col gap-0.5 min-w-0">
-      <dt className="text-[10px] text-muted-light uppercase tracking-wider">{etiqueta}</dt>
-      <dd className="text-xs text-ink break-words">{children}</dd>
+      <dt className={claseEtiqueta}>{etiqueta}</dt>
+      <dd className="text-sm text-ink break-words">{children}</dd>
     </div>
   );
 }
@@ -81,15 +81,15 @@ function DetalleEnvio({ detalle, guardando, errorGuardar, onGuardar }) {
   const acciones = [SIGUIENTE[envio.estadoEnvio], ANTERIOR[envio.estadoEnvio]].filter(Boolean);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Dato etiqueta="Pedido">#{detalle.id}</Dato>
         <Dato etiqueta="Estado del envío"><Estado estado={envio.estadoEnvio} /></Dato>
         <Dato etiqueta="Enviado el">{envio.enviadoEn ? formatearFecha(envio.enviadoEn) : "Todavía no"}</Dato>
       </dl>
 
-      <section aria-label="Destinatario" className="flex flex-col gap-2">
-        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-ink">Destinatario</h3>
+      <section aria-label="Destinatario" className="flex flex-col gap-3">
+        <h3 className="text-sm font-semibold text-ink">Destinatario</h3>
         <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Dato etiqueta="Recibe">{cliente.nombre}</Dato>
           <Dato etiqueta="Teléfono">{cliente.telefono}</Dato>
@@ -109,11 +109,11 @@ function DetalleEnvio({ detalle, guardando, errorGuardar, onGuardar }) {
         </dl>
       </section>
 
-      <section aria-label="Actualizar envío" className="flex flex-col gap-3 border-t border-border pt-4">
-        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-ink">Actualizar envío</h3>
+      <section aria-label="Actualizar envío" className="flex flex-col gap-4 border-t border-linea pt-5">
+        <h3 className="text-sm font-semibold text-ink">Actualizar envío</h3>
 
         <div className="flex flex-col gap-1.5 max-w-sm">
-          <label htmlFor={`seguimiento-${detalle.id}`} className="text-[10px] text-muted-light uppercase tracking-wider">
+          <label htmlFor={`seguimiento-${detalle.id}`} className={claseEtiqueta}>
             Número de seguimiento (opcional)
           </label>
           <input
@@ -123,17 +123,17 @@ function DetalleEnvio({ detalle, guardando, errorGuardar, onGuardar }) {
             maxLength={MAX_SEGUIMIENTO}
             onChange={(e) => setSeguimiento(e.target.value)}
             disabled={guardando}
-            className="bg-transparent border border-border text-ink text-xs px-4 py-3 focus:outline-none focus:border-[#111111] transition-all placeholder-[#999999] w-full font-sans rounded"
+            className={campo}
           />
         </div>
 
         {errorGuardar && (
-          <p role="alert" className="text-xs text-red-600">{errorGuardar}</p>
+          <p role="alert" className={claseAviso.error}>{errorGuardar}</p>
         )}
 
         {pendiente ? (
-          <div role="group" aria-label="Confirmar cambio" className="flex flex-col gap-3 border border-border rounded p-4 bg-white/60">
-            <p className="text-xs text-ink">
+          <div role="group" aria-label="Confirmar cambio" className="flex flex-col gap-4 border border-linea rounded-tarjeta p-5 bg-paper/60">
+            <p className="text-sm text-ink">
               ¿Confirmás que el pedido #{detalle.id} pasa a <strong>{ETIQUETA_ESTADO[pendiente].toLowerCase()}</strong>?
             </p>
             <div className="flex flex-wrap gap-2">
@@ -144,7 +144,7 @@ function DetalleEnvio({ detalle, guardando, errorGuardar, onGuardar }) {
                 type="button"
                 onClick={() => setPendiente(null)}
                 disabled={guardando}
-                className={`${claseBoton} text-ink hover:border-[#111111] disabled:opacity-50`}
+                className={`${claseBoton}`}
               >
                 Cancelar
               </button>
@@ -158,7 +158,7 @@ function DetalleEnvio({ detalle, guardando, errorGuardar, onGuardar }) {
                 type="button"
                 onClick={() => setPendiente(estado)}
                 disabled={guardando}
-                className={estado === SIGUIENTE[envio.estadoEnvio] ? claseBotonPrimario : `${claseBoton} text-ink hover:border-[#111111] disabled:opacity-50`}
+                className={estado === SIGUIENTE[envio.estadoEnvio] ? claseBotonPrimario : `${claseBoton}`}
               >
                 {textoAccion(envio.estadoEnvio, estado)}
               </button>
@@ -168,7 +168,7 @@ function DetalleEnvio({ detalle, guardando, errorGuardar, onGuardar }) {
                 type="button"
                 onClick={guardarSeguimiento}
                 disabled={guardando}
-                className={`${claseBoton} text-ink hover:border-[#111111] disabled:opacity-50`}
+                className={`${claseBoton}`}
               >
                 {guardando ? "Guardando..." : "Guardar solo el seguimiento"}
               </button>
@@ -205,7 +205,7 @@ function Envios({ onUnauthorized }) {
   } = useEnviosAdmin(onUnauthorized);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div role="group" aria-label="Filtrar por estado de envío" className="flex flex-wrap gap-2">
           {FILTROS.map(([valor, texto]) => (
@@ -214,53 +214,48 @@ function Envios({ onUnauthorized }) {
               type="button"
               onClick={() => cambiarFiltro(valor)}
               aria-pressed={estadoEnvio === valor}
-              className={`${claseBoton} ${
-                estadoEnvio === valor ? "bg-[#111111] text-paper border-[#111111]" : "text-ink hover:border-[#111111]"
-              }`}
+              className={estadoEnvio === valor ? filtro.activo : filtro.inactivo}
             >
               {texto}
             </button>
           ))}
         </div>
         {listado && !cargando && !error && (
-          <span className="text-[11px] text-muted uppercase tracking-wider">
+          <span className="text-xs font-semibold text-muted">
             {listado.total} {listado.total === 1 ? "envío" : "envíos"}
           </span>
         )}
       </div>
 
       {aviso && (
-        <p role="status" className="text-xs text-green-800 bg-green-100 border border-green-200 rounded px-4 py-3">
+        <p role="status" className={claseAviso.exito}>
           {aviso}
         </p>
       )}
 
       {cargando && (
-        <p role="status" className="text-xs text-muted py-6 text-center">
-          Cargando envíos...
-        </p>
+        <CargandoEstado texto="Cargando envíos..." />
       )}
 
       {!cargando && error && (
-        <div role="alert" className="flex flex-col items-center gap-3 py-6 text-center">
-          <p className="text-xs text-red-600">{error}</p>
-          <button type="button" onClick={reintentar} className={`${claseBoton} text-ink hover:border-[#111111]`}>
+        <EmptyState tono="error" role="alert" titulo={error}>
+          <button type="button" onClick={reintentar} className={claseBoton}>
             Reintentar
           </button>
-        </div>
+        </EmptyState>
       )}
 
       {!cargando && !error && listado && listado.pedidos.length === 0 && (
-        <p className="text-xs text-muted py-6 text-center">
-          No hay envíos {estadoEnvio === "por_despachar" ? "por despachar" : `en estado "${ETIQUETA_ESTADO[estadoEnvio].toLowerCase()}"`}.
-        </p>
+        <EmptyState
+          titulo={`No hay envíos ${estadoEnvio === "por_despachar" ? "por despachar" : `en estado "${ETIQUETA_ESTADO[estadoEnvio].toLowerCase()}"`}.`}
+        />
       )}
 
       {!cargando && !error && listado && listado.pedidos.length > 0 && (
         <>
           <div
             aria-hidden="true"
-            className="hidden sm:grid grid-cols-[7.5rem_1fr_1fr_6rem_6.5rem] gap-x-3 px-4 text-[10px] text-muted-light uppercase tracking-wider"
+            className={`${fila.encabezado} grid-cols-[7.5rem_1fr_1fr_6rem_6.5rem] gap-x-3`}
           >
             <span>Fecha</span>
             <span>Recibe</span>
@@ -269,17 +264,17 @@ function Envios({ onUnauthorized }) {
             <span>Estado</span>
           </div>
 
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-3">
             {listado.pedidos.map((pedido) => {
               const abierto = idAbierto === pedido.id;
               return (
-                <li key={pedido.id} className="border border-border rounded bg-white/50">
+                <li key={pedido.id} className={fila.contenedor}>
                   <button
                     type="button"
                     onClick={() => alternarDetalle(pedido.id)}
                     aria-expanded={abierto}
                     aria-controls={`detalle-envio-${pedido.id}`}
-                    className="w-full text-left grid grid-cols-2 sm:grid-cols-[7.5rem_1fr_1fr_6rem_6.5rem] gap-x-3 gap-y-1 items-center px-4 py-3 text-xs hover:bg-white/70 transition-colors"
+                    className={`${fila.boton} grid grid-cols-2 sm:grid-cols-[7.5rem_1fr_1fr_6rem_6.5rem] gap-x-3 gap-y-1 items-center`}
                   >
                     <span className="text-muted">{formatearFecha(pedido.fecha)}</span>
                     <span className="font-semibold truncate">{pedido.nombre}</span>
@@ -289,12 +284,12 @@ function Envios({ onUnauthorized }) {
                   </button>
 
                   {abierto && (
-                    <div id={`detalle-envio-${pedido.id}`} className="border-t border-border px-4 py-4">
-                      {cargandoDetalle && <p role="status" className="text-xs text-muted">Cargando detalle...</p>}
+                    <div id={`detalle-envio-${pedido.id}`} className={fila.detalle}>
+                      {cargandoDetalle && <p role="status" className="text-sm text-muted">Cargando detalle...</p>}
                       {!cargandoDetalle && errorDetalle && (
                         <div role="alert" className="flex flex-col items-start gap-3">
-                          <p className="text-xs text-red-600">{errorDetalle}</p>
-                          <button type="button" onClick={reintentarDetalle} className={`${claseBoton} text-ink hover:border-[#111111]`}>
+                          <p className="text-sm text-red-700">{errorDetalle}</p>
+                          <button type="button" onClick={reintentarDetalle} className={`${claseBoton}`}>
                             Reintentar
                           </button>
                         </div>
@@ -321,18 +316,18 @@ function Envios({ onUnauthorized }) {
                 type="button"
                 onClick={() => cambiarPagina(pagina - 1)}
                 disabled={pagina <= 1}
-                className={`${claseBoton} text-ink hover:border-[#111111] disabled:opacity-40 disabled:cursor-not-allowed`}
+                className={`${claseBoton}`}
               >
                 Anterior
               </button>
-              <span className="text-[11px] text-muted uppercase tracking-wider">
+              <span className="text-xs font-semibold text-muted">
                 Página {pagina} de {listado.totalPaginas}
               </span>
               <button
                 type="button"
                 onClick={() => cambiarPagina(pagina + 1)}
                 disabled={pagina >= listado.totalPaginas}
-                className={`${claseBoton} text-ink hover:border-[#111111] disabled:opacity-40 disabled:cursor-not-allowed`}
+                className={`${claseBoton}`}
               >
                 Siguiente
               </button>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { boton } from "./ui/estilos";
 
 // dropdown para elegir que producto editar o eliminar
 function ProductSelector({ productos, productoActual, onSeleccionar, onEliminar }) {
@@ -27,14 +28,14 @@ function ProductSelector({ productos, productoActual, onSeleccionar, onEliminar 
       <div className="flex-1 relative">
         <div
           onClick={() => setAbierto(!abierto)}
-          className="bg-transparent border border-border hover:border-[#111111] text-ink text-xs px-4 py-3.5 flex items-center justify-between cursor-pointer transition-colors font-sans uppercase select-none bg-white rounded"
+          className="border border-campo hover:border-ink text-ink text-sm px-4 py-3 flex items-center justify-between cursor-pointer transition-colors duration-150 motion-reduce:transition-none select-none bg-superficie rounded-control"
         >
           <span className="truncate font-medium text-ink">
             {productoActual
               ? `${productoActual.nombre} — $${productoActual.precio} (Stock: ${productoActual.stock})`
               : "-- Seleccionar producto para editar --"}
           </span>
-          <span className={`transform transition-transform duration-200 text-brand font-bold ml-2 ${abierto ? "rotate-180" : ""}`}>
+          <span className={`transform transition-transform duration-200 motion-reduce:transition-none text-oro-texto text-xs ml-2 ${abierto ? "rotate-180" : ""}`}>
             ▼
           </span>
         </div>
@@ -46,10 +47,10 @@ function ProductSelector({ productos, productoActual, onSeleccionar, onEliminar 
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.15 }}
-              className="absolute left-0 right-0 top-full mt-1 bg-paper border border-border rounded z-50 max-h-60 overflow-y-auto shadow-2xl"
+              className="absolute left-0 right-0 top-full mt-2 bg-superficie border border-linea rounded-tarjeta z-50 max-h-60 overflow-y-auto shadow-elevada"
             >
               {productos.length === 0 ? (
-                <div className="p-4 text-xs font-sans text-muted uppercase text-center">
+                <div className="p-5 text-sm text-muted text-center">
                   No hay productos disponibles
                 </div>
               ) : (
@@ -59,12 +60,12 @@ function ProductSelector({ productos, productoActual, onSeleccionar, onEliminar 
                     <div
                       key={item.id}
                       onClick={() => elegir(item.id)}
-                      className={`flex flex-col px-4 py-3.5 cursor-pointer border-b border-[#E2E2DF] last:border-b-0 hover:bg-[#E2E2DF] transition-colors ${
-                        seleccionado ? "bg-[#E2E2DF] font-semibold" : ""
+                      className={`flex flex-col px-5 py-3 cursor-pointer border-b border-linea last:border-b-0 hover:bg-paper transition-colors duration-150 motion-reduce:transition-none ${
+                        seleccionado ? "bg-oro-suave/60" : ""
                       }`}
                     >
-                      <span className="font-sans text-xs text-ink uppercase">{item.nombre}</span>
-                      <span className="font-sans text-[10px] text-muted mt-0.5">
+                      <span className="text-sm font-semibold text-ink">{item.nombre}</span>
+                      <span className="text-xs text-muted mt-0.5">
                         Precio: ${item.precio} — Stock: {item.stock} unidades
                       </span>
                     </div>
@@ -79,7 +80,7 @@ function ProductSelector({ productos, productoActual, onSeleccionar, onEliminar 
       {productoActual && (
         <button
           onClick={() => onEliminar(productoActual.id)}
-          className="border border-red-300 text-red-600 text-xs tracking-wider uppercase px-4 py-3.5 hover:bg-red-600 hover:text-white transition-colors font-sans flex items-center justify-center gap-2 whitespace-nowrap rounded"
+          className={`${boton.peligro} whitespace-nowrap`}
         >
           Eliminar
         </button>

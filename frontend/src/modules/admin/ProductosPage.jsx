@@ -7,6 +7,10 @@ import ProductSelector from "./ProductSelector";
 import { useProductosAdmin } from "./hooks/useProductosAdmin";
 import { useEdicionProducto } from "./hooks/useEdicionProducto";
 import { useFotosPendientes } from "./hooks/useFotosPendientes";
+import { Card, CardTitle } from "./ui/Card";
+import PageHeader from "./ui/PageHeader";
+import Badge from "./ui/Badge";
+import { campo } from "./ui/estilos";
 
 const FORM_NUEVO_PRODUCTO = { nombre: "", precio: "", stock: "", imagen: "", descripcion: "" };
 
@@ -31,8 +35,6 @@ function ProductosPage() {
 
   const [nuevoProducto, setNuevoProducto] = useState(FORM_NUEVO_PRODUCTO);
   const [creando, setCreando] = useState(false);
-
-  const inputClass = "bg-transparent border border-border text-ink text-xs px-4 py-3.5 focus:outline-none focus:border-[#111111] transition-all placeholder-[#999999] w-full font-sans rounded";
 
   // sube las fotos pendientes de un producto. devuelve true si salio bien (o no habia fotos) y false si
   // algo fallo: en ese caso ya se aviso al usuario y no hay que mostrar el mensaje de exito
@@ -136,34 +138,19 @@ function ProductosPage() {
   const productoActualObj = productos.find((p) => p.id === Number(edicion.idProductoEditado));
 
   return (
-    <div className="text-ink font-sans antialiased px-4 sm:px-8 lg:px-12 py-8 pb-24 selection:bg-[#E2E2DF]">
-      <div className="max-w-3xl mx-auto flex flex-col gap-10">
+    <div className="text-ink font-sans antialiased px-4 sm:px-8 py-8 sm:py-10 pb-24">
+      <div className="max-w-5xl mx-auto flex flex-col gap-8">
 
         {/* encabezado de la pagina */}
-        <header className="border-b border-border pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5 font-sans">
-              <span className="w-1.5 h-1.5 bg-brand" />
-              <span className="text-[10px] text-muted uppercase tracking-widest">Panel de Gestión</span>
-            </div>
-            <h1 className="text-2xl sm:text-4xl font-light tracking-tight text-ink">
-              CONTROL DE <span className="font-semibold text-brand">INVENTARIO</span>
-            </h1>
-          </div>
-          <div className="font-sans text-[11px] text-muted uppercase self-start sm:self-auto bg-[#E2E2DF]/50 px-3 py-1.5 border border-border rounded">
-            Activos: <span className="text-ink font-semibold">{productos.length}</span>
-          </div>
-        </header>
+        <PageHeader titulo="Control de inventario" descripcion="Cargá, editá y eliminá los artículos de la tienda.">
+          <Badge variante="oro">
+            Activos: <span className="ml-1">{productos.length}</span>
+          </Badge>
+        </PageHeader>
 
         {/* seccion para crear un producto nuevo */}
-        <section className="border border-border rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm relative shadow-sm overflow-hidden">
-          <div className="absolute top-0 right-0 w-2 h-2 bg-brand" />
-          <div className="flex items-center gap-2 mb-6 font-sans">
-            <span className="w-1.5 h-1.5 bg-brand" />
-            <h2 className="text-xs uppercase tracking-widest text-ink font-semibold">
-              01 / Nuevo Artículo
-            </h2>
-          </div>
+        <Card className="flex flex-col gap-6">
+          <CardTitle>Nuevo artículo</CardTitle>
           <CrearNuevoProdct
             nuevoProducto={nuevoProducto}
             setNuevoProducto={setNuevoProducto}
@@ -171,17 +158,11 @@ function ProductosPage() {
             crearNuevoProducto={manejarCrearProducto}
             creando={creando}
           />
-        </section>
+        </Card>
 
         {/* seccion para modificar o eliminar un producto */}
-        <section className="border border-border rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm flex flex-col gap-6 relative shadow-sm">
-          <div className="absolute top-0 right-0 w-2 h-2 bg-brand rounded-tr" />
-          <div className="flex items-center gap-2 font-sans">
-            <span className="w-1.5 h-1.5 bg-brand" />
-            <h2 className="text-xs uppercase tracking-widest text-ink font-semibold">
-              02 / Modificar o Eliminar Artículo
-            </h2>
-          </div>
+        <Card className="flex flex-col gap-6">
+          <CardTitle>Modificar o eliminar artículo</CardTitle>
 
           <ProductSelector
             productos={productos}
@@ -198,7 +179,7 @@ function ProductosPage() {
               setFotosSeleccionadas={fotos.setFotosSeleccionadas}
               actualizarProducto={manejarActualizarProducto}
               marcarPrincipal={manejarMarcarPrincipal}
-              inputClass={inputClass}
+              inputClass={campo}
               idProductoEditado={edicion.idProductoEditado}
               item={productoActualObj}
               setIdProductoEditado={edicion.cerrarPanel}
@@ -206,7 +187,7 @@ function ProductosPage() {
               previewsPendientes={fotos.previewsPendientes}
             />
           )}
-        </section>
+        </Card>
 
       </div>
     </div>

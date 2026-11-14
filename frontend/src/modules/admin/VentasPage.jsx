@@ -1,22 +1,20 @@
 import { useOutletContext } from "react-router-dom";
 import Ventas from "./Ventas";
+import { Card } from "./ui/Card";
+import PageHeader from "./ui/PageHeader";
 
 // pagina de ventas del panel: el listado de pedidos con el detalle desplegable de cada uno
 function VentasPage() {
   const { manejarSesionExpirada } = useOutletContext();
 
   return (
-    <div className="text-ink font-sans antialiased px-4 sm:px-8 lg:px-12 py-8 pb-24">
-      <div className="max-w-3xl mx-auto flex flex-col gap-10">
-        <section className="border border-border rounded p-6 sm:p-8 bg-white/40 backdrop-blur-sm flex flex-col gap-6 relative shadow-sm">
-          <div className="absolute top-0 right-0 w-2 h-2 bg-brand rounded-tr" />
-          <div className="flex items-center gap-2 font-sans">
-            <span className="w-1.5 h-1.5 bg-brand" />
-            <h1 className="text-xs uppercase tracking-widest text-ink font-semibold">Ventas</h1>
-          </div>
+    <div className="text-ink font-sans antialiased px-4 sm:px-8 py-8 sm:py-10 pb-24">
+      <div className="max-w-5xl mx-auto flex flex-col gap-8">
+        <PageHeader titulo="Ventas" descripcion="Pedidos de la tienda y el detalle de cada uno." />
 
+        <Card>
           <Ventas onUnauthorized={manejarSesionExpirada} />
-        </section>
+        </Card>
       </div>
     </div>
   );
