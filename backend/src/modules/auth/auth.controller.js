@@ -12,8 +12,14 @@ const opcionesCookie = {
 
 // recibe el usuario y la contrasena que manda admin.jsx y guarda el token en una cookie httpOnly
 async function login(req, res) {
+  // en express 5 el body es undefined si la peticion no trae json
+  const { user, password } = req.body ?? {};
+
+  if (user === undefined || password === undefined) {
+    return res.status(400).json({ mensaje: "faltan el usuario y la contrasena" });
+  }
+
   try {
-    const { user, password } = req.body;
     const token = await iniciarSesion(user, password);
 
     res.cookie("token", token, {
@@ -23,7 +29,14 @@ async function login(req, res) {
 
     res.json({ mensaje: "sesion iniciada" });
   } catch (error) {
-    res.status(error.status || 500).json({ mensaje: error.message || "error al tratar de conseguir las credenciales" });
+    // solo "credenciales incorrectas" se le dice a quien intenta entrar; cualquier otro fallo (configuracion,
+    // secreto del token, etc.) es un error del servidor: se registra el motivo (nunca el body) y se responde generico
+    if (error.status === 401) {
+      return res.status(401).json({ mensaje: "credenciales incorrectas" });
+    }
+
+    console.error("error al iniciar sesion:", error.code || error.name, error.message);
+    res.status(500).json({ mensaje: "error interno del servidor" });
   }
 }
 
