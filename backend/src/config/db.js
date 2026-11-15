@@ -1,10 +1,17 @@
 require("dotenv").config();
 
 const mysql = require("mysql2/promise");
+const { verificarBaseSegura, hostDeUrl, esHostLocal } = require("./proteccionBase");
+
+// antes de crear el pool: fuera de produccion solo se acepta una base local (lanza un error si no)
+verificarBaseSegura(process.env.DATABASE_URL);
+
+// una base local (docker o mysql instalado) normalmente no tiene tls; las remotas si lo usan
+const opcionesSsl = esHostLocal(hostDeUrl(process.env.DATABASE_URL)) ? {} : { ssl: { rejectUnauthorized: false } };
 
 const baseDatos = mysql.createPool({
   uri: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  ...opcionesSsl,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,

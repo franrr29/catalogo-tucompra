@@ -11,11 +11,14 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// carpeta de cloudinary: en desarrollo se usa otra (CLOUDINARY_CARPETA) para no mezclar fotos con las de produccion
+const CARPETA = (process.env.CLOUDINARY_CARPETA || "").trim() || "tu-compra-productos";
+
 // configuracion del storage: donde se guardan las imagenes y en que formato
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "tu-compra-productos", 
+    folder: CARPETA,
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
     transformation: [{ width: 800, height: 800, crop: "limit" }], 
   },
