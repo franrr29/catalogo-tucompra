@@ -7,6 +7,12 @@ const cookieParser = require("cookie-parser");
 const request = require("supertest");
 
 const authRoutes = require("./auth.routes");
+const { limitadorLogin } = require("../../middleware/limiteLogin");
+
+// todos los tests salen de la misma ip: el contador del limite de login se reinicia entre pruebas
+beforeEach(() => {
+  limitadorLogin.reiniciar();
+});
 
 const app = express();
 app.use(express.json());

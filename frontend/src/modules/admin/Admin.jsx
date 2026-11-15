@@ -19,6 +19,9 @@ function Admin() {
       // solo un 401 significa credenciales malas; lo demas es un problema de conexion o del servidor
       if (error.response?.status === 401) {
         toast.error("CREDENCIALES INVÁLIDAS");
+      } else if (error.response?.status === 429) {
+        // el backend frena la fuerza bruta: demasiados intentos seguidos desde esta conexion
+        toast.error("DEMASIADOS INTENTOS. ESPERÁ UNOS MINUTOS E INTENTÁ DE NUEVO", { duration: 8000 });
       } else {
         toast.error("NO SE PUDO CONECTAR CON EL SERVIDOR, INTENTA DE NUEVO");
       }
