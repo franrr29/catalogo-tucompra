@@ -15,6 +15,18 @@ function leerMinutosDeVencimiento(valor = process.env.PEDIDO_EXPIRA_MIN) {
   return Number.isSafeInteger(minutos) && minutos > 0 ? minutos : EXPIRA_MIN_DEFECTO;
 }
 
+// ventana de validez de la preferencia de mercado pago (campos expires, expiration_date_from y expiration_date_to,
+// ISO 8601 con offset): pasado PEDIDO_EXPIRA_MIN el checkout ya no permite pagar, igual que el pedido deja de retener stock.
+// no afecta a un boleto offline ya generado: ese tiene su propio plazo en mercado pago
+function ventanaDeVencimiento(ahora = new Date(), minutos = leerMinutosDeVencimiento()) {
+  const formato = (fecha) => fecha.toISOString().replace("Z", "+00:00");
+  return {
+    expires: true,
+    expiration_date_from: formato(ahora),
+    expiration_date_to: formato(new Date(ahora.getTime() + minutos * 60 * 1000)),
+  };
+}
+
 let ultimaPasada = 0;
 
 // cancela un pedido vencido y devuelve su stock, en una transaccion. devuelve true si lo cancelo.
@@ -105,6 +117,7 @@ module.exports = {
   liberarPedidosVencidos,
   cancelarPedidoVencido,
   leerMinutosDeVencimiento,
+  ventanaDeVencimiento,
   reiniciarLimitador,
   EXPIRA_MIN_DEFECTO,
   LOTE_MAXIMO,

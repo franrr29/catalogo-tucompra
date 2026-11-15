@@ -8,6 +8,7 @@ const baseDatos = require("../config/db");
 const {
   liberarPedidosVencidos,
   leerMinutosDeVencimiento,
+  ventanaDeVencimiento,
   reiniciarLimitador,
   LOTE_MAXIMO,
 } = require("./pedidos.vencimiento");
@@ -62,6 +63,24 @@ describe("leerMinutosDeVencimiento", () => {
     [45, 45],
   ])("%p -> %p", (valor, esperado) => {
     expect(leerMinutosDeVencimiento(valor)).toBe(esperado);
+  });
+});
+
+describe("ventanaDeVencimiento", () => {
+  test("devuelve los campos de mercado pago con offset y la duracion pedida", () => {
+    const ventana = ventanaDeVencimiento(new Date("2026-03-01T12:00:00.000Z"), 45);
+
+    expect(ventana).toEqual({
+      expires: true,
+      expiration_date_from: "2026-03-01T12:00:00.000+00:00",
+      expiration_date_to: "2026-03-01T12:45:00.000+00:00",
+    });
+  });
+
+  test("por defecto usa PEDIDO_EXPIRA_MIN", () => {
+    process.env.PEDIDO_EXPIRA_MIN = "10";
+    const ventana = ventanaDeVencimiento(new Date("2026-03-01T12:00:00.000Z"));
+    expect(ventana.expiration_date_to).toBe("2026-03-01T12:10:00.000+00:00");
   });
 });
 

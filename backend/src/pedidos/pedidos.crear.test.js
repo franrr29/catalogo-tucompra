@@ -10,7 +10,7 @@ jest.mock("../config/mercadoPago.js", () => ({}));
 
 // el barrido de pedidos vencidos tiene sus propios tests: aca se mockea para que no consuma las respuestas de la base
 const mockLiberarVencidos = jest.fn().mockResolvedValue(0);
-jest.mock("./pedidos.vencimiento", () => ({ liberarPedidosVencidos: (...args) => mockLiberarVencidos(...args) }));
+jest.mock("./pedidos.vencimiento", () => ({ ...jest.requireActual("./pedidos.vencimiento"), liberarPedidosVencidos: (...args) => mockLiberarVencidos(...args) }));
 
 const mockCrearPreferencia = jest.fn();
 jest.mock("mercadopago", () => ({
@@ -134,6 +134,36 @@ describe("guardado de los datos de envio", () => {
     expect(conexion.rollback).toHaveBeenCalledTimes(1);
     expect(conexion.commit).not.toHaveBeenCalled();
     expect(mockCrearPreferencia).not.toHaveBeenCalled();
+  });
+});
+
+describe("vencimiento de la preferencia de mercado pago", () => {
+  afterEach(() => {
+    delete process.env.PEDIDO_EXPIRA_MIN;
+  });
+
+  test("la preferencia expira a los PEDIDO_EXPIRA_MIN minutos (60 por defecto), con fechas ISO 8601 con offset", async () => {
+    const antes = Date.now();
+    await request(app).post("/api/pedidos").send(PEDIDO_VALIDO);
+
+    const { body } = mockCrearPreferencia.mock.calls[0][0];
+    expect(body.expires).toBe(true);
+    const formatoIso = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+00:00$/;
+    expect(body.expiration_date_from).toMatch(formatoIso);
+    expect(body.expiration_date_to).toMatch(formatoIso);
+
+    const desde = Date.parse(body.expiration_date_from);
+    const hasta = Date.parse(body.expiration_date_to);
+    expect(desde).toBeGreaterThanOrEqual(antes - 1000);
+    expect(hasta - desde).toBe(60 * 60 * 1000);
+  });
+
+  test("respeta PEDIDO_EXPIRA_MIN", async () => {
+    process.env.PEDIDO_EXPIRA_MIN = "30";
+    await request(app).post("/api/pedidos").send(PEDIDO_VALIDO);
+
+    const { body } = mockCrearPreferencia.mock.calls[0][0];
+    expect(Date.parse(body.expiration_date_to) - Date.parse(body.expiration_date_from)).toBe(30 * 60 * 1000);
   });
 });
 

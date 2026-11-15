@@ -2,7 +2,7 @@ const baseDatos = require("../config/db");
 const { Preference } = require("mercadopago");
 const mp = require("../config/mercadoPago.js");
 const crearError = require("../utils/crearError");
-const { liberarPedidosVencidos } = require("./pedidos.vencimiento");
+const { liberarPedidosVencidos, ventanaDeVencimiento } = require("./pedidos.vencimiento");
 
 // envio ya viene validado y normalizado por pedidos.validacion; sin envio (pedidos viejos) las columnas quedan en null
 async function crearPedidoService(nombre, email, telefono, items, envio = {}) {
@@ -107,6 +107,8 @@ async function crearPedidoService(nombre, email, telefono, items, envio = {}) {
         };
       }),
       external_reference: String(pedidoId),
+      // el checkout deja de aceptar pagos pasado PEDIDO_EXPIRA_MIN, cuando el pedido pendiente ya liberaria su stock
+      ...ventanaDeVencimiento(),
      back_urls: {
      success: process.env.FRONTEND_URL + "/pago-exitoso",
      failure: process.env.FRONTEND_URL + "/pago-fallido",
