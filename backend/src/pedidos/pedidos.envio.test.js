@@ -1,4 +1,7 @@
 process.env.SECRET_PASSW = "secreto-de-test";
+// las peticiones que modifican datos exigen el Origin del frontend (proteccion contra CSRF)
+process.env.FRONTEND_URL = "https://tienda.ejemplo.test";
+const ORIGEN = "https://tienda.ejemplo.test";
 process.env.MP_ACCESS_TOKEN = "test-token";
 
 // mockeo la base de datos: ningun test toca la base real
@@ -47,7 +50,7 @@ function simularPatch({ antes, despues }) {
 
 const patch = (id, body, conCookie = true) => {
   const req = request(app).patch(`/api/admin/pedidos/${id}/envio`);
-  if (conCookie) req.set("Cookie", cookieAdmin());
+  if (conCookie) req.set("Cookie", cookieAdmin()).set("Origin", ORIGEN);
   return req.send(body);
 };
 
@@ -257,7 +260,7 @@ describe("PATCH /:id/envio: validacion", () => {
   });
 
   test("sin body tambien responde 400 y no revienta", async () => {
-    const respuesta = await request(app).patch("/api/admin/pedidos/12/envio").set("Cookie", cookieAdmin());
+    const respuesta = await request(app).patch("/api/admin/pedidos/12/envio").set("Cookie", cookieAdmin()).set("Origin", ORIGEN);
 
     expect(respuesta.status).toBe(400);
   });

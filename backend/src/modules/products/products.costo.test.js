@@ -1,4 +1,7 @@
 process.env.SECRET_PASSW = "secreto-de-test";
+// las peticiones que modifican datos exigen el Origin del frontend (proteccion contra CSRF)
+process.env.FRONTEND_URL = "https://tienda.ejemplo.test";
+const ORIGEN = "https://tienda.ejemplo.test";
 
 // mockeo la base de datos y cloudinary: ningun test toca la base real ni servicios externos
 jest.mock("../../config/db", () => ({
@@ -118,7 +121,7 @@ describe("PATCH /api/productos/:id distingue los tres casos de costo", () => {
     baseDatos.query.mockResolvedValue([{ affectedRows: 1 }]);
   });
 
-  const parchear = (cuerpo) => request(app).patch("/api/productos/7").set("Cookie", cookieAdmin()).send(cuerpo);
+  const parchear = (cuerpo) => request(app).patch("/api/productos/7").set("Cookie", cookieAdmin()).set("Origin", ORIGEN).send(cuerpo);
 
   test("costo no enviado: no se toca la columna", async () => {
     const respuesta = await parchear({ nombre: "Nuevo nombre" });
@@ -175,7 +178,7 @@ describe("POST /api/productos con costo", () => {
     baseDatos.query.mockResolvedValue([{ insertId: 9 }]);
   });
 
-  const crear = (cuerpo) => request(app).post("/api/productos").set("Cookie", cookieAdmin()).send(cuerpo);
+  const crear = (cuerpo) => request(app).post("/api/productos").set("Cookie", cookieAdmin()).set("Origin", ORIGEN).send(cuerpo);
   const BASE = { nombre: "Reloj", precio: 100, stock: 5 };
 
   test("sin costo se guarda NULL (desconocido)", async () => {

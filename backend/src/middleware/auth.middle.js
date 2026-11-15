@@ -2,6 +2,7 @@ const jwt= require ("jsonwebtoken");
 require ("dotenv").config ();
 const clave=process.env.SECRET_PASSW;
 const { opcionesCookie } = require ("../modules/auth/auth.controller");
+const { origenPermitido } = require ("./verificarOrigen");
 
 async function verificarToken (req, res, next){
     const token = req.cookies.token;
@@ -12,6 +13,12 @@ async function verificarToken (req, res, next){
 
     try{
         const datos = jwt.verify (token, clave)
+
+        // contra CSRF: una peticion que modifica datos solo se acepta si viene del frontend (header Origin)
+        if (!origenPermitido (req)){
+            console.error ("peticion rechazada: origen no permitido", req.method, req.baseUrl)
+            return res.status (403).json ({mensaje:"Origen no permitido"})
+        }
 
         // renueva la sesion en cada request: vence tras 1h sin actividad, no 1h despues del login
         const nuevoToken = jwt.sign ({ user: datos.user }, clave, { expiresIn: "1h" })
