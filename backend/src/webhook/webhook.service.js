@@ -41,8 +41,37 @@ async function enTransaccion(trabajo) {
   }
 }
 
-// pago aprobado: pasa el pedido a pagado, una sola vez y solo si el monto coincide
+// el pago ya se cobro pero el pedido estaba cancelado y el stock se vendio a otro: hay que reembolsar a mano
+class StockInsuficienteError extends Error {
+  constructor(productoId) {
+    super("stock insuficiente para re-reservar");
+    this.productoId = productoId;
+  }
+}
+
+// pago aprobado: pasa el pedido a pagado, una sola vez y solo si el monto coincide.
+// si el pedido estaba cancelado (pago tardio) vuelve a reservar el stock en la misma transaccion
 async function registrarPagoAprobado(pedidoId, pago, idPago) {
+  try {
+    return await aprobarEnTransaccion(pedidoId, pago, idPago);
+  } catch (error) {
+    if (!(error instanceof StockInsuficienteError)) throw error;
+
+    // la transaccion ya hizo rollback: el pedido sigue cancelado y no se marca pagado.
+    // el log lleva solo ids para que el reembolso se haga a mano en mercado pago
+    registrar("PAGO_APROBADO_SIN_STOCK_REEMBOLSO_MANUAL", { pedidoId, pagoId: idPago, productoId: error.productoId });
+
+    // se guarda el id del pago en el pedido para que se vea en el panel cual hay que devolver (mejor esfuerzo)
+    try {
+      await baseDatos.query("UPDATE pedidos SET mercadopago_id = ? WHERE id = ? AND estado = 'cancelado'", [idPago, pedidoId]);
+    } catch (errorGuardado) {
+      registrar("NO_SE_PUDO_GUARDAR_EL_PAGO_HUERFANO", { pedidoId, pagoId: idPago, motivo: errorGuardado.code || errorGuardado.name });
+    }
+    return "sin_stock";
+  }
+}
+
+async function aprobarEnTransaccion(pedidoId, pago, idPago) {
   return enTransaccion(async (conexion) => {
     const [pedidos] = await conexion.query(
       "SELECT estado, total, mercadopago_id FROM pedidos WHERE id = ? FOR UPDATE",
@@ -77,9 +106,29 @@ async function registrarPagoAprobado(pedidoId, pago, idPago) {
     }
 
     if (pedido.estado === "cancelado") {
-      // el stock ya fue devuelto: no se puede marcar pagado sin volver a reservarlo
-      registrar("PAGO_APROBADO_SOBRE_PEDIDO_CANCELADO_REVISAR", { pedidoId, pagoId: idPago });
-      return "cancelado_sin_reserva";
+      // el stock ya fue devuelto al cancelar: se vuelve a reservar. ordenados por producto para bloquear siempre en el
+      // mismo orden; stock >= ? evita que quede negativo. no se filtra por activo: el dinero ya entro
+      const [items] = await conexion.query(
+        "SELECT producto_id, cantidad FROM pedido_items WHERE pedido_id = ? ORDER BY producto_id",
+        [pedidoId]
+      );
+
+      for (const item of items) {
+        const [reserva] = await conexion.query(
+          "UPDATE productos SET stock = stock - ? WHERE id = ? AND stock >= ?",
+          [item.cantidad, item.producto_id, item.cantidad]
+        );
+        if (reserva.affectedRows === 0) {
+          throw new StockInsuficienteError(item.producto_id);
+        }
+      }
+
+      await conexion.query(
+        "UPDATE pedidos SET estado = 'pagado', mercadopago_id = ? WHERE id = ? AND estado = 'cancelado'",
+        [idPago, pedidoId]
+      );
+      registrar("PAGO_TARDIO_STOCK_RESERVADO", { pedidoId, pagoId: idPago });
+      return "pagado_tras_cancelacion";
     }
 
     // el stock ya estaba reservado desde que se creo el pedido

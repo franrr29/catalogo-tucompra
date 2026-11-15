@@ -18,6 +18,8 @@ const { procesarPagoService, leerReferencia } = require("./webhook.service");
 // estado de la "base" simulada: un pedido y los items que tiene
 let pedido;
 let items;
+// stock disponible por producto en la base simulada
+let stock;
 let conexion;
 
 function pagoDeMp(cambios = {}) {
@@ -28,15 +30,22 @@ beforeEach(() => {
   jest.clearAllMocks();
   pedido = { estado: "pendiente", total: "300.00", mercadopago_id: null };
   items = [{ producto_id: 2, cantidad: 1 }, { producto_id: 5, cantidad: 2 }];
+  stock = { 2: 10, 5: 10 };
 
   conexion = {
     beginTransaction: jest.fn().mockResolvedValue(),
     commit: jest.fn().mockResolvedValue(),
     rollback: jest.fn().mockResolvedValue(),
     release: jest.fn(),
-    query: jest.fn(async (sql) => {
+    query: jest.fn(async (sql, params) => {
       if (/FROM pedidos WHERE id = \? FOR UPDATE/.test(sql)) return [pedido ? [pedido] : []];
       if (/FROM pedido_items/.test(sql)) return [items];
+      if (/SET stock = stock - ?/.test(sql)) {
+        const [cantidad, productoId] = params;
+        if (stock[productoId] < cantidad) return [{ affectedRows: 0 }];
+        stock[productoId] -= cantidad;
+        return [{ affectedRows: 1 }];
+      }
       return [{ affectedRows: 1 }];
     }),
   };
@@ -142,13 +151,102 @@ describe("pago aprobado", () => {
     expect(escrituras()).toEqual([]);
     expect(logs()).toContain("PEDIDO_INEXISTENTE");
   });
+});
 
-  test("pedido cancelado: nunca se marca pagado sin reservar stock (queda log para revisar)", async () => {
+describe("approved tardio sobre un pedido cancelado", () => {
+  beforeEach(() => {
     pedido = { estado: "cancelado", total: "300.00", mercadopago_id: null };
+  });
 
-    expect(await procesarPagoService("9001")).toBe("cancelado_sin_reserva");
+  test("con stock suficiente: lo vuelve a reservar y marca pagado, todo en una transaccion", async () => {
+    expect(await procesarPagoService("9001")).toBe("pagado_tras_cancelacion");
+
+    expect(stock).toEqual({ 2: 9, 5: 8 });
+    expect(conexion.beginTransaction).toHaveBeenCalledTimes(1);
+    expect(conexion.commit).toHaveBeenCalledTimes(1);
+    expect(conexion.rollback).not.toHaveBeenCalled();
+    const sql = escrituras();
+    expect(sql.at(-1)).toEqual({
+      sql: "UPDATE pedidos SET estado = 'pagado', mercadopago_id = ? WHERE id = ? AND estado = 'cancelado'",
+      params: ["9001", 7],
+    });
+  });
+
+  test("reserva los productos en orden de id para evitar deadlocks", async () => {
+    items = [{ producto_id: 5, cantidad: 2 }, { producto_id: 2, cantidad: 1 }];
+    await procesarPagoService("9001");
+
+    const consultaItems = conexion.query.mock.calls.find(([sql]) => /FROM pedido_items/.test(sql))[0];
+    expect(consultaItems).toMatch(/ORDER BY producto_id/);
+  });
+
+  test("sin stock en algun producto: rollback total (no queda ningun descuento), no se marca pagado y queda log para reembolso manual", async () => {
+    stock = { 2: 10, 5: 1 }; // el segundo producto no alcanza (necesita 2)
+
+    expect(await procesarPagoService("9001")).toBe("sin_stock");
+
+    expect(conexion.rollback).toHaveBeenCalledTimes(1);
+    expect(conexion.commit).not.toHaveBeenCalled();
+    expect(conexion.query.mock.calls.some(([sql]) => /SET estado = 'pagado'/.test(sql))).toBe(false);
+    expect(logs()).toContain("PAGO_APROBADO_SIN_STOCK_REEMBOLSO_MANUAL");
+    expect(logs()).toContain("9001");
+    const [, datos] = console.error.mock.calls.find(([evento]) => /REEMBOLSO_MANUAL/.test(evento));
+    expect(JSON.parse(datos)).toEqual({ pedidoId: 7, pagoId: "9001", productoId: 5 });
+  });
+
+  test("sin stock: guarda el id del pago en el pedido cancelado para verlo en el panel", async () => {
+    stock = { 2: 0, 5: 10 };
+    await procesarPagoService("9001");
+
+    expect(baseDatos.query).toHaveBeenCalledWith(
+      "UPDATE pedidos SET mercadopago_id = ? WHERE id = ? AND estado = 'cancelado'",
+      ["9001", 7]
+    );
+  });
+
+  test("sin stock y la base falla al guardar el id: no lanza, lo registra", async () => {
+    stock = { 2: 0, 5: 10 };
+    baseDatos.query.mockRejectedValue(Object.assign(new Error("caida"), { code: "ECONNRESET" }));
+
+    await expect(procesarPagoService("9001")).resolves.toBe("sin_stock");
+    expect(logs()).toContain("NO_SE_PUDO_GUARDAR_EL_PAGO_HUERFANO");
+  });
+
+  test("sin stock: el log lleva ids pero ningun dato personal", async () => {
+    stock = { 2: 0, 5: 10 };
+    pedido.nombre = "Juan Perez";
+    pedido.email = "juan@mail.com";
+    await procesarPagoService("9001");
+    expect(logs()).not.toMatch(/Juan|juan@|telefono|direccion/i);
+  });
+
+  test("con el monto distinto no reserva stock ni marca pagado", async () => {
+    mockObtenerPago.mockResolvedValue(pagoDeMp({ transaction_amount: 10 }));
+
+    expect(await procesarPagoService("9001")).toBe("monto_distinto");
+    expect(stock).toEqual({ 2: 10, 5: 10 });
     expect(escrituras()).toEqual([]);
-    expect(logs()).toContain("PAGO_APROBADO_SOBRE_PEDIDO_CANCELADO_REVISAR");
+  });
+
+  test("evento duplicado tras recuperar el pedido: ya esta pagado, no vuelve a descontar stock", async () => {
+    await procesarPagoService("9001");
+    pedido = { estado: "pagado", total: "300.00", mercadopago_id: "9001" };
+    await procesarPagoService("9001");
+
+    expect(stock).toEqual({ 2: 9, 5: 8 });
+  });
+
+  test("un error de la base durante la re-reserva hace rollback y se propaga (para que MP reintente)", async () => {
+    const fallo = Object.assign(new Error("deadlock"), { code: "ER_LOCK_DEADLOCK" });
+    conexion.query.mockImplementation(async (sql) => {
+      if (/FOR UPDATE/.test(sql)) return [[pedido]];
+      if (/FROM pedido_items/.test(sql)) return [items];
+      throw fallo;
+    });
+
+    await expect(procesarPagoService("9001")).rejects.toBe(fallo);
+    expect(conexion.rollback).toHaveBeenCalledTimes(1);
+    expect(conexion.release).toHaveBeenCalledTimes(1);
   });
 });
 
