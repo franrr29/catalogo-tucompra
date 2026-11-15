@@ -11,9 +11,14 @@ const pedidosAdminRoutes = require("./pedidos/pedidos.admin.routes");
 const webhookRoutes = require("./webhook/webhook.routes");
 const productosAdminRoutes = require("./modules/products/products.admin.routes");
 const reportesRoutes = require("./reportes/reportes.routes");
+const { leerSaltosDeProxy } = require("./middleware/limiteLogin");
 
 const app = express();
 const PORT= process.env.PORT || 4000;
+
+// detras del balanceador de render, req.ip seria siempre la ip del proxy y el limite de login se aplicaria a todos
+// juntos. PROXY_SALTOS es la cantidad de proxies confiables delante del backend (1 por defecto); 0 = sin proxy (local)
+app.set("trust proxy", leerSaltosDeProxy(process.env.PROXY_SALTOS));
 
 app.get("/ping", (req, res) => {
   res.send("pong");
