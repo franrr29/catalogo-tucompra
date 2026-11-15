@@ -37,6 +37,18 @@ describe("con ADMIN_PASSWORD_HASH", () => {
     expect(console.warn).not.toHaveBeenCalled();
   });
 
+  test("el token lleva el instante del login (inicio) para el limite absoluto de la sesion", async () => {
+    const jwt = require("jsonwebtoken");
+    const { iniciarSesion } = cargarServicio({ ADMIN_PASSWORD_HASH: hash });
+    const antes = Math.floor(Date.now() / 1000);
+
+    const datos = jwt.decode(await iniciarSesion("admin", "clave-del-admin-123"));
+
+    expect(datos.inicio).toBeGreaterThanOrEqual(antes);
+    expect(datos.inicio).toBeLessThanOrEqual(antes + 2);
+    expect(datos.exp - datos.iat).toBe(3600);
+  });
+
   test.each([
     ["clave incorrecta", "admin", "otra-clave"],
     ["usuario incorrecto", "root", "clave-del-admin-123"],

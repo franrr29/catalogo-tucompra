@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const crearError = require("../../utils/crearError");
 const { verificarPassword, esHashValido } = require("./auth.hash");
+const { ahoraEnSegundos, duracionDelToken, segundosRestantes } = require("./sesion");
 
 // compara dos textos en tiempo constante (se comparan sus sha-256, que siempre miden lo mismo)
 function textosIguales(a, b) {
@@ -50,10 +51,12 @@ async function iniciarSesion(user, password) {
     throw crearError("credenciales incorrectas", 401);
   }
 
+  // "inicio" es el instante del login: el limite absoluto de la sesion se cuenta desde aqui y las renovaciones lo conservan
+  const inicio = ahoraEnSegundos();
   const token = jwt.sign(
-    { user: usuario },
+    { user: usuario, inicio },
     process.env.SECRET_PASSW,
-    { expiresIn: "1h" }
+    { expiresIn: duracionDelToken(segundosRestantes(inicio, inicio)) }
   );
 
   return token;

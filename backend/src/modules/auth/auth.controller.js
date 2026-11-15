@@ -1,4 +1,5 @@
 const { iniciarSesion } = require("./auth.service");
+const { duracionDelToken, segundosRestantes, ahoraEnSegundos } = require("./sesion");
 
 const ES_PRODUCCION = process.env.NODE_ENV === "production";
 
@@ -24,7 +25,7 @@ async function login(req, res) {
 
     res.cookie("token", token, {
       ...opcionesCookie,
-      maxAge: 60 * 60 * 1000,
+      maxAge: duracionDelToken(segundosRestantes(ahoraEnSegundos(), ahoraEnSegundos())) * 1000,
     });
 
     res.json({ mensaje: "sesion iniciada" });
