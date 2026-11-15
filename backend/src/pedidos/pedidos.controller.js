@@ -1,5 +1,5 @@
 const { crearPedidoService, obtenerEstadoPedidoService } = require("./pedidos.service");
-const { validarDatosPedido } = require("./pedidos.validacion");
+const { validarDatosPedido, validarItems } = require("./pedidos.validacion");
 
 // crea un pedido nuevo
 async function crearPedido(req, res) {
@@ -13,6 +13,9 @@ async function crearPedido(req, res) {
 
       return res.status(400).json({ mensaje: "Faltan datos requeridos" });
     }
+
+    // los items se validan antes que nada: un item mal formado nunca debe llegar a la base como error 500
+    validarItems(items);
 
     // valida y normaliza contacto y envio antes de tocar la base o mercado pago
     const datos = validarDatosPedido(body);

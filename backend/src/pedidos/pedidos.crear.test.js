@@ -8,6 +8,10 @@ jest.mock("../config/db", () => ({
 
 jest.mock("../config/mercadoPago.js", () => ({}));
 
+// el barrido de pedidos vencidos tiene sus propios tests: aca se mockea para que no consuma las respuestas de la base
+const mockLiberarVencidos = jest.fn().mockResolvedValue(0);
+jest.mock("./pedidos.vencimiento", () => ({ ...jest.requireActual("./pedidos.vencimiento"), liberarPedidosVencidos: (...args) => mockLiberarVencidos(...args) }));
+
 const mockCrearPreferencia = jest.fn();
 jest.mock("mercadopago", () => ({
   Preference: jest.fn().mockImplementation(() => ({ create: mockCrearPreferencia })),
@@ -133,6 +137,50 @@ describe("guardado de los datos de envio", () => {
   });
 });
 
+describe("vencimiento de la preferencia de mercado pago", () => {
+  afterEach(() => {
+    delete process.env.PEDIDO_EXPIRA_MIN;
+  });
+
+  test("la preferencia expira a los PEDIDO_EXPIRA_MIN minutos (60 por defecto), con fechas ISO 8601 con offset", async () => {
+    const antes = Date.now();
+    await request(app).post("/api/pedidos").send(PEDIDO_VALIDO);
+
+    const { body } = mockCrearPreferencia.mock.calls[0][0];
+    expect(body.expires).toBe(true);
+    const formatoIso = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+00:00$/;
+    expect(body.expiration_date_from).toMatch(formatoIso);
+    expect(body.expiration_date_to).toMatch(formatoIso);
+
+    const desde = Date.parse(body.expiration_date_from);
+    const hasta = Date.parse(body.expiration_date_to);
+    expect(desde).toBeGreaterThanOrEqual(antes - 1000);
+    expect(hasta - desde).toBe(60 * 60 * 1000);
+  });
+
+  test("respeta PEDIDO_EXPIRA_MIN", async () => {
+    process.env.PEDIDO_EXPIRA_MIN = "30";
+    await request(app).post("/api/pedidos").send(PEDIDO_VALIDO);
+
+    const { body } = mockCrearPreferencia.mock.calls[0][0];
+    expect(Date.parse(body.expiration_date_to) - Date.parse(body.expiration_date_from)).toBe(30 * 60 * 1000);
+  });
+});
+
+describe("barrido de pedidos vencidos", () => {
+  test("se ejecuta al crear un pedido, antes de consultar el stock", async () => {
+    await request(app).post("/api/pedidos").send(PEDIDO_VALIDO);
+
+    expect(mockLiberarVencidos).toHaveBeenCalledTimes(1);
+    expect(mockLiberarVencidos.mock.invocationCallOrder[0]).toBeLessThan(baseDatos.query.mock.invocationCallOrder[0]);
+  });
+
+  test("un pedido con datos invalidos no dispara el barrido", async () => {
+    await request(app).post("/api/pedidos").send({ ...PEDIDO_VALIDO, items: [] });
+    expect(mockLiberarVencidos).not.toHaveBeenCalled();
+  });
+});
+
 describe("validacion (400 antes de tocar la base o mercado pago)", () => {
   const casos = [
     ["sin datos de envio", { envio: undefined }, "envio"],
@@ -161,6 +209,39 @@ describe("validacion (400 antes de tocar la base o mercado pago)", () => {
 
     expect(sinItems.status).toBe(400);
     expect(vacios.status).toBe(400);
+  });
+
+  const itemsInvalidos = [
+    ["un item null", [null]],
+    ["un item que no es objeto", ["1"]],
+    ["un item sin productoId", [{ cantidad: 1 }]],
+    ["productoId como texto", [{ productoId: "1", cantidad: 1 }]],
+    ["productoId cero", [{ productoId: 0, cantidad: 1 }]],
+    ["productoId negativo", [{ productoId: -3, cantidad: 1 }]],
+    ["productoId decimal", [{ productoId: 1.5, cantidad: 1 }]],
+    ["cantidad como texto", [{ productoId: 1, cantidad: "2" }]],
+    ["cantidad cero", [{ productoId: 1, cantidad: 0 }]],
+    ["cantidad decimal", [{ productoId: 1, cantidad: 1.5 }]],
+    ["cantidad enorme (no es entero seguro)", [{ productoId: 1, cantidad: 1e21 }]],
+    ["productos repetidos", [{ productoId: 1, cantidad: 1 }, { productoId: 1, cantidad: 2 }]],
+    ["items que no es un array", { productoId: 1, cantidad: 1 }],
+  ];
+
+  test.each(itemsInvalidos)("%s: 400 con campo items y sin tocar la base", async (_, items) => {
+    const respuesta = await request(app).post("/api/pedidos").send({ ...PEDIDO_VALIDO, items });
+
+    expect(respuesta.status).toBe(400);
+    expect(typeof respuesta.body.mensaje).toBe("string");
+    expect(baseDatos.query).not.toHaveBeenCalled();
+    expect(baseDatos.getConnection).not.toHaveBeenCalled();
+    expect(mockCrearPreferencia).not.toHaveBeenCalled();
+  });
+
+  test("un item mal formado nunca produce un 500", async () => {
+    for (const [, items] of itemsInvalidos) {
+      const respuesta = await request(app).post("/api/pedidos").send({ ...PEDIDO_VALIDO, items });
+      expect(respuesta.status).toBe(400);
+    }
   });
 
   test("una peticion sin body responde 400 y no 500", async () => {
