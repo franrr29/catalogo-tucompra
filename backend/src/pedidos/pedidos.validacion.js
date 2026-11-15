@@ -131,6 +131,31 @@ function validarEnvio(envio) {
   };
 }
 
+// valida el array de items del pedido: cada uno con productoId y cantidad enteros positivos, sin productos repetidos.
+// cualquier cosa rara es un 400 con mensaje claro, nunca un error interno
+function validarItems(items) {
+  if (!Array.isArray(items) || items.length === 0) {
+    throw errorDeCampo("items", "el pedido debe tener al menos un producto");
+  }
+
+  const vistos = new Set();
+  for (const item of items) {
+    if (item === null || typeof item !== "object" || Array.isArray(item)) {
+      throw errorDeCampo("items", "cada producto del pedido debe tener productoId y cantidad");
+    }
+    if (!Number.isSafeInteger(item.productoId) || item.productoId <= 0) {
+      throw errorDeCampo("items", "el productoId debe ser un numero entero mayor a 0");
+    }
+    if (!Number.isSafeInteger(item.cantidad) || item.cantidad <= 0) {
+      throw errorDeCampo("items", "la cantidad debe ser un numero entero mayor a 0");
+    }
+    if (vistos.has(item.productoId)) {
+      throw errorDeCampo("items", "no puede haber productos repetidos: suma las cantidades en un solo item");
+    }
+    vistos.add(item.productoId);
+  }
+}
+
 // valida y normaliza los datos del pedido; lanza un error 400 con { message, campo } si algo no sirve
 function validarDatosPedido({ nombre, email, telefono, envio }) {
   const nombreLimpio = textoObligatorio(nombre, "nombre", "el nombre de quien recibe", 2, 100);
@@ -151,4 +176,4 @@ function validarDatosPedido({ nombre, email, telefono, envio }) {
   };
 }
 
-module.exports = { validarDatosPedido, DEPARTAMENTOS, TIPOS_ENTREGA, MAX_COMENTARIO };
+module.exports = { validarDatosPedido, validarItems, DEPARTAMENTOS, TIPOS_ENTREGA, MAX_COMENTARIO };

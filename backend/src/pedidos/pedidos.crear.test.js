@@ -163,6 +163,39 @@ describe("validacion (400 antes de tocar la base o mercado pago)", () => {
     expect(vacios.status).toBe(400);
   });
 
+  const itemsInvalidos = [
+    ["un item null", [null]],
+    ["un item que no es objeto", ["1"]],
+    ["un item sin productoId", [{ cantidad: 1 }]],
+    ["productoId como texto", [{ productoId: "1", cantidad: 1 }]],
+    ["productoId cero", [{ productoId: 0, cantidad: 1 }]],
+    ["productoId negativo", [{ productoId: -3, cantidad: 1 }]],
+    ["productoId decimal", [{ productoId: 1.5, cantidad: 1 }]],
+    ["cantidad como texto", [{ productoId: 1, cantidad: "2" }]],
+    ["cantidad cero", [{ productoId: 1, cantidad: 0 }]],
+    ["cantidad decimal", [{ productoId: 1, cantidad: 1.5 }]],
+    ["cantidad enorme (no es entero seguro)", [{ productoId: 1, cantidad: 1e21 }]],
+    ["productos repetidos", [{ productoId: 1, cantidad: 1 }, { productoId: 1, cantidad: 2 }]],
+    ["items que no es un array", { productoId: 1, cantidad: 1 }],
+  ];
+
+  test.each(itemsInvalidos)("%s: 400 con campo items y sin tocar la base", async (_, items) => {
+    const respuesta = await request(app).post("/api/pedidos").send({ ...PEDIDO_VALIDO, items });
+
+    expect(respuesta.status).toBe(400);
+    expect(typeof respuesta.body.mensaje).toBe("string");
+    expect(baseDatos.query).not.toHaveBeenCalled();
+    expect(baseDatos.getConnection).not.toHaveBeenCalled();
+    expect(mockCrearPreferencia).not.toHaveBeenCalled();
+  });
+
+  test("un item mal formado nunca produce un 500", async () => {
+    for (const [, items] of itemsInvalidos) {
+      const respuesta = await request(app).post("/api/pedidos").send({ ...PEDIDO_VALIDO, items });
+      expect(respuesta.status).toBe(400);
+    }
+  });
+
   test("una peticion sin body responde 400 y no 500", async () => {
     const respuesta = await request(app).post("/api/pedidos");
     expect(respuesta.status).toBe(400);

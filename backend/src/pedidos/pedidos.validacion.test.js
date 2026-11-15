@@ -1,4 +1,4 @@
-const { validarDatosPedido, DEPARTAMENTOS } = require("./pedidos.validacion");
+const { validarDatosPedido, validarItems, DEPARTAMENTOS } = require("./pedidos.validacion");
 
 const BASE_DOMICILIO = {
   nombre: "  Juan   Perez ",
@@ -171,4 +171,27 @@ describe("comentario", () => {
 test("los campos de una sola linea no aceptan saltos de linea ni caracteres de control", () => {
   const datos = validarDatosPedido(conEnvio(BASE_DOMICILIO, { direccion: "Av. Brasil\n1234\t apto 5" }));
   expect(datos.envio.direccion).toBe("Av. Brasil 1234 apto 5");
+});
+
+describe("validarItems", () => {
+  test("acepta items validos con productos distintos", () => {
+    expect(() => validarItems([{ productoId: 1, cantidad: 2 }, { productoId: 7, cantidad: 1 }])).not.toThrow();
+  });
+
+  test.each([
+    ["no es un array", undefined],
+    ["array vacio", []],
+    ["item null", [null]],
+    ["productoId como texto", [{ productoId: "1", cantidad: 1 }]],
+    ["cantidad cero", [{ productoId: 1, cantidad: 0 }]],
+    ["productos repetidos", [{ productoId: 2, cantidad: 1 }, { productoId: 2, cantidad: 1 }]],
+  ])("rechaza con 400 y campo items: %s", (_, items) => {
+    expect.assertions(2);
+    try {
+      validarItems(items);
+    } catch (error) {
+      expect(error.status).toBe(400);
+      expect(error.campo).toBe("items");
+    }
+  });
 });
