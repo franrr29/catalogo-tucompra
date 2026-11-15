@@ -1,5 +1,6 @@
 // capturo datos que envia mercado pago cuando se realiza un pago exitoso
 const { procesarPagoService } = require("./webhook.service");
+const { liberarPedidosVencidos } = require("../pedidos/pedidos.vencimiento");
 
 // el id del pago es un numero largo; cualquier otra cosa no puede ser un pago real
 function leerIdDePago(valor) {
@@ -34,6 +35,11 @@ async function webhook(req, res) {
 
   try {
     await procesarPagoService(pagoId);
+
+    // despues de procesar el pago (asi un pedido que acaba de pagarse ya no cuenta como vencido) se libera el stock
+    // de los pedidos pendientes vencidos; render se duerme y no hay cron. nunca lanza
+    await liberarPedidosVencidos();
+
     return res.status(200).send("ok");
   } catch (error) {
     // se registra solo el motivo y el id del pago (nunca el body ni el error completo, que pueden tener datos personales)

@@ -4,6 +4,9 @@ process.env.MP_ACCESS_TOKEN = "test-token";
 const mockProcesarPago = jest.fn();
 jest.mock("./webhook.service", () => ({ procesarPagoService: (...args) => mockProcesarPago(...args) }));
 
+const mockLiberarVencidos = jest.fn().mockResolvedValue(0);
+jest.mock("../pedidos/pedidos.vencimiento", () => ({ liberarPedidosVencidos: (...args) => mockLiberarVencidos(...args) }));
+
 const express = require("express");
 const request = require("supertest");
 const webhookRoutes = require("./webhook.routes");
@@ -78,6 +81,23 @@ describe("pago procesable", () => {
 
     expect(respuesta.status).toBe(200);
     expect(mockProcesarPago).toHaveBeenCalledWith("777");
+  });
+});
+
+describe("barrido de pedidos vencidos", () => {
+  test("se ejecuta despues de procesar un pago", async () => {
+    await enviar({ type: "payment", data: { id: "9001" } });
+
+    expect(mockLiberarVencidos).toHaveBeenCalledTimes(1);
+    expect(mockLiberarVencidos.mock.invocationCallOrder[0]).toBeGreaterThan(mockProcesarPago.mock.invocationCallOrder[0]);
+  });
+
+  test("no se ejecuta con eventos que no son de pago ni cuando el procesamiento falla", async () => {
+    await enviar({ type: "merchant_order", data: { id: "5" } });
+    mockProcesarPago.mockRejectedValue(Object.assign(new Error("caida"), { code: "ECONNRESET" }));
+    await enviar({ type: "payment", data: { id: "9001" } });
+
+    expect(mockLiberarVencidos).not.toHaveBeenCalled();
   });
 });
 

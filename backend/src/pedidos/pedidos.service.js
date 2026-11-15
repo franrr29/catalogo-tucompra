@@ -2,6 +2,7 @@ const baseDatos = require("../config/db");
 const { Preference } = require("mercadopago");
 const mp = require("../config/mercadoPago.js");
 const crearError = require("../utils/crearError");
+const { liberarPedidosVencidos } = require("./pedidos.vencimiento");
 
 // envio ya viene validado y normalizado por pedidos.validacion; sin envio (pedidos viejos) las columnas quedan en null
 async function crearPedidoService(nombre, email, telefono, items, envio = {}) {
@@ -11,6 +12,9 @@ async function crearPedidoService(nombre, email, telefono, items, envio = {}) {
       throw crearError("La cantidad debe ser un numero entero mayor a 0", 400);
     }
   }
+
+  // libera el stock de los pedidos pendientes que vencieron, antes de mirar el stock disponible (nunca lanza)
+  await liberarPedidosVencidos();
 
   // saco los ids de los items para consultar solo esos productos
   const itemIds = items.map((item) => item.productoId);

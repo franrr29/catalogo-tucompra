@@ -8,6 +8,10 @@ jest.mock("../config/db", () => ({
 
 jest.mock("../config/mercadoPago.js", () => ({}));
 
+// el barrido de pedidos vencidos tiene sus propios tests: aca se mockea para que no consuma las respuestas de la base
+const mockLiberarVencidos = jest.fn().mockResolvedValue(0);
+jest.mock("./pedidos.vencimiento", () => ({ liberarPedidosVencidos: (...args) => mockLiberarVencidos(...args) }));
+
 const mockCrearPreferencia = jest.fn();
 jest.mock("mercadopago", () => ({
   Preference: jest.fn().mockImplementation(() => ({ create: mockCrearPreferencia })),
@@ -130,6 +134,20 @@ describe("guardado de los datos de envio", () => {
     expect(conexion.rollback).toHaveBeenCalledTimes(1);
     expect(conexion.commit).not.toHaveBeenCalled();
     expect(mockCrearPreferencia).not.toHaveBeenCalled();
+  });
+});
+
+describe("barrido de pedidos vencidos", () => {
+  test("se ejecuta al crear un pedido, antes de consultar el stock", async () => {
+    await request(app).post("/api/pedidos").send(PEDIDO_VALIDO);
+
+    expect(mockLiberarVencidos).toHaveBeenCalledTimes(1);
+    expect(mockLiberarVencidos.mock.invocationCallOrder[0]).toBeLessThan(baseDatos.query.mock.invocationCallOrder[0]);
+  });
+
+  test("un pedido con datos invalidos no dispara el barrido", async () => {
+    await request(app).post("/api/pedidos").send({ ...PEDIDO_VALIDO, items: [] });
+    expect(mockLiberarVencidos).not.toHaveBeenCalled();
   });
 });
 

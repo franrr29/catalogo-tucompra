@@ -8,6 +8,10 @@ jest.mock("../config/db", () => ({
 
 jest.mock("../config/mercadoPago.js", () => ({}));
 
+// el barrido de pedidos vencidos tiene sus propios tests: aca se mockea para que no consuma las respuestas de la base
+const mockLiberarVencidos = jest.fn().mockResolvedValue(0);
+jest.mock("./pedidos.vencimiento", () => ({ liberarPedidosVencidos: (...args) => mockLiberarVencidos(...args) }));
+
 const mockCrearPreferencia = jest.fn();
 jest.mock("mercadopago", () => ({
   Preference: jest.fn().mockImplementation(() => ({ create: mockCrearPreferencia })),
