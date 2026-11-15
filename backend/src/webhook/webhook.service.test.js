@@ -279,8 +279,52 @@ describe("pago rechazado o cancelado", () => {
   });
 });
 
+describe("pago en curso (pago offline o en revision)", () => {
+  test.each(["pending", "in_process", "in_mediation", "authorized"])("%s sobre un pedido pendiente: guarda el id del pago y no cambia el estado", async (status) => {
+    mockObtenerPago.mockResolvedValue(pagoDeMp({ status }));
+
+    expect(await procesarPagoService("9001")).toBe("pago_en_curso");
+
+    expect(escrituras()).toEqual([
+      { sql: "UPDATE pedidos SET mercadopago_id = ? WHERE id = ? AND estado = 'pendiente'", params: ["9001", 7] },
+    ]);
+  });
+
+  test.each(["pagado", "cancelado"])("sobre un pedido %s: no escribe nada", async (estado) => {
+    pedido = { estado, total: "300.00", mercadopago_id: null };
+    mockObtenerPago.mockResolvedValue(pagoDeMp({ status: "pending" }));
+
+    expect(await procesarPagoService("9001")).toBe("ignorado");
+    expect(escrituras()).toEqual([]);
+  });
+
+  test("pendiente seguido de aprobado: el pedido termina pagado con el id del pago", async () => {
+    mockObtenerPago.mockResolvedValueOnce(pagoDeMp({ status: "pending" }));
+    await procesarPagoService("9001");
+    pedido = { estado: "pendiente", total: "300.00", mercadopago_id: "9001" };
+
+    mockObtenerPago.mockResolvedValueOnce(pagoDeMp({ status: "approved" }));
+    expect(await procesarPagoService("9001")).toBe("pagado");
+  });
+
+  test("pendiente seguido de cancelado/vencido en mercado pago (mismo pago): se cancela y se libera el stock", async () => {
+    pedido = { estado: "pendiente", total: "300.00", mercadopago_id: "9001" };
+    mockObtenerPago.mockResolvedValue(pagoDeMp({ status: "cancelled" }));
+
+    expect(await procesarPagoService("9001")).toBe("cancelado");
+  });
+
+  test("el rechazo de OTRO intento de pago no cancela un pedido con un pago offline en curso", async () => {
+    pedido = { estado: "pendiente", total: "300.00", mercadopago_id: "9001" };
+    mockObtenerPago.mockResolvedValue(pagoDeMp({ id: 9002, status: "rejected" }));
+
+    expect(await procesarPagoService("9002")).toBe("ignorado_otro_pago_en_curso");
+    expect(escrituras()).toEqual([]);
+  });
+});
+
 describe("otros estados y errores", () => {
-  test.each(["pending", "in_process", "refunded", "charged_back"])("%s no cambia el pedido", async (status) => {
+  test.each(["refunded", "charged_back"])("%s no cambia el pedido", async (status) => {
     mockObtenerPago.mockResolvedValue(pagoDeMp({ status }));
 
     expect(await procesarPagoService("9001")).toBe("ignorado");

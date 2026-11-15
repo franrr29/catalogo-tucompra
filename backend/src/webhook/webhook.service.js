@@ -6,6 +6,9 @@ const baseDatos = require("../config/db");
 // pedidos.id es un INT: solo se acepta un entero positivo de ese tamano
 const ID_MAXIMO = 2147483647;
 
+// estados de un pago que todavia puede terminar en aprobado
+const ESTADOS_EN_CURSO = ["pending", "in_process", "in_mediation", "authorized"];
+
 function leerReferencia(referencia) {
   if (typeof referencia !== "string" && typeof referencia !== "number") return null;
   const texto = String(referencia).trim();
@@ -144,10 +147,19 @@ async function aprobarEnTransaccion(pedidoId, pago, idPago) {
 async function registrarPagoFallido(pedidoId, idPago) {
   return enTransaccion(async (conexion) => {
     // evito restaurar el stock dos veces si llega la notificacion repetida
-    const [pedidos] = await conexion.query("SELECT estado FROM pedidos WHERE id = ? FOR UPDATE", [pedidoId]);
+    const [pedidos] = await conexion.query(
+      "SELECT estado, mercadopago_id FROM pedidos WHERE id = ? FOR UPDATE",
+      [pedidoId]
+    );
 
     if (pedidos.length === 0 || pedidos[0].estado !== "pendiente") {
       return "ignorado";
+    }
+
+    // si el pedido tiene OTRO pago en curso (por ejemplo un boleto offline pendiente), el rechazo de este intento
+    // no lo cancela: el comprador puede seguir pagando con el otro
+    if (pedidos[0].mercadopago_id && pedidos[0].mercadopago_id !== idPago) {
+      return "ignorado_otro_pago_en_curso";
     }
 
     // ordenados por producto para bloquear siempre en el mismo orden y evitar deadlocks
@@ -165,6 +177,22 @@ async function registrarPagoFallido(pedidoId, idPago) {
       [idPago, pedidoId]
     );
     return "cancelado";
+  });
+}
+
+// pago en curso (pendiente, en proceso, en revision, autorizado): todavia no es ni pagado ni fallido.
+// se guarda su id en el pedido: asi se sabe que hay un pago en camino y el barrido de pedidos vencidos no lo cancela.
+// mercadopago_id solo se escribe desde aqui y cuando mercado pago reporta un pago, nunca al crear la preferencia
+async function registrarPagoEnCurso(pedidoId, idPago) {
+  return enTransaccion(async (conexion) => {
+    const [pedidos] = await conexion.query("SELECT estado FROM pedidos WHERE id = ? FOR UPDATE", [pedidoId]);
+
+    if (pedidos.length === 0 || pedidos[0].estado !== "pendiente") {
+      return "ignorado";
+    }
+
+    await conexion.query("UPDATE pedidos SET mercadopago_id = ? WHERE id = ? AND estado = 'pendiente'", [idPago, pedidoId]);
+    return "pago_en_curso";
   });
 }
 
@@ -187,7 +215,11 @@ async function procesarPagoService(pagoId) {
     return registrarPagoFallido(pedidoId, idPago);
   }
 
-  // cualquier otro estado (pendiente, en proceso, devuelto...) no cambia el pedido
+  if (ESTADOS_EN_CURSO.includes(pago.status)) {
+    return registrarPagoEnCurso(pedidoId, idPago);
+  }
+
+  // cualquier otro estado (devuelto, contracargo...) no cambia el pedido
   return "ignorado";
 }
 
