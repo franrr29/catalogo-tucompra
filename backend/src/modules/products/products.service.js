@@ -2,15 +2,7 @@ const baseDatos = require("../../config/db");
 const { cloudinary } = require("../../config/cloudinary");
 const crearError = require("../../utils/crearError");
 
-// columnas que ve el publico: se listan una por una (nunca p.*) para que productos.costo no salga por la tienda
-const COLUMNAS_PUBLICAS = "p.id, p.nombre, p.descripcion, p.precio, p.stock, p.categoria, p.activo, p.creado_en";
-
-const UNION_IMAGEN_PRINCIPAL = `
-    LEFT JOIN (
-      SELECT producto_id, imagen_url
-      FROM producto_imagenes
-      WHERE orden = 0
-    ) i ON p.id = i.producto_id`;
+const { COLUMNAS_PUBLICAS, UNION_IMAGEN_PRINCIPAL } = require("./productos.sql");
 
 async function obtenerProductos() {
   const query = `

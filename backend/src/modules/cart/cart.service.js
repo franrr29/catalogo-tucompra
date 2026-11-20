@@ -1,12 +1,14 @@
 const baseDatos = require("../../config/db");
 
-// columnas que ve el publico: se listan una por una (nunca *) para que productos.costo no salga por el carrito
-const COLUMNAS_PUBLICAS = "id, nombre, descripcion, precio, stock, categoria, activo, creado_en";
+const { COLUMNAS_PUBLICAS, UNION_IMAGEN_PRINCIPAL } = require("../products/productos.sql");
+
+// producto publico (sin costo) con su imagen principal
+const SELECT_PRODUCTO = `SELECT ${COLUMNAS_PUBLICAS}, i.imagen_url FROM productos p ${UNION_IMAGEN_PRINCIPAL}`;
 
 async function actualizarDatosFront(productId) {
 
   try {
-    const [rows] = await baseDatos.query(`SELECT ${COLUMNAS_PUBLICAS} FROM productos WHERE id=? AND activo = 1`,
+    const [rows] = await baseDatos.query(`${SELECT_PRODUCTO} WHERE p.id = ? AND p.activo = 1`,
       [productId]
     );
 
@@ -37,7 +39,7 @@ async function verificarProdcBD(productosIds) {
     // arma un signo de pregunta por cada id y los une con comas para que mysql sepa cuantos valores esperar
     const placeholders = productosIds.map(() => "?").join(", ");
     const [rows] = await baseDatos.query(
-      `SELECT ${COLUMNAS_PUBLICAS} FROM productos WHERE activo = 1 AND id IN (${placeholders})`,
+      `${SELECT_PRODUCTO} WHERE p.activo = 1 AND p.id IN (${placeholders})`,
       productosIds
     );
     return rows;
