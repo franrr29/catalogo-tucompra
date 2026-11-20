@@ -1,9 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 
 import { optimizarUrl } from "../../shared/imagenes";
+import InsigniaOferta from "../oferta/InsigniaOferta";
 
-
-function Card({ producto, addCart, isLogIn }) {
+function Card({ producto, addCart, isLogIn, enOferta = false }) {
   const navigate = useNavigate();
   const Wrapper = isLogIn ? "div" : Link;
   const wrapperProps = isLogIn ? {} : { to: `/producto/${producto.id}` };
@@ -23,6 +23,7 @@ function Card({ producto, addCart, isLogIn }) {
 
           {/* contenedor de imagen */}
           <div className="relative aspect-[4/5] w-full overflow-hidden bg-black/5 border-b border-white/40">
+            {enOferta && <InsigniaOferta />}
             {producto.imagen_url ? (
               <img
                 src={optimizarUrl(producto.imagen_url)}

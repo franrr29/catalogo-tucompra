@@ -8,7 +8,7 @@ function PromoBanner() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="relative isolate overflow-hidden rounded-2xl bg-black text-white max-w-7xl mx-auto"
+      className="relative isolate overflow-hidden rounded-2xl bg-black text-white h-full"
     >
       {/* foto del hero apagada de fondo */}
       <div
@@ -32,7 +32,7 @@ function PromoBanner() {
       {/* borde interior fino dorado */}
       <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-brand/50 pointer-events-none" />
 
-      <div className="px-6 sm:px-12 py-8 sm:py-10 flex flex-col items-center justify-center text-center">
+      <div className="px-6 sm:px-12 py-8 sm:py-10 h-full flex flex-col items-center justify-center text-center">
         <div className="flex flex-col items-center gap-2">
           <span className="text-[11px] font-sans text-brand uppercase tracking-[0.3em]">
             🎁 Promo especial

@@ -42,10 +42,15 @@ module.exports = {
           from: { opacity: "0", transform: "translateX(-1rem)" },
           to: { opacity: "1", transform: "translateX(0)" },
         },
+        nieve: {
+          from: { backgroundPosition: "0 0" },
+          to: { backgroundPosition: "40px 180px" },
+        },
       },
       animation: {
         aparecer: "aparecer 200ms ease-out",
         deslizar: "deslizar 200ms ease-out",
+        nieve: "nieve 12s linear infinite",
       },
     },
   },

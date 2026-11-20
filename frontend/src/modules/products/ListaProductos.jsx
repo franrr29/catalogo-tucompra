@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import Card from "./ProductCard";
 import Pagination from "./Pagination";
 import PromoBanner from "./PromoBanner";
+import CuentaRegresiva from "../oferta/CuentaRegresiva";
+import { useCountdown } from "../oferta/useCountdown";
+import { obtenerFechaFinOferta } from "../oferta/countdown";
 import { motion, AnimatePresence } from "framer-motion";
 import { obtenerProductos } from "../../services/productos.service";
 import { useAuth } from "../admin/AuthContext";
@@ -18,6 +21,8 @@ function ListaProductos({ addCart }) {
     const [loading, setLoading] = useState(true);
     const [paginaActual, setPaginaActual] = useState(1);
     const gridRef = useRef(null);
+    const [finOferta] = useState(obtenerFechaFinOferta);
+    const tiempoOferta = useCountdown(finOferta);
 
     const totalPaginas = Math.ceil(productos.length / PRODUCTOS_POR_PAGINA);
     const inicio = (paginaActual - 1) * PRODUCTOS_POR_PAGINA;
@@ -117,8 +122,9 @@ function ListaProductos({ addCart }) {
 
             <div className="px-6 sm:px-12 lg:px-16 pt-14 sm:pt-20 pb-12">
 
-                {/* promo entre el banner y los relojes */}
-                <div className="mb-14 sm:mb-20">
+                {/* oferta navideña y promo entre el banner y los relojes */}
+                <div className="mb-14 sm:mb-20 grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
+                    <CuentaRegresiva tiempo={tiempoOferta} />
                     <PromoBanner />
                 </div>
 
@@ -160,6 +166,7 @@ function ListaProductos({ addCart }) {
                                                 producto={prod}
                                                 addCart={addCart}
                                                 isLogIn={isLogIn}
+                                                enOferta={!tiempoOferta.isExpired}
                                             />
                                         </motion.div>
                                     ))}
