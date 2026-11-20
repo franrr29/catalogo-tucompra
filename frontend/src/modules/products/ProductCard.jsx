@@ -1,9 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 
-function optimizarUrl(url) {
-  if (!url || !url.includes("/upload/")) return url;
-  return url.replace("/upload/", "/upload/q_auto,f_auto,w_400/");
-}
+import { optimizarUrl } from "../../shared/imagenes";
+
 
 function Card({ producto, addCart, isLogIn }) {
   const navigate = useNavigate();
