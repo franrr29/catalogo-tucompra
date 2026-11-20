@@ -4,15 +4,14 @@ import { agregarAlCarrito } from "../../services/carrito.service";
 
 // maneja el estado del carrito, lo guarda en el navegador y agrega productos
 export function useCarrito() {
-  const [carrito, setCarrito] = useState([]);
-
-  // al iniciar, recupera el carrito guardado del navegador
-  useEffect(() => {
-    const carritoGuardado = localStorage.getItem("productos");
-    if (carritoGuardado !== null) {
-      setCarrito(JSON.parse(carritoGuardado));
+  // se lee el carrito guardado ANTES del primer render, asi el guardado de abajo nunca pisa los datos con []
+  const [carrito, setCarrito] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("productos")) || [];
+    } catch {
+      return [];
     }
-  }, []);
+  });
 
   // cada vez que cambia el carrito, lo vuelve a guardar
   useEffect(() => {
