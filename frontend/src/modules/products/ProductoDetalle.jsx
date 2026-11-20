@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { obtenerProducto } from "../../services/productos.service";
-import { DESCRIPCION_POR_DEFECTO } from "./descripcionPorDefecto";
+import CaracteristicasReloj, { esReloj } from "./CaracteristicasReloj";
 
 function ProductoDetalle({ addCart }) {
   const [producto, setProducto] = useState(null);
@@ -35,8 +35,8 @@ function ProductoDetalle({ addCart }) {
 
   const tieneStock = Number(producto.stock) > 0;
   const imagenes = producto.imagenes || [];
-  // si el admin no cargo una descripcion se usa el texto general de los relojes
-  const descripcion = producto.descripcion?.trim() || DESCRIPCION_POR_DEFECTO;
+  const descripcion = producto.descripcion?.trim();
+  const mostrarCaracteristicas = esReloj(producto);
 
   async function comprarAhora() {
     await addCart(producto.id);
@@ -179,15 +179,20 @@ function ProductoDetalle({ addCart }) {
               )}
             </div>
 
-            {/* descripcion del producto */}
-            <div className="flex flex-col gap-2">
+            {/* descripcion del producto: la propia y, si es reloj, el bloque comun */}
+            {(descripcion || mostrarCaracteristicas) && (
+            <div className="flex flex-col gap-3">
               <span className="text-[10px] font-bold text-muted-light uppercase tracking-widest">
                 DESCRIPCION
               </span>
-              <p className="text-sm leading-7 text-[#1A1A1A] whitespace-pre-line">
-                {descripcion}
-              </p>
+              {descripcion && (
+                <p className="text-sm leading-7 text-[#1A1A1A] whitespace-pre-line">
+                  {descripcion}
+                </p>
+              )}
+              {mostrarCaracteristicas && <CaracteristicasReloj />}
             </div>
+            )}
 
           </div>
 
